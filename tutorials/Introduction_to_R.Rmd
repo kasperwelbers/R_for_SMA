@@ -6,6 +6,8 @@ output:
     theme: united
     highlight: tango
     css: custom.css
+    toc: true
+    toc_depth: 1
 editor_options:
   chunk_output_type: console
 ---

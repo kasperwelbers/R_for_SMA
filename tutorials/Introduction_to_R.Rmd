@@ -31,10 +31,8 @@ The second reason is that you'll get first-hand experience with the practice of 
 ### How to work with the R tutorial documents
 As you probably noticed, the format of this tutorial is somewhat different from previous weeks.
 Before the tutorials were PDF files, but now it's this HTML document. So what's up with that?
-Well, there are two main reasons why this format makes more sense for the R tutorials:
 
-* In R you will be working with the `R syntax`. That is, you'll be giving all the commands to R `via text`. For this, you will often want to copy/paste the `code` (i.e. text in the R syntax) that we provide in the tutorials into R. This format will make it easier and safer to copy this code. You might not mind the difference between a straight quote `"` and a curly (or smart) quote `”`, but for R this is a matter of life and death. 
-* Moreover, we actually wrote these tutorials using R! You'll see that you can do many things with R, and one of them is writing interactive reports with [RMarkdown](https://rmarkdown.rstudio.com/). The great benefit of this, is that when we create this document, all the code that you see within the document is executed. This way, we can be certain that all the code actually works. As a result, you don't have to worry about mistakes in the code that we provide. 
+In R you will be working with the `R syntax`. That is, you'll be giving all the commands to R `via text`. For this, you will often want to copy/paste the `code` (i.e. text in the R syntax) that we provide in the tutorials into R. This format will make it easier and safer to copy this code. You might not mind the difference between a straight quote `"` and a curly (or smart) quote `”`, but for R this is a matter of life and death. Furthermore, this tutorial was created with R to ensures that all the code actually works (and doesn't contain typos).
 
 Simply put, this means that as long as you copy/paste all the code from this tutorial, and execute it in the same order as we showed it in the tutorial, everything *should* work. We say *should*, because you will most definitely run into some errors. That's part of the programming game. However, it does mean that the errors are almost definitely the result of (1) problems due to installing packages or (2) the order in which code is executed. Accordingly, it will be much easier to solve your problem. 
 
@@ -53,9 +51,7 @@ We keep mentioning this R thing, but chances are you've never heard of it. R is 
 The trade-off is that the R language has a relatively steep learning curve compared to software such as Excel or SPSS.
 This is because R primarily works with *syntax*.
 That is, rather than clicking through menus, you'll give comments to R by typing them. 
-For example, the following lines of code[^1] would create a pretty lame wordcloud.
-
-[^1]: You don't have to run this code yourself (this might give you the error that "there is no package called wordcloud"). We'll first walk you through the installation of R below.
+For example, the following lines of code would create a pretty lame wordcloud. *(You don't have to run this code yourself)*
 
 ```{r, eval=F}
 library(wordcloud)
@@ -102,11 +98,12 @@ If you have trouble with the download instructions, you can use [this link](http
 
 ### Installing RStudio
 
-The [RStudio website](https://www.rstudio.com/) contains download links and installing instructions. You will need to install the free *RStudio Desktop Open Source License*. This webside is decidely more user friendly, but if you have trouble figuring out which links to click, [this guide]([this link](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) again can help.
+The [RStudio website](https://www.rstudio.com/) contains download links and installing instructions. You will need to install the free *RStudio Desktop Open Source License*. This website is decidedly more user friendly, but if you have trouble figuring out which links to click, [this guide]([this link](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) again can help.
 
-Note that while you can also get paid licenses for RStudio, these are not required for *using* RStudio. Importantly, you are also allowed to use the open-source license doing commercial research (i.e. making money). In general, you are free to use open-source software for [commercial purposes](https://opensource.org/faq#osd). The reason some companies do need a *commercial licence* is that an open-source license prevents certain ways of [profiting](https://opensource.org/faq#profit) from software. 
+Note that while you can also get paid licenses for RStudio, these are not required for *using* RStudio. You are also allowed to use the open-source license outside of university for [commercial purposes]((https://opensource.org/faq#osd)).  
 
-### Installation issues
+
+### What if I can't install R?
 
 Although R works on all operating systems (Windows, macOS, Linux), there are rare cases where it can be difficult to install R, or to install certain packages. Whenever you run into such installation problems, please notify your teacher, and we'll try to make it work. Although R works on almost every system, in the current circumstances it might be difficult to solve everyone's problems remotely. But even in the unlikely case that we can't get R to work on your computer, you don't have to worry. You can also [run R from the cloud](https://rstudio.cloud/plans/free), which is free for up to 15-hours per month. This should mainly be used for practice, as we recommend doing the assignments on a personal (teammate's) computer.
 If there are many people in the team who can't get R to work, you can contact the coordinator (Kasper Welbers) for an alternative solution. 
@@ -121,7 +118,7 @@ You will now see four windows split evenly over the four corners of your screen:
 
 * In the **top\-left** you have the text editor for the file that you are working in. This will most of the time be an R script. In this script you type all the code for your analysis. You can then select and execute parts of this code (or execute everything at once). Don't worry if this doesn't make sense right away. You will understand it by the end of this practical.
 * In the **top-right** you can see the data and values that you are currently working with (environment). So if you load data into R, you will see it here. 
-* In the **bottom-left** you have the console, which is where you see the output when you execute lines of code from your script. You can also type code directly in your console. However, we highly recommend to always work with R scripts. This allows you to keep track of what you are doing and document every step. 
+* In the **bottom-left** you have the R console, which is where you see the output when you execute lines of code from your script. 
 * In the **bottom-right** you can browse through files on your computer, view help for functions, or view visualizations. When we create some wordclouds later on, this is where they'll show up. 
 
 
@@ -166,9 +163,9 @@ This will also move the cursor to the next line, so you can *walk* through the c
 
 When you ran the code above, you saw that R **evaluates** expressions. The calculation 3\+3 evaluates to the value 6, and 2\*5 evaluates to the value 10. You also saw that the **function** *sum(1,2,3,4,5)* evaluates to the value 15 (the sum of the numbers). 
 In this example, R printed the results to our console (the bottom-left window). 
-This is nice if we would just want to do a simple calculation, but often instead of printing values, we often want to remember them so that we can use them later on in our analysis.
+This is nice if we would just want to do a simple calculation, but often instead of printing values, we often want to **store values** so that we can use them later on in our analysis.
 
-To do this, we **assign** values to **names**.
+To **store** values, we **assign** them to **names**.
 In plain terms, **assignment** is how you make R remember things by assigning them to a name.
 We basically say: "this name shall from now on refer to this value".
 There are two ways to say this: using the equal sign `=` or an arrow `<-`.
@@ -249,9 +246,10 @@ These functions are available in `packages` that we can download and install int
 
 To use the `wordcloud` function, we first need to install the `wordcloud` package.
 We can do this with the following line of code.
+Note that you **need** to put `"wordcloud"` between quotation marks!
 
 ```{r, eval=F}
-install.packages('wordcloud')
+install.packages("wordcloud")
 ```
 
 This should have installed the wordcloud package (if you got an error, consult your teacher).
@@ -262,6 +260,7 @@ So whenever you installed a package, you can remove the line of code from your s
 Now that you have the package, we can *almost* use the wordcloud function.
 The package is in your `library`, but we still need to tell R to retrieve the package from your library to use it in your current session.
 To do so, we need to say `library(package name)`.
+Note that this time you **SHOULD NOT** put `wordcloud` between quotation marks. 
 
 ```{r}
 library(wordcloud)
@@ -269,7 +268,7 @@ library(wordcloud)
 
 And now we can finally use the function.
 
-```{r, results='hide', fig.show='hide'}
+```{r, eval=F}
 wordcloud("Now we can finally, finally use this function")
 ```
 
@@ -293,7 +292,7 @@ Part of the challenge is that you might have to try different things. Off course
 
 Copy the following code to your script:
 
-```{r}
+```{r barplot, fig.align='center'}
 teammembers = c("Anna", "Bob", "Steve")
 heights = c(1.60, 1.80, 1.72)
 
@@ -301,18 +300,19 @@ barplot(heights, names.arg = teammembers, ylab='Height')
 ```
 
 If you run the code, you see that it creates a Bar graph showing the heights of team members Anna, Bob and Steve. 
-To represent the names and heights of the team members, we created two `vectors`: **teammembers** and **heights**. A vector in R is a collection of multiple values. With the `c` function we `c`ombine multiple values, separated by commas, into a vector: `c(value, value, value)`. So with `teammembers = c("Anna", "Bob", "Steve")` we created a vector with the names of these three people. The order of values in a vector matters. So we know that the first value in `heights` (1.60) corresponds to the first value in `teammembers` (Anna). 
+To represent the names and heights of the team members, we created two `vectors`: **teammembers** and **heights**. A vector in R is a collection of multiple values. With the `c` (= combine) function we combine multiple values, separated by commas, into a vector: `c(value, value, value)`. So with `teammembers = c("Anna", "Bob", "Steve")` we created a vector with the names of these three people. The order of values in a vector matters. So we know that the first value in `heights` (1.60) corresponds to the first value in `teammembers` (Anna). 
 
 > **Question 1.a**. Change the code so that it contains the names and heights of all your team members. Report your R code, and add a screenshot of the Bar graph.
 
 In the code `barplot(heights, names.arg = teammembers, ylab='Height')`, we also specified that the label of the y-axis should be "Height". We did this by giving an `argument` to the function. Here the argument was `ylab` (short for y-axis label), and with `ylab="Height"` we said that the y-axis label should be "Height".  
 
-> **Question 1.b**. Next to the y-axis, we can also provide a label for the x-axis, using the `xlab` argument. Please specify that the x-axis label should be "Team members". Report the R code (you don't need to provide another screenshot)
+> **Question 1.b**. Next to the y-axis, we can also provide a label for the x-axis in the plot, using the `xlab` argument. Please specify that the x-axis label should be "Team members". Report the R code (you don't need to provide another screenshot)
 
 Now, you figured this is a pretty boring Bar chart, so you wanted to add some colors. You found out that there is an argument for the `barplot` function, named `col`, that allows you to give colors to bars, using any one of [these color names](https://www.r-graph-gallery.com/42-colors-names). If the value of the `col` argument is a vector of color names, it will give specific colors to each bar.  
 
-> **Question 1.c**. Use the `col` argument to give the bar for each teammember the person's favourite color. Provide a screenshot of the new colourful Bar chart as your answer. (hint: you can make the vector of column names in the same way that you made the `teammembers` vector)
+> **Question 1.c**. You decide to give every bar the favourite color of the respective teammember. You first create (assign) a new vector named `colornames` that contains these colors. (hint: this is just like how we made the `teammembers` vector above). Report your code.
 
+> **Question 1.d**. Now give the `colornames` vector to the `col` argument in the barplot function. Provide a screenshot of the new colourful Bar chart as your answer. 
 
 
 # Text Analysis in R
@@ -338,6 +338,9 @@ If not successful, first look at the (error) messages. These sometimes do contai
 
 ## Quanteda
 
+To start working with quanteda, we first need to run `library(quanteda)` to tell R that we want to use this package
+in our current session.
+
 ```{r}
 library(quanteda)
 ```
@@ -347,16 +350,24 @@ library(quanteda)
 We're now going to prepare data for performing some text analysis techniques. 
 We'll be skipping over some details about how this works, but don't worry, we'll
 get back to those in the next practical meeting. 
-For now, follow along with these steps, because you will need the output for the assignment.
+
+> It's important to also excute all the code in the following steps yourself, because you will need some of it in your assignment!
 
 In text analysis, the term **corpus** is often used to refer to a collection of texts. For this tutorial, we'll use a demo corpus that is included in the **quanteda** package. The corpus is called `data_corpus_inaugural`, and contains the inaugural speeches of US presidents. For convenience, we'll assign the corpus to the name **corp**  
 
+
+
 ```{r}
 corp = data_corpus_inaugural
-corp
 ```
 
+> If you get the error message `Object 'data_corpus_inaugural' not found`, then you forgot to run `library(quanteda)`
 
+Now, if we run just the name `corp`, R will print (a sample of) the texts in the corpus.
+
+```{r}
+corp
+```
 
 Here **quanteda** lets us know that the corpus contains 58 documents, and 3 docvars. The docvars are **variables** about the documents, in this case the first and last name of the president, and the year of the speech. We can view them with the *docvars()* function. 
 
@@ -375,7 +386,7 @@ For now, just try to understand that by representing our corpus as a matrix with
 This is what enables us to apply the following text analysis techniques.
 
 ```{r}
-m = dfm(corp, remove=stopwords('english'), remove_punct=T)
+m = dfm(corp, remove=stopwords('english'), remove_punct=TRUE)
 ```
 
 Here we used the `dfm` function to create a DFM. We assigned this DFM to the simple name `m` (short for matrix). Note that the main input for the `dfm` function is the corpus that we created above. 
@@ -414,7 +425,7 @@ Again, try to understand what this is saying. Here we take a subset of the data 
 
 Note that this has not deleted other years or presidents from our existing DTM `m`, but created two new DTMs `dtm_obama` and `m_postwar` to contain the subsets. 
 Indeed, we `assigned` this data to new names.
-If you look in the top-right window under the `Environment` tab, you should now also see that you have multiple "data" rows: `m`, `m_obama` and `m_postwar`.
+If you look in the top-right window under the `Environment` tab, you should now also see that you have multiple "data" rows: `m`, `m_obama` and `m_postwar` (assuming that you also performed all of the above steps yourself).
 
 Let's plot one of these, and let's also use some colors in addition to wordsize to complement the differences in wordfrequency. You can pass multiple colors to the function to achieve this.
 
@@ -455,7 +466,7 @@ docvars(m)
 
 > **Question 2.c**. Interpret the wordcloud. What words are most prominent? Does this help you get a quick idea of what the president talked about?
 
-> **Question 2.d**. Now, you're going to make two other wordclouds. One for all "Republican" Presidents and one for all "Democratic" Presidents. (hint: see the Party column in the document variables). Report the code and wordcloud.
+> **Question 2.d**. Now, you're going to make two other wordclouds. One for all "Republican" Presidents and one for all "Democratic" Presidents. (hint: see the Party column in the document variables). You can ignore the other parties and the "Democratic-Republican" candidates like Jefferson. Report the code and wordcloud.
 
 > **Question 2.e**. Interpret the wordclouds. What are the differences and similarities in the most prominent words? What would you say, based on these wordclouds, about the differences between Republican and Democratic presidents in what they talk about in their State-of-the-union speeches?
 
@@ -482,7 +493,7 @@ You don't need to understand why the `textstat_keyness` function works this way,
 
 ```{r keyness, fig.align='center'}
 tk = textstat_keyness(m, docvars(m, 'President') == "Obama")
-textplot_keyness(tk, show_legend = F)
+textplot_keyness(tk, show_legend = FALSE)
 ```
 
 In the plot we see 20 terms that are over-represented in Obama's speeches, and 20 terms that are under-represented. The over-represented terms are those that Obama was much more likely to use compared to other presidents, and the under-represented terms are those that Obama was much less likely to use. 

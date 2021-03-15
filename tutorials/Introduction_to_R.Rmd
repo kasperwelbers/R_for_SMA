@@ -44,7 +44,7 @@ https://docs.google.com/document/d/1aPV1LqFoRkQEc5oDsOE2QQSytVO8eEwxV1P0A9oOUqQ/
 
 # What is R?
 
-We keep mentioning this R thing, but chances are you've never heard of it. R is an open-source statistical software language, that is currently [among the most popular](https://stackoverflow.blog/2017/10/10/impressive-growth-r/) software packages for data science. It's a popular for several reasons:
+We keep mentioning this R thing, but chances are you've never heard of it. R is an open-source statistical software language, that is currently [among the most popular](https://stackoverflow.blog/2017/10/10/impressive-growth-r/) software packages for data science. It's popular for several reasons:
 
 * R is a programming language, which makes it very versatile. While R focuses on statistical analysis at heart, it facilitates a wide-range of features, ranging from [text analysis]() to advanced [visualizations](https://www.r-graph-gallery.com/).
 * The range of things you can do with R is constantly being updated. R is open-source, meaning that anyone can contribute to its development. In particular, people can develop new *packages*, that can easily and safely be installed from within R with a single command. Since many scholars and industry professionals use R, it is constantly kept up-to-date. 
@@ -63,8 +63,9 @@ some_text = "This is a super lame wordcloud"
 wordcloud(some_text, colors='blue')
 ```
 
-If this is the first time you're seeing R code , 
-you might already get the basic gist of what's happening here. 
+If you have not worked with a programming language before, it might feel weird to give commands via text.
+After all, how would you know what commands the computer will understand?
+That being said, even if this is the first time seeing R syntax, you might already get the basic gist of what's happening here.
 You might have guessed that we create a wordcloud of the text "This is a super lame wordcloud".
 You might also understand, that if you would want to change the color of the wordcloud, you'd need to change `colors = 'blue'` to some other color. 
 So while writing R code from scratch takes time to learn, you would be able to copy/paste this code,
@@ -85,7 +86,7 @@ Although this won't be tested in the assignments, you will be able to use this k
 
 To get started with R, you will need to install two (free) pieces of software.
 
-* *R* is the actual R software that is used to run R code. Technically, this is all you need, but it's not by itself nice to work with. You still need some software to write (or copy/paste) your code, and to view the results. Rather than using R by itself, it's therefore common to also install a `graphical user interface` (GUI). 
+* *R* is the actual R software that is used to run R code. Technically, this is all you need, but by itself R is not very nice to work with. Rather than using R by itself, it's therefore common to also install a `graphical user interface` (GUI). 
 * *RStudio* is the most popular GUI for R. It makes working with R a lot easier and more pleasant. 
 
 You won't need to run these two pieces of software side-by-side. When you open RStudio, it will automatically also open R. Both programs can be downloaded for free, and are available for all main operating systems (Windows, macOS and Linux).
@@ -107,8 +108,8 @@ Note that while you can also get paid licenses for RStudio, these are not requir
 
 ### Installation issues
 
-Although R works on all operating systems (Windows, macOS, Linux), there are rare cases where it can be difficult to install R, or to install certain packages. Whenever you run into such installation problems, please notify your teacher, and we'll try to make it work. Based on our experience (in other teaching, workshops, etc) we are confident that R works on almost every system, but in the current circumstances it might be difficult to solve everyone's problems remotely. But even in the unlikely case that we can't get R to work on your computer, you don't have to worry. You can also [run R from the cloud](https://rstudio.cloud/plans/free), which is free for up to 15-hours per month. This should mainly be used for practice, as we recommend doing the assignments on a personal (teammate's) computer.
-
+Although R works on all operating systems (Windows, macOS, Linux), there are rare cases where it can be difficult to install R, or to install certain packages. Whenever you run into such installation problems, please notify your teacher, and we'll try to make it work. Although R works on almost every system, in the current circumstances it might be difficult to solve everyone's problems remotely. But even in the unlikely case that we can't get R to work on your computer, you don't have to worry. You can also [run R from the cloud](https://rstudio.cloud/plans/free), which is free for up to 15-hours per month. This should mainly be used for practice, as we recommend doing the assignments on a personal (teammate's) computer.
+If there are many people in the team who can't get R to work, you can contact the coordinator (Kasper Welbers) for an alternative solution. 
 
 ## Using R and RStudio
 
@@ -207,7 +208,7 @@ Earlier we showed that we can make wordclouds in R.
 To do so, we used the following syntax:
 
 ```{r, eval=F}
-wordcloud("A very lame wordcloud")
+wordcloud("A very lame wordcloud", colors="blue")
 ```
 
 If you tried to run this code yourself, you probably got an error saying: `could not find function "wordcloud"`.
@@ -221,8 +222,18 @@ For now, we'll settle for a very simple, practical definition of functions.
 We can think of a function simply as a tool that given some `input` creates some `output`.
 The `wordcloud` function takes as input any piece of text, and as output creates an image of a wordcloud. 
 Above we also saw the `sum` function, which takes as input some numbers, and as output gives the sum of these numbers.
-You can recognize a function as a name followed by parentheses, e.g., `wordcloud("some text")`, `sum(1,2,3)`. 
-The part between the parentheses contains the input to the function.
+You can recognize a function as a name followed by parentheses, e.g., `wordcloud("some text", colors="blue")`, `sum(1,2,3)`. 
+The parts between the parentheses contains the input to the function.
+
+These parts are also called the `arguments` of the function, and if there are multiple arguments then they are always separated by commas.
+
+```{r, eval=F}
+function_name(argument1 = ..., argument2 = ...)
+```
+
+When we used the `wordcloud` function above we used two arguments. The first argument is the text of which we want to make a wordcloud. This argument is mandatory (we can't really make a wordcloud without a text, after all). The second argument is `colors='blue'`. which tells R that we want to use the color "blue". This is an optional argument, and if we don't provide it a default color ('black') will be used. 
+For this course you mainly need to be able to recognize when a function is used, and what the arguments are.
+If you want to learn more, or have trouble understanding function, we provide [additional instructions](https://github.com/ccs-amsterdam/r-course-material/blob/master/tutorials/R_basics_2_data_and_functions.md#what-is-a-function) here
 
 Working with functions is at the hearth of any analysis in R.
 We start with some data as input, and then use all sorts of functions to do stuff with this data. 

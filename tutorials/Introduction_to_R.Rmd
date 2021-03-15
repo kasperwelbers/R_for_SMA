@@ -233,7 +233,7 @@ function_name(argument1 = ..., argument2 = ...)
 
 When we used the `wordcloud` function above we used two arguments. The first argument is the text of which we want to make a wordcloud. This argument is mandatory (we can't really make a wordcloud without a text, after all). The second argument is `colors='blue'`. which tells R that we want to use the color "blue". This is an optional argument, and if we don't provide it a default color ('black') will be used. 
 For this course you mainly need to be able to recognize when a function is used, and what the arguments are.
-If you want to learn more, or have trouble understanding function, we provide [additional instructions](https://github.com/ccs-amsterdam/r-course-material/blob/master/tutorials/R_basics_2_data_and_functions.md#what-is-a-function) here
+If you want to learn more, or have trouble understanding functions, we provide [additional instructions](https://github.com/ccs-amsterdam/r-course-material/blob/master/tutorials/R_basics_2_data_and_functions.md#what-is-a-function) here
 
 Working with functions is at the hearth of any analysis in R.
 We start with some data as input, and then use all sorts of functions to do stuff with this data. 

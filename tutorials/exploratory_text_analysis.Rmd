@@ -6,9 +6,12 @@ output:
     theme: united
     highlight: tango
     css: custom.css
+    toc: true
+    toc_depth: 1
 editor_options:
   chunk_output_type: console
 ---
+
 
 ```{r opts, echo = FALSE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
@@ -528,7 +531,7 @@ It's often much easier to focus your analyses on research questions that require
 > You might wonder whether we can't just automate this, since this is a course about automating stuff. The answer is yes. Often these types of data platforms also provide an API, which allows you to directly connect to the platform from within R. Also, even if a platform doesn't provide an option to automate this, we could actually write an algorithm that acts like a human and performs the day-by-day download. But at this point, we're also entering a more complicated terrain involving copyright and terms-of-service. Platforms such as OBI4wan will often have restrictions for how many articles we can download, and this is actually an important consideration in choosing which platform to buy a licence for. More on this in the optional bonus section at the bottom.
 
 
-# Assignment 3
+# Assignment 2
 
 Now you're going to combine all that we've discussed to conduct your own little exploratory analysis.
 For this assignment you'll investigate how people on Twitter talked about a certain person, organization or topic.

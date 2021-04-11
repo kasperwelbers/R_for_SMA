@@ -335,14 +335,23 @@ If successful, **quanteda** has now been installed on your computer. Remember th
 
 If not successful, first look at the (error) messages. These sometimes do contain easy solutions. If you can't figure it out, ask your teacher. Please note, however, that it's possible that the solution is not easy to find, and the teacher won't be able to help you immediately. If so, please continue the tutorial by looking along with a teammate via Zoom screenshare, and after class send an email to the course coordinator (Kasper Welbers) in which you specify what type of computer you're using, and what your specific error message is.
 
+Now in addition to the general `quanteda` package, we'll also need to install two add-ons.
+These provide additional text analysis functions that we'll use in this document.
+
+```{r, eval=F}
+install.packages('quanteda.textstats')
+install.packages('quanteda.textplots')
+```
 
 ## Quanteda
 
-To start working with quanteda, we first need to run `library(quanteda)` to tell R that we want to use this package
-in our current session.
+To start working with quanteda, we first need to run `library(quanteda)` to tell R that we want to use this package in our current session.
+We'll do the same for the two add-ons.
 
 ```{r}
 library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
 ```
 
 ## Preparing the inaugural speeches Corpus
@@ -378,7 +387,7 @@ docvars(corp)  ## (only the first lines of output are shown here)
 knitr::kable(head(docvars(corp)))
 ```
 
-Now as a final step, we're going to create a Document-Feature Matrix (DFM). 
+Now as a final step, we're going to create a Document-Term Matrix (DFM). 
 This is a matrix in which the rows are documents, and the columns are all the unique terms (aka features) that occurred in these documents. 
 The cells in this matrix tell us how often each term occurred in each document.
 In the second lecture we'll talk more about what this DFM is and what we can (and can't) do with it. 
@@ -386,10 +395,15 @@ For now, just try to understand that by representing our corpus as a matrix with
 This is what enables us to apply the following text analysis techniques.
 
 ```{r}
-m = dfm(corp, remove=stopwords('english'), remove_punct=TRUE)
+tokenized = tokens(corp, remove_punct=TRUE)
+m = dfm(tokenized)
+m = dfm_remove(m, stopwords('en'))
 ```
 
-Here we used the `dfm` function to create a DFM. We assigned this DFM to the simple name `m` (short for matrix). Note that the main input for the `dfm` function is the corpus that we created above. 
+Here we used the `tokens` function to tokenize the texts. 
+Note that the main input for the `tokens` function is the corpus that we created above. 
+With `remove_punct=TRUE` we state that we only want to get the words, and ignore punctuation.
+With the `dfm` function we then created the DFM, which we assigned to the simple name `m` (short for matrix). 
 
 If you want to get a glimpse at what this matrix looks like, you can click on the `m` object in the rop-right window in RStudio. This will show you only a few of the many columns (because otherwise it might crash you computer)
 

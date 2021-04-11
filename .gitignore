@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+
+tutorials/exploratory_text_analysis_cache
+tutorials/exploratory_text_analysis_files
+tutorials/data/*

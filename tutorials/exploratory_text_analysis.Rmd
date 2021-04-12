@@ -274,7 +274,7 @@ View(docvars(dtm))
 
 An interesting column that we can use is `Sentiment`. This is the result of OBI4wan's automatic sentiment analysis tool. So we can look which words occur relatively often or seldom in tweets that have been labeled as positive, negative or neutral. What does this tell us? Well, good question.
 
-> **Question 1.b**. Perform a keyness analysis, where the target is tweets that OBI4wan classified as "negative". Report the visualization, and interpret what this tells us. (hint: do not just think about what this can tell us about negative tweets, but also about how it might help us understand and validate the OBI4wan sentiment analysis tool).
+> **Question 1.b**. Perform a keyness analysis, where the target is tweets that OBI4wan classified as "negative". Report the visualization, and interpret what this tells us. 
 
 Instead of looking at all words, we can also focus on hashtags.
 The following code creates a new DTM with only hashtags as columns.
@@ -412,16 +412,6 @@ Let's use this to help us interpret topic 6.
 ```{r stm_cloud}
 cloud(m, topic = 6, max.words = 25)
 ```
-
-Alternatively, `stm` has a `labelTopics` function that gives us more information to determine how we might want to label our topics.
-Next to looking at the most common words, this also gives other rankings of how important words are within a topic. 
-For instance, we could look at words that are relatively more likely within a topic compared to all other topics (similar to the keyness analysis).
-
-```{r, eval=F}
-labelTopics(m)
-```
-
-We won't discuss the results here, because at this point you might be getting overwhelmed, and we think the main idea is clear. 
 
 ## Wrap-up: a first look at topic models
 
@@ -590,7 +580,7 @@ corp = corpus(d, text_field = 'Message')
 dtm = dfm(tokens(corp, remove_punct=T))
 
 ## some preprocessing
-dtm = dfm_remove(dtm, stopwords('en'))
+dtm = dfm_remove(dtm, stopwords('en'))    ## or stopwords('nl') for Dutch
 dtm = dfm_wordstem(dtm)
 
 ## making a wordcloud
@@ -606,7 +596,6 @@ m = stm(dtm_trimmed, K=10, max.em.its = 20)
 plot(m, n=5)
 cloud(m, topic=1)
 cloud(m, topic=2) # etc.
-labelTopics(m)
 ```
 
 
@@ -614,7 +603,7 @@ labelTopics(m)
 
 > **Question 2.d**. Report and interpret the wordcloud. Does it give you a clear idea of what the tweets are about?
 
-> **Question 2.e**. Report and interpret the topic model. Describe 2 topics with the clearest interpretation (based on the topic wordcloud and labelTopics function). Does it help you get a better idea of what the tweets are about? 
+> **Question 2.e**. Report and interpret the topic model. Describe 2 topics with the clearest interpretation (based on the model plot and the topic wordclouds). Does it help you get a better idea of what the tweets are about? 
 
 > **Question 2.f**. You work for a social media dashboard company, and they just implemented topic modeling as a new feature. Before, they just showed a single wordcloud based on the total frequences of words in a collection of texts. Now, they also give the option to show "topic word clouds" for each topic found by the topic model. However, users have a hard time understanding how to use this new feature. You are asked to write a non-technical explanation for what these "topic word clouds" are, and how they can use them. 
 

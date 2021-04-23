@@ -3,11 +3,11 @@ title: 'Social Media Analytics V'
 subtitle: "Sentiment analysis in R"
 output:
   html_document:
-  theme: united
-  highlight: tango
-  css: custom.css
-  toc: true
-  toc_depth: 1
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 1
 editor_options:
   chunk_output_type: console
 ---
@@ -627,7 +627,7 @@ This can be quite useful, because a company might for instance just want to iden
 > **Question 2.d**. Change the code so that instead of working with three categories (negative, neutral and positive), you'll just work with two categories ('super positive' and 'not super positive'). As a cut-off point, say that all reviews with a score of 5 are 'super positive', and all reviews with a score of 4 or lower are 'not super positive'. Now re-train the model and calculate the precision and recall. Paste the results in your report, and interpret what you see. Is the model any good, and how would you be able to use this?
 
 
-## Assignment 3: reflection
+# Assignment 3: reflection
 
 We've now talked a lot about dictionaries and machine learning as two approaches for automatic sentiment analysis. 
 But now we'll let you do the talking.

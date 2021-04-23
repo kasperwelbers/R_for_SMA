@@ -55,13 +55,13 @@ The benefit of this approach is that you have complete control over how the comp
 The limitation is that for good performance on complicated measurements you would need very many and very specific rules. 
 
 Sentiment analysis is a very good example of such a complicated measurement task.
-A common rule-based approach for measuring sentiment is to create a `dictionary`, that tells us which words are `positive` or `negative. 
+A common rule-based approach for measuring sentiment is to create a `dictionary`, that tells us which words are `positive` or `negative`. 
 We can then simply let the computer count how many negative and positive words occur in a text, and use this to calculate a sentiment score. 
 Note that this is very similar to working with search queries.
 Each term in the dictionary is a simple rule for the computer: for every time the word "decline" occurs, add 1 to the number of negative words in this text. 
 
 This approach works to some extent, and has been used in many studies.
-However, it has some clear limitations, and several recent studies show that the accuracy of rule-based sentiment analysis with dictionaries is often bad (see e.g., [Van Atteveldt, Van der Velden \& Boukes, 2021](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198))
+However, it has some clear limitations, and several recent studies show that the accuracy of rule-based sentiment analysis with dictionaries is often bad (see e.g., [Van Atteveldt, Van der Velden \& Boukes, 2021](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198)).
 The problem is simply that sentiment in language is so complex, that it's virtually impossible to make a sufficiently complex list of rules.
 Some dictionaries have thousands of words, include special rules for negations ("not good") and amplifiers ("very good!"), and distinguish between how positive or negative words are ("best" is more positive than "good").
 And yet still, it tends to perform poorly for many real-life applications.
@@ -69,7 +69,7 @@ And yet still, it tends to perform poorly for many real-life applications.
 
 ### Supervised machine-learning
 
-So, a big limitation of rule-based approaches for sentiment analysis seem to be that we just can't seem to come up with a sufficiently complex set of rules.
+So, a big limitation of rule-based approaches for sentiment analysis seems to be that we just can't seem to come up with a sufficiently complex set of rules.
 But how can we teach a computer to do something without specifically telling it how to do it?
 This is where `supervised machine-learning` comes in.
 In `supervised machine learning` we provide the computer with `training data`, and then let it figure out the rules by itself! 
@@ -580,6 +580,10 @@ Here we provide the same code as above, so you can just copy paste this code to 
 Note that the results that you'll get can be a bit different, because spitting the DTM in to the test and train DTM's is random (due to the `sample` function).
 
 ```{r, eval=F}
+library(quanteda)
+library(quanteda.textmodels)
+library(readr)
+
 ## prepare the data
 beauty = read_csv('data/Beauty_5.csv')
 beauty$real_sentiment = 'neutral'
@@ -588,7 +592,7 @@ beauty$real_sentiment[beauty$score >= 4] = 'positive'
 
 ## create the dtm, and split into test and training parts
 dtm = beauty %>% corpus(text_field='text') %>% tokens() %>% dfm() %>%
-  dfm_trim(min_termfreq=0) %>% dfm_remove(stopwords('en')) %>% dfm_wordstem() 
+  dfm_trim(min_termfreq=10) %>% dfm_remove(stopwords('en')) %>% dfm_wordstem() 
 
 test_docnames = sample(docnames(dtm), size = 5000)
 test_dtm = dfm_subset(dtm, docnames(dtm) %in% test_docnames)

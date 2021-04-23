@@ -4,10 +4,10 @@ subtitle: "Sentiment analysis in R"
 output:
   html_document:
   theme: united
-highlight: tango
-css: custom.css
-toc: true
-toc_depth: 1
+  highlight: tango
+  css: custom.css
+  toc: true
+  toc_depth: 1
 editor_options:
   chunk_output_type: console
 ---

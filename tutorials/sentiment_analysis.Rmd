@@ -162,9 +162,15 @@ install.packages('corpustools')
 ```
 
 We'll also install the `quanteda.dictionaries` plugin, which has some pre-made dictionaries that we can use.
+Installing this package is a bit different from other packages (long story short, this package mainly contains dictionary data, so it's larger than 'normal' packages).
+We first install the `remotes` package, which then allows us to install the package from `GitHub`.
+You might get a question: `These packages have more recent versions available. It is recommended to update all of them. Which would you like to update?`. In this case, you should choose option 1 or 2 (type 1 or 2 in your console and press enter).
+
+(If you can't install quanteda.dictionaries, you can also continue without it. We'll provide a csv file with the dictionary for this tutorial as a back-up plan)
 
 ```{r, eval=F}
-install.packages('quanteda.dictionaries')
+install.packages('remotes')
+remotes::install_github('kbenoit/quanteda.dictionaries')
 ```
 
 Remember that you only need to install packages once, but you'll still need to run `library(packagename)` to use them in the current session.
@@ -190,7 +196,14 @@ There are many different available sentiment dictionaries, that have been develo
 Here we'll use the [Affective Norms for English Words](https://arxiv.org/abs/1103.2903) dictionary, which was developed for microblogs such as Twitter.  
 We already got this data by opening `quanteda.dictionaries` (so besides functions, packages can also provide data) 
 
+> !! If you weren't able to install quanteda.dictionaries, you can also load the dictionary from a csv file
+
 ```{r, eval=F}
+## only run this code if you couldn't install quanteda.dictionaries
+data_dictionary_AFINN = read_csv('tutorials/data/AFINN_dictionary.csv')
+```
+
+```{r}
 data_dictionary_AFINN
 ```
 
@@ -355,7 +368,7 @@ We'll start with a simple, face value validation. That is, you'll have a look at
 articles to get a first look at how accurate the dictionary is for our data.
 To do so, we'll again use the `browse_texts` function.
 
-```{r}
+```{r, eval=F}
 browse_texts(tc, n=10, category='dict_sentiment')
 ```
 

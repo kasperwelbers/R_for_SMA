@@ -200,10 +200,11 @@ We already got this data by opening `quanteda.dictionaries` (so besides function
 
 ```{r, eval=F}
 ## only run this code if you couldn't install quanteda.dictionaries
-data_dictionary_AFINN = read_csv('tutorials/data/AFINN_dictionary.csv')
+data_dictionary_AFINN = read_csv('data/AFINN_dictionary.csv')
+data_dictionary_AFINN$dict_sentiment = data_dictionary_AFINN$code
 ```
 
-```{r}
+```{r, eval=F}
 data_dictionary_AFINN
 ```
 
@@ -213,7 +214,7 @@ Now, we'll use this dictionary to find the positive and negative words in our co
 We store the results in a column called `dict\_sentiment` (sentiment based on the dictionary), to make a clear distinction from the "real" sentiment based on the review score.
 
 ```{r}
-tc$code_dictionary(data_dictionary_AFINN, column='dict_sentiment')
+tc$code_dictionary(data_dictionary_AFINN, column='dict_sentiment') 
 ```
 
 Note that this function is a little different from what you've seen before.

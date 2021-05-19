@@ -1,0 +1,653 @@
+---
+title: 'Social Media Analytics, 3rd lecture'
+subtitle: "Analysis code examples"
+output:
+  html_document:
+  theme: united
+highlight: tango
+css: custom.css
+toc: true
+toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+VU Amsterdam
+
+# This document
+
+This document contains the code snippets used in the third lecture.
+Basically, it collects pieces of code used throughout the practicals, that can be used as a starting point when writing the code for your final assignment.
+We won't discuss the code itself here (that is discussed in the practicals and in the lecture). 
+
+# Importing data from OBI4wan
+
+## Importing texts 
+
+The first step for your assignment will be to import OBI4wan data into R. 
+In the practicals you learned how to export texts from OBI4wan and import them into R.
+The steps for downloading the data from OBI4wan are shown in the lecture (and described in the fourth practical).
+Here we focus on the code for loading the data into R. 
+
+```{r}
+library(dplyr)
+library(readr)   
+
+d = bind_rows(
+  read_csv2("data/vaccin_2021_04_06.csv"),
+  read_csv2("data/vaccin_2021_04_07.csv"),
+  read_csv2("data/vaccin_2021_04_08.csv"))
+```
+
+To make this code work on your computer, you need to provide the `path` to the CSV files that you downloaded from OBI4wan.
+Remember that in the bottom-right window in RStudio, under the Files tab, you can browse to a file, click on it, and select Import Dataset.
+This will show you some code with the `path` of the file in it. 
+(remember that you need to use `read_csv2`, and not the standard `read_csv` that Import Dataset wants to use).
+
+The data is now stored under the name `d`.
+
+```{r, eval=F}
+d
+```
+
+## Importing graphs
+
+This is something that we haven't yet done in the practicals, but it very straightforward and useful. Next to exporting texts from OBI4wan, you can also export data from the `graphs` in OBI4wan, such as the graph of the number of tweets over time, or the sentiment. We can then import this data into R to visualize it, or to perform statistical analyses.
+
+This time, we're using the `tidyverse` package. This is actually a collection of packages, that
+contains among other things the `dplyr` and `readr` packages. But it also contains some other packages 
+that we'll use for visualization. By means of comparison, if packages are like toolboxes that you can open, the tidyverse is like a tool shed with many useful toolboxes.
+We'll also use the `lubridate` package, for working with `dates`.
+(remember that you need to install these first, if you haven't done so already)
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+In the lecture we show how to download the data from OBI4wan. 
+This data is also provided as a CSV file with semicolon separators, 
+so we use `read_csv2` to open it.
+
+```{r}
+d = read_csv2('~/Downloads/obi4wan_export_20211705_174102.csv')
+```
+
+### Fixing the bad date format
+
+Now, we'll need to do some cleaning.
+As explained in the lecture, OBI4wan gives the data using a very weird data format, in which the
+years are missing.
+There is no standard solution for this, because really, this date format is plain wrong.
+This means we need to get a bit creative.
+
+In the following code we add the years by saying every date BEFORE 01/01 (1st of January) has year 2020, and every date after 2021. We do this by looking 'which' row has this value, and then looking at the row numbers (1:nrow(d)). 
+The ifelse() function states: if the row number is higher than the row, the value is 2021, else it's 2020.
+
+```{r}
+start_2021 = which(d$Name == '01/01')
+d$year = ifelse(1:nrow(d) >= start_2021, 2021, 2020)
+```
+
+Now we can paste the year to the date, and create a proper date column
+
+```{r}
+d$date = paste(d$Name, d$year, sep='/')        ## create date in format day/month/year
+d$date = as.Date(d$date, format = '%d/%m/%Y')  ## read the date from this new format
+d
+```
+
+### Visualizing 
+
+Now that we have proper data, we can get to plotting.
+We're using the [ggplot2](https://ggplot2.tidyverse.org/) package for this (which is included in the tidyverse). 
+This is a very powerful visualization tool, but it also takes some time getting used to.
+Here we will just give you the code. In the video we provide some details on how the code works,
+but the main focus is on how you can use this to visualize your own data.
+For those interested, we also have a [short tutorial](https://github.com/ccs-amsterdam/r-course-material/blob/master/tutorials/r-tidy-3_7-visualization.md) on using ggplot2.
+
+Let's start with a simple line graph of the total number of messages,
+which we can get from this data by summing up the Neutral, Positive and Negative columns.
+(note that R will shape the graph according to your plotting window, so make the window wider to get a wider graph)
+
+```{r}
+d %>%
+  mutate(N = Neutral + Positive + Negative) %>%
+  ggplot() + geom_line(aes(x=date, y=N))
+```
+
+This shows the number of articles for each sentiment category per day.
+We might instead want to look at this data per `week` or per `month`.
+To achieve this, we need to group the data together and sum up the values.
+Here we group the data by `week`, and then take the `sum()` of the N. 
+
+```{r}
+d %>%
+  mutate(N = Neutral + Positive + Negative) %>%
+  group_by(date = floor_date(date, unit = 'week')) %>% 
+  summarize(N = sum(N)) %>%
+  ggplot() + geom_line(aes(x=date, y=N))
+```
+
+There are two things you might want to change here,
+First, you can change `week` to `month`.
+Second, you could use another statistic to summarize the data.
+Instead of `sum()`, we could have used `mean()` to get the average number
+of messages per day within the given week/month. 
+We show these alternatives below.
+
+Now let's plot the sentiment scores. 
+Here we only use the Negative and Positive columns.
+Also, we'll add a line of code to customize the labels for the 
+X and Y axis and the legend.
+
+```{r}
+d %>%
+  pivot_longer(cols=c(Negative, Positive)) %>%
+  ggplot() + geom_line(aes(x=date, y=value, group=name, color=name)) +
+  xlab('Date') + ylab('Number of Tweets') + labs(color = 'Sentiment')
+```
+
+Now lets look at this data per month.
+
+```{r}
+d %>%
+  pivot_longer(cols=c(Negative, Positive)) %>%
+  group_by(date = floor_date(date, unit = 'month'), name) %>%
+  summarize(value = mean(value)) %>%
+  ggplot() + geom_line(aes(x=date, y=value, group=name, color=name)) +
+  xlab('Date') + ylab('Tweets per day') + labs(color = 'Sentiment')
+```
+
+Next, we might not want to look at the number of Tweets, but the percentage of tweets.
+For instance, in our plot we see that the number of negative Tweets seems to go up. However, this also seems to be the case for the positive Tweets, so rather than an increase in negative sentiment, we might just be looking at an overall increase in Tweets.
+By looking at the percentage of tweets that is positive or negative, we can say more about such changes over time.
+
+The code is mostly the same. We just add a step to our pipeline where we compute the
+total number of Tweets, and then divide the Negative and Positive columns by this total.
+
+```{r}
+d %>%
+  mutate(N = Negative + Positive + Neutral) %>%
+  mutate(Negative = Negative / N, Positive = Positive / N) %>%
+  pivot_longer(cols=c(Negative, Positive)) %>%
+  group_by(date = floor_date(date, unit = 'month'), name) %>%
+  summarize(value = mean(value)) %>%
+  ggplot() + geom_line(aes(x=date, y=value, group=name, color=name)) +
+  xlab('Date') + ylab('Tweets per day') + labs(color = 'Sentiment')
+```
+
+At this point our code is getting pretty long, but notice that it's pretty amazing that we can pack so much information about our visualization in a single pipeline. 
+
+So one final alternative. We could also calculate a single sentiment score.
+This is similar to what we did before in the practical where we used a sentiment dictionary.
+This time we use a simple measure: `(Positive - Negative) / (Positive + Negative)`.
+This gives us a score between -1 and +1.
+We'll look at this data per month.
+
+```{r}
+d %>%
+  group_by(date = floor_date(date, unit = 'month')) %>%
+  summarize(Positive = sum(Positive), Negative = sum(Negative)) %>%
+  mutate(Sentiment = (Positive - Negative) / (Positive + Negative)) %>%
+  ggplot() + geom_line(aes(x=date, y=Sentiment)) +
+  xlab('Month') + ylab('Sentiment')
+```
+
+Notice that the results look pretty different this way.
+It's important to realize that you can look at the same data from different angles, and this can greatly affect how you might interpret it.
+In the last visualization we emphasize the balance of Positive versus Negative tweets.
+A risk of doing so, however, is that we ignore the total number of tweets.
+If in a given month there would only be 1 Negative tweet and 0 Positive tweets, it would now measure -1, even if there were also 10000 Neutral tweets.
+So yet another alternative would have been to calculate Sentiment as `(Positive - Negative / (Positive + Negative + Neutral))`.
+
+As a researcher, it's important to choose the perspective that makes most sense (not necessarily the one that supports your story). 
+As a reader, it's important to always keep in mind that the visualizations you see in reports, newspapers, etc. are often just one way of viewing the data.
+
+
+# Sentiment Analysis
+
+Here we'll recap how to perform a sentiment analysis in R.
+Furthermore, we show how to format the results as a data.frame, that we can then
+visualize and analyze in the same way as we did with the sentiment data exported
+from OBI4wan.
+
+For this code we'll use quanteda and the tidyverse package
+
+```{r}
+library(quanteda)
+library(tidyverse)
+```
+
+First we read Tweets into R (as discussed above)
+
+```{r}
+tweets = bind_rows(
+  read_csv2("data/vaccin_2021_04_06.csv"),
+  read_csv2("data/vaccin_2021_04_07.csv"),
+  read_csv2("data/vaccin_2021_04_08.csv"))
+```
+
+Next, we'll load a dictionary. 
+You can use any dictionary that you want, and you can also create your own (small) dictionary. 
+For this example, we'll use the NRC sentiment dictionary, that we provide both in English and in Dutch.
+You can read these files with the `readRDS` function (RDS is a special R data format),
+and they will be immediately imported as quanteda dictionaries.
+You can also navigate to the files in the bottom-right window in R, and then click on the files to import them (you can then also copy the code for how to do this from the Console in the bottom-left window in RStudio).
+
+```{r}
+## for Dutch
+dict = readRDS('data/NRC_Dutch.rds')
+
+## for English (used in this example)
+dict = readRDS('data/NRC_English.rds')
+```
+
+Now we can apply the dictionary to our data. 
+For this demo we used the english dictionary, since our data is in English.
+The following code is a single convenient pipeline that prepares the data, 
+performs the dictionary search, and returns the results as a Document Term Matrix.
+
+```{r}
+results = tweets %>% corpus(text_field='Message') %>% 
+  tokens() %>% tokens_lookup(dict) %>% dfm()
+
+results
+```
+
+The data is now a DTM with all the dictionary terms. We'll take one more step to transform 
+this to a Data frame in the tidyverse format (a tibble), and aggregate the data to days. 
+It then looks comparable to the sentiment analysis data that we imported from OBI4wan before.
+The only difference is that we're not looking at the number of Tweets with a certain sentiment, but the number of words.
+
+```{r}
+d = convert(results, 'data.frame') %>% as_tibble() %>%
+  mutate(date = as.Date(tweets$`Date of publication`, format='%d-%m-%Y')) %>%
+  group_by(date) %>% summarize(across(anger:trust, sum))
+
+d
+```
+
+So now we can also visualize it in the same way as we did with the OBI4wan sentiment data.
+The following line graph over time is not very fancy because we only have 3 days in this data, but you get the idea.
+
+```{r}
+d %>%
+  pivot_longer(cols=c(anger, disgust, fear, joy, sadness, trust)) %>%
+  ggplot() + geom_line(aes(x=date, y=value, group=name, color=name)) +
+  xlab('Date') + ylab('Number of words') + labs(color = 'Sentiment')
+```
+
+Note that here we selected some (not all) columns for discrete emotions (anger, fear, etc.) and ignore the `positive` and `negative` sentiment columns. 
+You can use any column you need.
+We can also look at these sentiment scores, but it's good to keep these separated from discrete emotions.
+Also, for sake of example, we can again create a single sentiment score.
+
+```{r}
+d %>%
+  mutate(Sentiment = (positive - negative) / (positive + negative)) %>%
+  ggplot() + geom_line(aes(x=date, y=Sentiment)) +
+  xlab('Date') + ylab('Sentiment')
+```
+
+Finally, you might feel more comfortable doing the visualizations (and statistics) in a spreadsheet program like Excel or SPSS. If so, you can easily write the data to a CSV file. 
+
+```{r}
+write_csv2(d, 'my_own_sentiment_analysis.csv')
+```
+
+You can now import this file in any spreadsheet program. In this case we used `write_csv2`, so the format of the CSV should be the same as the format used by OBI4wan (with semicolon delimiters).
+
+
+# exploratory analysis
+
+This is a small recap of things you learned that you can use for exploratory analysis.
+First, we import the Tweets that we exported from OBI4wan.
+
+```{r}
+library(tidyverse)
+
+d = bind_rows(
+  read_csv2("data/vaccin_2021_04_06.csv"),
+  read_csv2("data/vaccin_2021_04_07.csv"),
+  read_csv2("data/vaccin_2021_04_08.csv"))
+```
+
+First, let's just look at the number of Tweets.
+Technically, you could do this part with the approach discussed earlier (using the data exported from the line graph in OBI4wan).
+A benefit could be that you can also determine the level of aggregation this way.
+
+```{r}
+## Here we read the `Date of publication` at both the day and hour level
+d = d %>%
+  mutate(day = as.POSIXct(d$`Date of publication`, format = '%d-%m-%Y')) %>%
+  mutate(day_hour = as.POSIXct(d$`Date of publication`, format = '%d-%m-%Y %H'))
+```
+
+Now let's first look at the number of tweets per day.
+For our example data this is quite silly, because we collected the max 20.000
+tweets per day. So it's a straight line.
+
+```{r}
+## plot per day
+d %>% group_by(day) %>% summarise(n = n()) %>%
+  ggplot() + geom_line(aes(x=day, y=n)) + xlab('Date') + ylab('Tweets')
+```
+
+Not let's plot per hour.
+
+```{r}
+## plot per hour
+d %>% group_by(day_hour) %>% summarise(n = n()) %>%
+  ggplot() + geom_line(aes(x=day_hour, y=n)) + xlab('Date') + ylab('Tweets')
+```
+
+Next, we'll create a Document Term Matrix, that we could use for things like wordclouds
+and topic models.
+
+```{r}
+library(quanteda)
+library(quanteda.textplots)
+
+dtm = d %>% corpus(text_field='Message') %>% tokens(remove_punct = T) %>% dfm()
+```
+
+Now we can use the various analysis techniques, starting with a simple wordcloud.
+This time we'll use the pipeline notation (%>%) to make clear and concise code.
+You can off course also use the code from the practicals. 
+
+```{r}
+dtm %>%
+  dfm_remove(stopwords('en')) %>%
+  textplot_wordcloud(max_words = 50)  
+```
+
+We can also train a topic model. 
+
+```{r, eval=F}
+library(stm)
+
+## here we preprocess the text and fit the model in a single pipeline
+m = dtm %>%
+  dfm_select(pattern='@*', selection='remove', min_nchar = 3) %>%
+  dfm_trim(min_termfreq = 2500, termfreq_type = 'rank', 
+           max_docfreq = 0.5, docfreq_type='prop') %>%
+  stm(K=10, max.em.its = 40)
+
+plot(m, n=5)
+cloud(m, topic=1)
+cloud(m, topic=2) # etc.
+```
+
+## Using more advanced preprocessing
+
+Optionally, you could use more advanced preprocessing steps.
+In a previous lecture we mentioned lemmatization as a better alternative for stemming, and part-of-speech tagging as a way to filter certain word types (e.g., names, nouns, adjectives, verbs).
+We didn't include this in the main course material for sake of time, but here we provide the basic code to use these techniques, in case you want to use it in your research report.
+
+The thing is: it's not really more difficult than basic preprocessing. It's just a few extra lines of code. However, it DOES take more time. If you have a lot of data, you might have to wait a bit for the preprocessing to finish. Also, it might take more memory on your computer, so don't try this on a very old laptop, and ideally close other programs that take up a lot of memory (like your browser).
+
+Here we use the corpustools package, which allows us to process the data with a UDpipe model. Simply put, this 'model' is an advanced natural language processing pipeline that takes care of all the preprocessing steps. The first time that you use it, R will automatically download the model (about 16Mb).
+
+```{r, eval=F}
+library(corpustools)
+
+tc = create_tcorpus(d, text_columns = 'Message', udpipe_model = 'english-ewt')
+
+## !! Use the "dutch-alpino" model for Dutch
+## tc = create_tcorpus(d, text_columns = 'Message', udpipe_model = 'dutch-alpino')
+```
+
+Now we have quite rich data about each word in our corpus.
+In the following data frame each word has it's own row, and the columns contain information about this word.
+In particular, see the 'lemma' column (like the word stem, but using lemmatization), and the POS column (part-of-speech).
+
+```{r, eval=F}
+tc$tokens
+```
+
+Now we can again create the Document Term Matrix, but we can use the lemma, and we can filter on POS tag.
+As an example, we'll make a DTM of (1) the names, (2) names and nouns, and (3) one with names, nouns and verbs. 
+
+```{r, eval=F}
+dtm_names = get_dfm(tc, feature = 'lemma', 
+  subset_tokens = POS %in% c('PROPN'))
+dtm_names_nouns = get_dfm(tc, feature = 'lemma', 
+  subset_tokens = POS %in% c('NOUN', 'PROPN'))
+dtm_nnv = get_dfm(tc, feature = 'lemma', 
+  subset_tokens = POS %in% c('NOUN', 'PROPN', 'VERB'))
+```
+
+And now we can use these fancy DTM's just like before. For instance, to make a wordcloud of only the names (people, organizations, locations, etc.)
+
+```{r, eval=F}
+dtm_names %>% 
+  dfm_remove(c('Rt', 'quote')) %>% 
+  textplot_wordcloud(max_words = 100)  
+```
+
+You can use any of the techniques using these DTM's that you learned (wordclouds, keyness, topic modeling, supervised ML). The advantages are:
+
+* lemmatization is better than stemming, especially for Dutch texts. It properly deals with more complicated verb conjugations ("have", "had" and "having" become "have". "loop", "liep" and "gelopen" become "lopen"). It also doesn't mess up the words like stemming, which just cut's of the suffix.
+* It gives more control over your data. A word cloud of just the names and nouns might be easier to interpret. For a topic model, using the names, nouns and verbs can focus more on the 'who' and 'what'.
+
+
+
+# Basic statistics
+
+In the assignment you need to report some basic descriptive statistics.
+If you for instance state that "the sentiment of tweets has become more negative after
+event x happened", you'll need to put some numbers to this claim.
+You can also use statistical tests, but that's not required for the final assignment.
+
+Many of the techniques we used in R already give you numbers, but in some cases you might
+still need to calculate them. In particular, above we obtained a data frame with the number of tweets,
+or number of positives/negative/neutral tweets, either by exporting it from OBI4wan or by performing a
+dictionary analysis in R. In this case, you'll need to aggregate the data in some way.
+
+Note that you are allowed to do this in a spreadsheet program like Excel or SPSS. 
+As explained earlier, you can import the graph data from OBI4wan (a CSV file) in a spreadsheet program, and you can write data in R to a CSV file. 
+So if this is your plan, you can skip the following (though you might want to view the lecture part about the optional statistical testing for some more substantive pointers.)
+
+Here we just discuss how to get some basic descriptive statistics and do some statistical tests given this type of data frame in R. 
+We start by reading the same data we used before, as exported from a graph in OBI4wan.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+
+## load data (as exported from OBI4wan sentiment line graph)
+d = read_csv2('~/Downloads/obi4wan_export_20211705_174102.csv')
+
+## fix date
+start_2021 = which(d$Name == '01/01')
+d$year = ifelse(1:nrow(d) >= start_2021, 2021, 2020)
+d$date = paste(d$Name, d$year, sep='/')        ## create date in format day/month/year
+d$date = as.Date(d$date, format = '%d/%m/%Y')  ## read the date from this new format
+d
+```
+
+You can roughly think of descriptive statistics as summarizing.
+The idea is that we can say something about a whole lot of numbers, based on fewer numbers.
+Most trivially, we can just sum up numbers.
+The following code uses the `summarize` function to summarize our data. 
+Within this function we can use any function that creates a summarizing statistic, such as `sum`, `mean` and `sd` (standard deviation).
+Here we first use `sum`, to sum up the values in the columns
+
+```{r}
+d %>% summarize(Positive_sum = sum(Positive), Negative_sum = sum(Negative))
+```
+
+We can also get the mean and standard deviation.
+For this, let's first calculate a sentiment score.
+
+```{r}
+d = d %>% mutate(sentiment = (Positive - Negative) / (Positive + Negative))
+d
+```
+
+And now calculate the mean and standard deviation
+
+```{r}
+d %>% summarize(M = mean(sentiment), SD = sd(sentiment))
+```
+
+Now, this is fun and all, but often we want to compare such statistics between different
+`groups` in our data. For instance, to compare between months.
+To do this efficiently, we can use `group_by` before we summarize, and it will calculate the
+summaries per group.
+For example, in the following code we first extract the `month` from our date, and then group by month.
+We'll then summarize any statistic we might be interested in.
+
+```{r}
+d %>%
+  mutate(month = cut(date, 'month')) %>%
+  group_by(month) %>%
+  summarize(tweets = sum(Negative + Positive + Neutral), sentiment = mean(sentiment))
+```
+
+For your assignment, you might specifically want to compare all tweets before and after a certain date. 
+In this case, we can just create a group based on a `date is greater than` condition.
+
+```{r}
+d = d %>% mutate(after_christmas = date >= '2020-12-26')
+d
+```
+
+This just tells us, was this a day after christmas, yes (TRUE) or no (FALSE). We can then use this to group the data.
+
+```{r}
+d %>%
+  group_by(after_christmas) %>%
+  summarize(M = mean(sentiment), SD = sd(sentiment))
+```
+
+Now, a key thing to keep in mind when calculating these summarizing statistics, 
+is what they represent. In this case, we calculated the `mean` of `sentiment scores PER DAY`. 
+In other words, it shows us that after christmas, on average, the sentiment score on a given day is -0.576. 
+
+## Statistical testing (why and why not)
+
+So, in statistics you probably learned that in papers we don't just conclude: yeah, this mean is higher than that mean! We also want to show that the difference is statistically significant.
+This is indeed very important, and if you like statistics, you are very much encouraged to use statistical tests in your final assignment. 
+If you don't like statistics, you are not forced to use them. 
+However, we do expect you to use your common sense.
+In the previous example we saw that the sentiment after christmas (-0.576) was slightly higher than before christmas (-0.578), with pretty high standard deviations.
+It would off course be wrong to conclude here that the average sentiment decreased.
+
+
+### t-test
+
+The specific statistic that you might recall for comparing the means of two groups is the t-test. 
+You could use this to compare the mean sentiment before and after an event.
+In R, and with our current data, we could use the `t.test` function. 
+Here we provide a formula to indicate the `dependent ~ independent` variables, and the data.
+
+```{r}
+t.test(sentiment ~ after_christmas, data=d)
+```
+
+As expected, even though the average sentiment before christmas (M = -0.578, SD = 0.200) was higher than after christmas (M = -0.576, SD = 0.193), the different is not statistically significant, t(303.23) = -0.126, p = 0.900).
+
+Be careful, however, that this doesn't necessarily mean that the change in sentiment in tweets is not statistically significant. 
+It very specifically means that the increase in `the average sentiment per day` was not significant. 
+Statistics are only ever an argument in the story that we tell, and like visualizations, we can calculate different statistics on the same data that might tell a different story.
+In this case, though, we have a pretty strong argument that christmas did not really have an effect (or at least long term effect) on sentiment in tweets about Rutte.
+
+A final thing to remember is that it matters how many observations you have. 
+In this case we had 365 observations (1 year in days), and the effect was still not significant.
+If you are only looking at a short period, like one week before and after an event, then the change would need to 
+be rather big for your result to be significant. 
+*!!As such!!*, it's also not good to just use a t-test and rely solely on the p-value to draw your conclusions. 
+Statistics are never an excuse to stop thinking. 
+
+### Chi-squared test
+
+An alternative way to test whether something has changed before and after an event is to use a Chi-squared test.
+As you might recall from statistics, you can use a chi-squared test to compare sets of categorical data to see if their frequency distribution is significantly different.
+In our case, we could use this to see if the distribution of positive versus negative tweets before an event was different from the distribution of positive versus negative tweets after the event.
+
+Taking the same data as before, we can calculate the total number of positive and negative tweets before and after christmas.
+
+```{r}
+sent_table = d %>%
+  group_by(after_christmas) %>%
+  summarize(Positive = sum(Positive), Negative = sum(Negative)) 
+
+sent_table
+```
+
+We can now calculate the chi-squared test as follows.
+
+```{r}
+sent_table %>%
+  select(Positive, Negative) %>%
+  chisq.test()
+```
+
+Although we have the same data, we now have a statistical test that DOES say that the relative difference between positive and negative tweets was different AFTER christmas!
+That is not in itself a good or bad thing. 
+We're just looking a the data in a completely different way (before we looked at whether the average sentiment per day changed).
+Also, note that we're still talking about a very small difference.
+
+```{r}
+34668 / 142725   ## ratio before christmas
+32767 / 124223   ## ratio after christmas (slightly higher)
+```
+
+So which is better?
+Strictly speaking, if you're interested in whether tweets about Mark Rutte have become more positive after christmas, the chi-squared test is the most appropriate. It really just tells us that the increase in the relative number of positive tweets compared to negative tweets was statistically significant. The difference is just really small, and if we aggregate data to look at the average sentiment per day, the difference already disappears. 
+
+
+### Correlation and regression
+
+For some cases regression and correlation can be very useful.
+Most importantly, this can be the case when you have questions or hypotheses that involve some other data over time.
+For instance, you could analyze whether certain types of tweets from or about a political party correlate with the polls during the election campaign.
+
+This will not be a common situation, since we have not covered how to link your content analysis data to other data,
+but you are allowed to do this. 
+In the simplest way, you could just manually add some data in a spreadsheet program such as Google Sheets or SPSS (you can calculate the correlation or perform regression analysis in both). 
+Here we show a small example of linking data in R.
+
+For this example, let's just say that we want to see if the Corona reproduction number per day is somehow correlated with the sentiment of tweets about Rutte. 
+We can get the Corona numbers from the website of the RIVM.
+
+```{r}
+library(jsonlite)
+r = fromJSON('https://data.rivm.nl/covid-19/COVID-19_reproductiegetal.json') %>%
+  mutate(date = as.Date(Date), R=as.numeric(Rt_avg)) %>%
+  filter(!is.na(R)) %>%
+  select(date, R)
+
+head(r)
+```
+
+We can now join this data with our `d` dataset. With `left_join(d, r, by='date')`, we basically say, 
+for every row in d, find the row in r where the value of the 'date' column is the same.
+
+```{r}
+rutte_R = left_join(d, r, by='date')
+head(rutte_R)
+```
+
+And then we could calculate the correlation
+
+```{r}
+cor.test(rutte_R$sentiment, rutte_R$R)
+```
+
+So there actually appears to be a weak negative relation, r(352) = -0.115, p < 0.05.
+When the reproduction number increases, sentiment in tweets about Rutte decreases.
+Off course, this isn't yet proof of a causal relation (it's just correlation, and this is really quick and dirty example), but if done properly it can be part of an argument that links sentiment about Rutte to some real-world data about the state of Corona in the Netherlands.
+
+
+### Disclaimer on statistical modeling in this course
+
+It should be pointed out that for these types of analysis, one would often use more advanced types of statistical analysis, or at least different types of analysis that you have not (yet) covered in your studies.
+This is why we don't emphasize statistical testing in this course, and rather see you using descriptive statistics and visualizations, and then thinking for yourself what this tells you.
+You can use things like t-tests, chi-squared and regression in a useful way, and we encourage you to try to apply what you know. But if you at some points feel that there should be better approaches, you are correct.

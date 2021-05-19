@@ -3,11 +3,11 @@ title: 'Social Media Analytics, 3rd lecture'
 subtitle: "Analysis code examples"
 output:
   html_document:
-  theme: united
-highlight: tango
-css: custom.css
-toc: true
-toc_depth: 2
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 2
 editor_options:
   chunk_output_type: console
 ---
@@ -21,8 +21,8 @@ VU Amsterdam
 # This document
 
 This document contains the code snippets used in the third lecture.
-Basically, it collects pieces of code used throughout the practicals, that can be used as a starting point when writing the code for your final assignment.
-We won't discuss the code itself here (that is discussed in the practicals and in the lecture). 
+It collects (and expands on) pieces of code used throughout the practicals, that can be used as a starting point when writing the code for your final assignment.
+
 
 # Importing data from OBI4wan
 

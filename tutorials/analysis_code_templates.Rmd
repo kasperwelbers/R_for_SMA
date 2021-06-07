@@ -252,17 +252,19 @@ For this demo we used the english dictionary, since our data is in English.
 The following code is a single convenient pipeline that prepares the data, 
 performs the dictionary search, and returns the results as a Document Term Matrix.
 
+(Note that the text_field might be called 'bericht' depending on your language settings in OBI4wan. You can view the tweets data to see what column name you should use)
+
 ```{r}
 results = tweets %>% corpus(text_field='Message') %>% 
   tokens() %>% tokens_lookup(dict) %>% dfm()
-
-results
 ```
 
 The data is now a DTM with all the dictionary terms. We'll take one more step to transform 
 this to a Data frame in the tidyverse format (a tibble), and aggregate the data to days. 
 It then looks comparable to the sentiment analysis data that we imported from OBI4wan before.
 The only difference is that we're not looking at the number of Tweets with a certain sentiment, but the number of words.
+
+(Here the name of the column `Date of publication` might again be different in your data)
 
 ```{r}
 d = convert(results, 'data.frame') %>% as_tibble() %>%
@@ -303,7 +305,53 @@ write_csv2(d, 'my_own_sentiment_analysis.csv')
 You can now import this file in any spreadsheet program. In this case we used `write_csv2`, so the format of the CSV should be the same as the format used by OBI4wan (with semicolon delimiters).
 
 
-# exploratory analysis
+## Validating the sentiment dictionary
+
+Here we provide a small example of how to perform the sentiment dictionary validation. 
+
+We continue with the `tweets` and `results` data from the previous section.
+We combine this data to create a single data.frame that contains both the text (the tweet) and the results from the dictionary analysis
+
+```{r}
+validation_df = results %>%
+  convert(to='data.frame') %>% as_tibble() %>%
+  select(negative, positive) %>%
+  bind_cols(Message = tweets$Message)
+```
+
+We can add a sentiment score just like we did above. But this time, we're also
+transforming this to a sentiment category (positive, negative or neutral), because we need this
+to calculate the precision and recall. Here we use cutoff points at -0.2 and 0.2 (but you can change this if you think it would be better)
+
+```{r}
+## add sentiment score
+validation_df = validation_df %>%
+  mutate(sentiment = (positive - negative) / (positive + negative)) 
+
+## add sentiment category
+validation_df = validation_df %>%
+  mutate(sentiment_label = case_when(sentiment < -0.2 ~ "negative",
+                                     sentiment > 0.2 ~ "positive",
+                                     TRUE ~ "neutral"))
+```
+
+Now, we only need a sample of this data for the valdation. The following code randomly
+draws 125 tweets.
+
+```{r}
+validation_df = validation_df %>% sample_n(125)
+validation_df
+```
+
+And that's basically it! You can add your manual coding to this data.frame and calculate the precision and recall. It might be convenient to do this in Excel (or Google sheets, which makes it easier to do this together with your team). So finally we can export this data frame to a csv file.
+
+```{r, eval=F}
+write_csv(validation_df, "validation_df.csv")
+```
+
+Now off course, you are really not supposed to see the sentiment labels assigned by the computer when you are doing the manual coding, because this could influence your judgment. It would also have been possible to first draw the sample, do the manual coding, and then perform the dictionary analysis, but this way the code is a bit easier to follow.
+
+# Exploratory analysis
 
 This is a small recap of things you learned that you can use for exploratory analysis.
 First, we import the Tweets that we exported from OBI4wan.

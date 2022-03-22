@@ -244,15 +244,16 @@ These functions are available in `packages` that we can download and install int
 
 #### Installing packages
 
-To use the `wordcloud` function, we first need to install the `wordcloud` package.
-We can do this with the following line of code.
-Note that you **need** to put `"wordcloud"` between quotation marks!
+To use the `wordcloud` function, we first need to install the `tm` and `wordcloud` packages.
+We can do this with the following lines of code.
+Note that you **need** to put `"tm"` and `"wordcloud"` between quotation marks!
 
 ```{r, eval=F}
+install.packages("tm")
 install.packages("wordcloud")
 ```
 
-This should have installed the wordcloud package (if you got an error, consult your teacher).
+This should have installed the tm and wordcloud package (if you got an error, consult your teacher).
 It is now stored on your computer in a special `library` for your R packages.
 Note that you do not need to run this line of code again next time that you want to use the wordcloud package.
 So whenever you installed a package, you can remove the line of code from your script.

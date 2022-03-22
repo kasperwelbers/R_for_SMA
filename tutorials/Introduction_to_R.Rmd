@@ -311,9 +311,11 @@ In the code `barplot(heights, names.arg = teammembers, ylab='Height')`, we also 
 
 Now, you figured this is a pretty boring Bar chart, so you wanted to add some colors. You found out that there is an argument for the `barplot` function, named `col`, that allows you to give colors to bars, using any one of [these color names](https://www.r-graph-gallery.com/42-colors-names). If the value of the `col` argument is a vector of color names, it will give specific colors to each bar.  
 
-> **Question 1.c**. You decide to give every bar the favourite color of the respective teammember. You first create (assign) a new vector named `colornames` that contains these colors. (hint: this is just like how we made the `teammembers` vector above). Report your code.
+You decide to give every bar the favourite color of the respective teammember. We're going to do this in two steps:
 
-> **Question 1.d**. Now give the `colornames` vector to the `col` argument in the barplot function. Provide a screenshot of the new colourful Bar chart as your answer. 
+> **Question 1.c**. First create (assign) a new vector named `colornames` that contains these colors. (hint: this is just like how we made the `teammembers` vector above). Report your code.
+
+> **Question 1.d**. Second, give the `colornames` vector to the `col` argument in the barplot function. Provide a screenshot of the new colourful Bar chart as your answer. 
 
 
 # Text Analysis in R

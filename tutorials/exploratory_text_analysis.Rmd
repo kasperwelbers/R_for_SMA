@@ -24,33 +24,7 @@ VU Amsterdam
 In the previous practical you already played around with word clouds and the keyness analysis.
 In this practical we're going to have a closer look at these techniques, introduce a more advanced technique called topic modeling, and you will learn how to import OBI4wan data into R so that you can use these techniques with social media data.
 
-## Important update to the quanteda package
-
-In the previous practical you all worked with the quanteda package.
-But it just so happens that a major update was just released.
-Normally this would not be worthy of notice, because updates of R package tend to mainly just add new functionalities.
-But this is a rare update that actually requires us to use the package a bit differently.
-We therefore strongly recommend everyone to update quanteda.
-Although you can still use the 'older' version, this might give you trouble later on when you accidentally update, or when you install quanteda on a different computer.
-
-It's a bit inconvenient that this rare scenario happened in the middle of this course, and when you are just getting acquinted with R, but luckily the solution is really easy.
-To update a package, we simply run the `install.packages()` command again.
-
-```{r, eval=F}
-install.packages('quanteda')
-```
-
-Now, one of the main changes of the new version is that some functions have been moved to new packages (kind of like add-ons). 
-This also includes the `textplot_wordcloud` and `textstat_keyness` functions.
-So in addition we'll need to install `quanteda.textstats` and `quanteda.textplots`
-
-```{r, eval=F}
-install.packages('quanteda.textstats')
-install.packages('quanteda.textplots')
-```
-
-And now, whenever you want to use the textstats or textplots functionalities of quanteda, you
-load both the main package and these sub-packages.
+We'll again primarily be using the quanteda package and extensions. If you installed these before, you don't need to install them again, and can immediately run:
 
 ```{r}
 library(quanteda)             ## gives you functions such as corpus(), dfm()
@@ -58,10 +32,13 @@ library(quanteda.textstats)   ## gives you functions such as textstat_keyness()
 library(quanteda.textplots)   ## gives you functions such as textplot_wordcloud()
 ```
 
-You might wonder why they made this change. 
-The reason is probably just that quanteda is growing.
-So rather than forcing you to install and load everything in one single package, they started moving parts of the code to different packages. 
+If this doesn't work, and R tells you something like `Error in library(...) : there is no package called '...'`, then you haven't installed them yet. In that case, you need to run:
 
+```{r, eval=F}
+install.packages(c('quanteda','quanteda.textstats','quanteda.textplots'))
+```
+
+Note that it never hurts to install a package again if you already installed it before. Sometimes you also want to do this because the package might have been updated. However, it can take quite some time, so if you already installed it last time you really don't need to update it yet.
 
 # Importing texts into R
 
@@ -237,10 +214,6 @@ d = bind_rows(lapply(files, read_csv2))
 # Assignment 1
 
 In this assignment we'll first re-cap the techniques that you worked with before, but with this larger dataset (so yes, you'll need to run the code above to import the data for this assignment)
-We'll help you get started by making the DTM, because the 'recommended' approach changed a bit
-with the new update to quanteda.
-The code that we used last time still works, but you would get a message saying
-that some functions are 'deprecated' (meaning that they are outdated)
 
 ```{r, cache=TRUE}
 library(quanteda)             

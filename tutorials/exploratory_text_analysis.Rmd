@@ -541,8 +541,8 @@ We again provide you with the code.
 However, you might have to change some parts yourself.
 `stopwords` are currently English, so set them to Dutch if you have Dutch data).
 Also, if you run OBI4wan in Dutch, then the columns in your data might be in 
-Dutch as well. So in the `corpus()` function you might have to use the "Bericht"
-`text_field = "Bericht"` instead of "Message".
+Dutch as well. So in the `corpus()` function you might have to use
+`text_field = "Bericht"` instead of `"Message"`.
 You can also choose whether or not you want to use *stemming* (`dfm_wordstem`), and **we will ask you about this choice in the assignment**.
 Furthermore, you can get points for doing things better, such as adding colors to the wordcloud, and changing some settings for training the topic model (for which there are hints in the section on topic modeling).
 

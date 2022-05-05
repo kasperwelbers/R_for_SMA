@@ -35,7 +35,6 @@ As you'll see, these techniques can be applied for many more purposes than just 
 Supervised machine learning in particular has become a hugely important technique to understand (or at least know about), that is at the hearth of many revolutionary feats of computers, such as machine translation, image recognition, and even self-driving cars.
 We won't dive that deep into the method, but you will see what it is, and even apply it yourself. 
 
-
 # Rules based versus supervised machine learning
 
 The difference between rule-based and supervised machine learning has also been discussed in the second video lecture, so we won't discuss it here in detail. But we'll re-cap the main overview. 
@@ -123,7 +122,7 @@ to measure sentiment on social media texts.
 Positive and negative opinions about certain types of products are likely to be expressed rather differently from opinions about a brand on Twitter.
 
 
-## The data for this practical
+## Preparing the data
 
 We provided two sets of Amazon reviews. One about pet products, and one about beauty products.
 For the first part we'll focus on just the pet products.
@@ -161,23 +160,17 @@ The reason is that this package allows us to visualize how the dictionary matche
 install.packages('corpustools')
 ```
 
-We'll also install the `quanteda.dictionaries` plugin, which has some pre-made dictionaries that we can use.
-Installing this package is a bit different from other packages (long story short, this package mainly contains dictionary data, so it's larger than 'normal' packages).
-We first install the `remotes` package, which then allows us to install the package from `GitHub`.
-You might get a question: `These packages have more recent versions available. It is recommended to update all of them. Which would you like to update?`. In this case, you should choose option 1 or 2 (type 1 or 2 in your console and press enter).
+We'll also install the `textdata` package, which has some pre-made dictionaries that we can use.
 
-(If you can't install quanteda.dictionaries, you can also continue without it. We'll provide a csv file with the dictionary for this tutorial as a back-up plan)
-
-```{r, eval=F}
-install.packages('remotes')
-remotes::install_github('kbenoit/quanteda.dictionaries')
+```{r}
+install.packages('textdata')
 ```
 
 Remember that you only need to install packages once, but you'll still need to run `library(packagename)` to use them in the current session.
 
 ```{r}
 library(corpustools)
-library(quanteda.dictionaries)
+library(textdata)
 ```
 
 Corpustools is similar to `quanteda` in that we first tokenize our data by breaking texts into words. 
@@ -191,30 +184,33 @@ tc
 
 We now have a corpus with about 500,000 words, over 5000 reviews.
 
+## Preparing the dictionary
+
 Now, let's prepare a dictionary. As mentioned above, a dictionary is just a list of words, where each word is related to some kind of category or score. 
 There are many different available sentiment dictionaries, that have been developed for different purposes (e.g., sentiment in economic news, sentiment on Twitter)
 Here we'll use the [Affective Norms for English Words](https://arxiv.org/abs/1103.2903) dictionary, which was developed for microblogs such as Twitter.  
-We already got this data by opening `quanteda.dictionaries` (so besides functions, packages can also provide data) 
 
-> !! If you weren't able to install quanteda.dictionaries, you can also load the dictionary from a csv file
+We can get download this dictionary directly in R using the textdata package that we installed earlier, by simply using the `lexicon_afinn()` function.
+Here we'll do so, and immediately make a few small changes. First, we change the column names to something more convenient for our analysis.
+Second, the AFINN dictionary has a sentiment value ranging from -5 to 5 (though skipping 0, which would be neutral), so we'll also add a label that tells us whether this value was negative or positive.
+We'll call that `dict_sentiment`, so that later on we can easily distinguish it from the 'real' 
 
-```{r, eval=F}
-## only run this code if you couldn't install quanteda.dictionaries
-data_dictionary_AFINN = read_csv('data/AFINN_dictionary.csv')
-data_dictionary_AFINN$dict_sentiment = data_dictionary_AFINN$code
-```
-
-```{r, eval=F}
-data_dictionary_AFINN
-```
-
-Here you see a glimpse of the words in this dictionary. There are two categories: positive and negative. For the positive category there are 878 words, and for the negative category there are 1599 words.
-
-Now, we'll use this dictionary to find the positive and negative words in our corpus.
-We store the results in a column called `dict\_sentiment` (sentiment based on the dictionary), to make a clear distinction from the "real" sentiment based on the review score.
 
 ```{r}
-tc$code_dictionary(data_dictionary_AFINN, column='dict_sentiment') 
+## download data
+afinn_dict = lexicon_afinn()
+## rename the two columns into "string" and "sentiment"
+colnames(afinn_dict) = c('string','sentiment')  
+## give negative sentiment score the 'negative' label, and positive scores the 'positive' label
+afinn_dict$sentiment_label = ifelse(afinn_dict$sentiment < 0, 'negative', 'positive')
+afinn_dict
+```
+
+As you can see, the dictionary is simply a data frame in which each row represents a unique `string`, and each word has a `sentiment` value ranging from -5 to 5.
+The whole shebang of using a dictionary to measure sentiment in text is just to match these strings to a corpus, and then we can count these sentiment scores within a document.
+
+```{r}
+tc$code_dictionary(afinn_dict, column='sentiment') 
 ```
 
 Note that this function is a little different from what you've seen before.
@@ -231,7 +227,7 @@ head(tc$tokens, 50)
 ```
 
 This gave you 50 rows, where each row tells us the id of the document, the id of the token (the position of the words in the document), the token text, and now also columns for `sentiment_id` and `sentiment`.
-If you scroll to row 35, you see that for the token `likes`, the sentiment column tells us that in the dictionary this word is marked as a `positive` word. 
+If you scroll to row 35, you see that for the token `likes`, the sentiment column tells us that in the dictionary this word has a sentiment score of `2`, so it's `positive`.
 
 So really, all we did is look up the words of the dictionary in all of our reviews, and add the dictionary labels. 
 The rest of the analysis is simply counting the words, and using the frequencies of positive and negative words to calculate a sentiment score. 
@@ -239,12 +235,13 @@ The rest of the analysis is simply counting the words, and using the frequencies
 We'll do this in the next section, but let's first show why we decided to do this part in `corpustools`. 
 To count single words, we could just as well have used a document term matrix, which would have been more efficient (we wouldn't have had to store the locations of each word). 
 But by keeping the order of words intact, we can now also visualize the dictionary words in the original texts.
+We'll first 
 
 ```{r, eval=F}
-browse_texts(tc, n = 10, category='dict_sentiment')
+browse_texts(tc, n = 10, category='sentiment_label')
 ```
 
-You now see the texts for the first 10 documents, with colours indicating which words the dictionary considers `positive` (blue) and `negative` (red).
+You now see the texts for the first 10 documents, with colors indicating which words the dictionary considers `positive` (blue) and `negative` (red).
 This should give you a pretty good idea of how a dictionary analysis works. 
 It really just matches words (or short phrases) to texts.
 
@@ -258,7 +255,7 @@ Here we also include the `score` (the review score on a scale from 1 to 5), beca
 
 ```{r}
 sent_counts = count_tcorpus(tc, meta_cols = c('doc_id', 'score'), 
-                            feature='dict_sentiment', count = 'tokens')
+                            feature='sentiment_label', count = 'tokens')
 sent_counts
 ```
 
@@ -295,7 +292,7 @@ hist(sent_counts$dict_score, xlab='score', main='dictionary sentiment score')
 ```
 
 On the x-axis we see the score, and on the y-axis we see how many reviews had (approximately) this score. 
-Most reviews had scores around 1 or 2, which indicates that according to our dictionary analysis most reviews are positive.
+Most reviews had scores above 0, which indicates that according to our dictionary analysis most reviews are positive.
 This is a good sign, because before we saw that most reviews were indeed positive based on the review scores. 
 
 ## Validating the sentiment dictionary
@@ -349,19 +346,24 @@ step here so that the code is fully self contained (i.e. does not rely on previo
 ```{r}
 library(readr)
 library(corpustools)
-library(quanteda.dictionaries)
+library(textdata)
 
-## read data  
+## prepare data  
 ## (with n_max = 5000 we only read the first 5000 reviews in this csv)
 beauty = read_csv('data/Beauty_5.csv', n_max = 5000)
 
+## prepare dictionary
+afinn_dict = lexicon_afinn()
+colnames(afinn_dict) = c('string','sentiment')  
+afinn_dict$sentiment_label = ifelse(afinn_dict$sentiment < 0, 'negative', 'positive')
+
 ## create corpus and apply dictionary
 tc = create_tcorpus(beauty, doc_column = 'id', text_columns = 'text')
-tc$code_dictionary(data_dictionary_AFINN, column='dict_sentiment')
+tc$code_dictionary(afinn_dict, column='sentiment')
 
 ## calculating sentiment score
 sent_counts = count_tcorpus(tc, meta_cols = c('doc_id', 'score'), 
-                            feature='dict_sentiment', count = 'tokens')
+                            feature='sentiment_label', count = 'tokens')
 sent_counts$dict_score = log(sent_counts$positive + 0.5) - log(sent_counts$negative + 0.5)
 ```
 
@@ -370,7 +372,7 @@ articles to get a first look at how accurate the dictionary is for our data.
 To do so, we'll again use the `browse_texts` function.
 
 ```{r, eval=F}
-browse_texts(tc, n=10, category='dict_sentiment')
+browse_texts(tc, n=10, category='sentiment_label')
 ```
 
 Have a good look at the first 10 reviews and answer the following questions (read all questions first, so you know what to look for). 
@@ -444,7 +446,7 @@ However, in this case we'll also need to use these scores to `train` our data fi
 That is, we'll need to give our computer a set of review texts with the "real" sentiment label (based on the review scores) so that it can `learn` how to measure sentiment.
 
 For this part we'll use quanteda.
-This time, we'll also need to install another quanteda plugin for textmodels (which include machine learning models).
+This time, we'll also need to install another quanteda plugin for textmodels (which includes machine learning models).
 
 ```{r, eval=F}
 install.packages('quanteda.textmodels')
@@ -555,17 +557,18 @@ cm = table(gold_standard = real_sentiment,
 cm
 ```
 
-This might also be a good time to show you an easier way to calculate the precision and recall.
-The diagonal of the matrix always holds the true positives for each category. 
+Till now you've always calculated precision and recall by hand, but off course we can also just do this in R.
+There are even packages that can do this for your, but here we'll do it ourselves for sake of transparency. 
+The diagonal of the confusion matrix always holds the true positives for each category. 
 We can divide this by the column sums (number of times the category was measured/predicted) to get the precision,
-and divide by the row sums (number of times the category occured in gold standard) to get the recall.
+and divide by the row sums (number of times the category occurred in gold standard) to get the recall.
 
 ```{r}
 precision = diag(cm) / colSums(cm)
 recall = diag(cm) / rowSums(cm)
 F1 = 2 * (precision * recall) / (precision + recall)
 
-data.frame(precision, recall, F1) %>% round(2) ## there's that pipe thing again!
+data.frame(precision, recall, F1) %>% round(2) ## the pipe here just rounds the data to 2 decimals
 ```
 
 These results are already much better than the sentiment dictionary, but they're still not amazing.

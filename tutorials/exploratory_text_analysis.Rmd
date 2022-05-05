@@ -326,15 +326,17 @@ It might give better results if we include more words (especially if we would ha
 ## Training a topic model
 
 We're going to use the `stm` package, which allows us to train a [structural topic model](https://raw.githubusercontent.com/bstewart/stm/master/vignettes/stmVignette.pdf).
+We're also going to install the `wordcloud` package, which you'll need to use a feature from the stm package to view the wordcloud of a topic.
 
 ```{r, eval=F}
 install.packages('stm')
+install.packages('wordcloud')
 ```
 ```{r}
 library(stm)
 ```
 
-While it might be hard to understand *how* this technique works, it's really easy to apply it. THe following code will train a stm given our data.
+While it might be hard to understand *how* this technique works, it's really easy to apply it. The following code will train a stm given our data.
 We also need to set the number of topics (K = 10) that we want to computer to look for.
 In addition, we limit the maximum number of iterations (max.em.its) to 20.
 Simply put, we tell the computer to stop training after 20 iterations (say, rounds of training) even if it isn't 'finished'. 

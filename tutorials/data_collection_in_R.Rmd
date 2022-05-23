@@ -1,0 +1,176 @@
+---
+title: 'Social Media Analytics'
+subtitle: "Data collection in R"
+output:
+  html_document:
+  theme: united
+  highlight: tango
+  css: custom.css
+  toc: true
+  toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+# This document
+
+For the research project you will need to gather data that is suitable for answering your research question.
+Throughout this course we have used OBI4wan for this purpose, because it gives easy access to a lot of data, and because these types of social media dashboards are often used in the workplace.
+
+However, there are some limitations of relying on OBI4wan.
+
+* First of all, it's very expensive (note that we're using a cheap student edition). One of the reasons it's so expensive is that OBI4wan is a broader service for managing webcare.
+If we just want to gather data for our analysis, getting a while OBI4wan licence might be overkill. 
+* A second limitation is that OBI4wan is mainly oriented on the Dutch context. There is some coverage of English language tweets, but this is only a very small subset.
+* A third limitation is that we don't really know how OBI4wan collects its data. Especially for the subset of English language tweets, it is quite likely that some
+selection (e.g., based on keywords) is involved, which means that results of our analysis can be biased in ways that we have no knowledge of. 
+* Finally, since we're using the student licence, there are some restrictions on how we can use OBI4wan. We can only look back for at most 1 year, 
+and we cannot access an API (more on this below) to directly load data into R. To analyze a large collection of messages, we now have to export them in multiple CSV files
+and then import these into R. This is OK if we're talking 100.000 tweets, but what if we want to study something like all tweets about Covid in the Netherlands?
+
+For this course, these limitations are not a deal breaker, and these limitations are also taken into account in the evaluation of the final paper. 
+As such, the current tutorial is completely optional, and there is no harm in deciding to stick with OBI4wan for this project.
+However, if you do decide to read on, you will see that there are some great alternatives that let you gather data directly from within R.
+
+
+# Using APIs to gather data
+
+In this tutorial we'll focus on using APIs. An API is an interface for communication between (parts of) computer programs. In the context of data gathering, API often more specifically refers to an interface between a client and a server. For instance, Twitter has an API that people can use to search and collect tweets. 
+
+This is different from just going to the Twitter website to find these tweets. The Twitter website (or app) is made for human consumption.
+That is, it has to look good and work well for actual users. But if we want to collect all tweets about Will Smith as the Oscars in one month after the event, we don't need that fancy website. 
+We just want to give a query to Twitter, and then have Twitter give us the data in a way that we can directly import it in programs such as R. 
+
+Long story short, this means that APIs let us search for and download data directly from within R. 
+
+
+## Reddit
+
+For certain types of research questions, Reddit could be a cool alternative for Twitter. 
+Naturally, it's not very representative of the general population (but hey, neither is Twitter), but it does allow us to investigate how certain people, organizations or topics are discussed, how this changes over time, and how this might differ between certain groups.
+
+Reddit has a nice API that let's us look for content, and there is an R package called `RedditExtractoR` that makes it easy for us to use this API
+
+```{r, eval=F}
+install.packages('RedditExtractoR')
+```
+
+```{r, eval=F}
+library(RedditExtractoR)
+```
+
+First, let us look for some threads based on a keyword search.
+We'll just look in the past "month", but you could also look for the past "year" or even "all" threads.
+We'll look for "rstats", which is a common way of referring to the R programming language. 
+
+```{r, eval=F}
+threads = find_thread_urls("rstats", period='month')
+```
+
+This gives us a data.frame where each row is a thread. 
+You could view the data by clicking on it in the top-right window in RStudio (under the Environment tab).
+But what we're most interested in is the thread `url`, which we can now use to also get all the content from these threads.
+
+```{r, eval=F}
+content = get_thread_content(threads$url)
+comments = content$comments
+```
+
+This can take a little while depending on how many threads we found and how big the threads are. 
+The main reason is that Reddit imposes some speedbumps when using the API.
+Last I checked, this was 60 requests per minute.
+In my case I found 215 threads about rstats in the past month, and if we get the data for one thread,
+that is 1 request. So we several times run into the 1 minute speed bump and have to wait a little.
+Luckily, your computer doesn't charge by the hour, so there is no harm in letting it run for a long time
+if you have more data.
+
+Once finished, you'll get a data.frame with comments (actually, you get a list that as both the 'threads' and 'comments' data, so we use `content$comments` to select the comments).
+Let's do a simple wordcloud analysis of this data.
+
+```{r, eval=F}
+library(quanteda)
+library(quanteda.textplots)
+
+## make a document term matrix from the comments
+dtm = corpus(comments, text_field = 'comment') %>%
+  tokens(remove_punct = T) %>% 
+  dfm() %>%
+  dfm_remove(stopwords('en'))
+
+## make a wordcloud of the comments
+textplot_wordcloud(dtm, max_words = 50)
+```
+
+
+
+
+## The Twitter API
+
+Perhaps one of the most useful APIs for social media analysis is the Twitter API. 
+This API allows you to collect millions of tweets directly from Twitter.
+So if you only want to analyze tweets, you wouldn't actually need a middle man like OBI4wan.
+Furthermore, it allows you to collect network data, such as retrieving all followers of a given account.
+
+However, there are some barriers to using this API in the current course. Twitter will not just give you free, infinite access to its data.
+If you want to be able to search through the full Twitter archive you either need to pay them or apply for a special access for Academic research.
+The problem is that you can only get Academic access if you are a Master student (so close!) or work as a researcher at the University.
+
+Without such special access, you can also use a regular Twitter account, but this has some restrictions and limits. Most importantly:
+
+* Can only search past 7 days
+* Can only get 18.000 tweets per 15 minutes
+* Can get the last 3200 tweets for a specific user
+
+So if your research question is about something that happened a while ago, this is not really a great option. But if you are for instance interested in comparing the tweets of different accounts (e.g., comparing brands, celebrities, politicians) this would be an option. Especially if you're using English data, because then these accounts might not be covered by OBI4wan.
+
+So how difficult is this? If you have a twitter account it should be fairly easy. 
+You can just use a function from the rtweet package, and it should automatically request you to login the first time.
+
+```{r, eval=F}
+install.packages('rtweet')
+```
+
+```{r, eval=F}
+library(rtweet)
+recent_tweets = search_tweets('#rstats', n = 1000)  ## change n for more
+```
+
+This gives us the 1000 most recent tweets mentioning #rstats. The data is a data.frame
+where each row is a tweet, and the tweet content is in a column called "text". 
+So now we can use this data just like in the previous tutorials by telling quanteda that the text_field is "text".
+
+```{r, eval=F}
+library(quanteda)
+library(quanteda.textplots)
+
+dtm = corpus(recent_tweets, text_field = 'text') %>% 
+  tokens(remove_punct = T) %>% 
+  dfm() %>%
+  dfm_remove(stopwords('en'))
+
+textplot_wordcloud(dtm, max_words = 50)
+```
+
+To get the most recent tweets from a particular user, we can use the get_timeline function.
+
+```{r, eval=F}
+timeline_tweets <- get_timeline("_R_Foundation", n = 1000)
+```
+
+To compare timelines (or any collections of tweets), you could simply get multiple and bind them together.
+
+```{r, eval=F}
+library(dplyr)
+timeline_1 <- get_timeline("_R_Foundation", n = 1000)
+timeline_2 <- get_timeline("rfortherest", n = 1000)
+
+tweets = bind_rows(timeline_1,
+                   timeline_2)
+
+dtm = corpus(tweets, text_field='text')
+```
+

@@ -1,5 +1,5 @@
 ---
-title: 'Social Media Analytics'
+title: 'Social Media Analytics VI'
 subtitle: "Writing the introduction and method section"
 output:
   html_document:
@@ -16,17 +16,45 @@ editor_options:
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
-# This document
+VU Amsterdam
+
+# This practical
+
+Due to the whole Corona situation, we made a minor switch in the topics of the final practical and lecture. 
+Instead of spending the final practical on repeating the techniques you learned in R, and talking in the lecture about the final assignment, we now spend this practical on writing a sketch version of the introduction and method section of the research report that you'll write in P6. 
+The questions in this practical correspond to the key components of these sections, and will help you write them step-by-step.
+As such, this practical serves as both a trial run and as a detailed assignment description for the (graded) progress update on June 10th (see schedule below).
+
+This doesn't mean that you already have to make important decisions, such as your definitive research question.
+Researcher is an iterative process that seldom succeeds in one go. You come up with an idea, work it out a bit, then take a step back and try again.
+In this assignment we'll provide some pointers for going through this motion. 
+You are also allowed to use all your answers and ideas from this assignment in your actual research report.
+
+The reason for this change is that it gives more time for supervisors and teams to discus the final assignment.
+It should ease the start-up of P6 and could even give you a head start.
+This way we can somewhat compensate for the limited means of interaction. *(Sidenote: we are looking into whether we can offer the option to have on-campus supervision meetings in P6, but we can't yet make any promises.)*.
+At the same time, we thought the `recorded lecture` format actually lends itself better to summarize the techniques that you learned. 
+This lecture will now include shorter videos with mini tutorials (+ code examples) for performing the types of analysis that you could use in your research report. 
+
+Our hope is that this change will offer you a bit more peace of mind about the research report in P6. 
+Last year we also taught this part of the course within the Corona pandemic, and that really did work out very well, so we're confident that we can make this an inspiring project.
+But we also see (and feel) the struggle to keep motivated as the summer and a return towards normalcy finally approach. 
+So hang in there for a little while longer!
+
+
+## Prelude to final assignment
 
 Your final assignment in P6 is to write a research report, for which you'll work through a full research cycle of coming up with a research question, collecting the data, performing the analysis, and drawing conclusions. 
 Each week you'll write one of these components, and every Monday you'll meet up with you supervisor to discuss progress and ask questions.
-At the end of the second week, you have to submit a draft version of the introduction and method section.
-In this document, we provide more detailed guidelines for how to appraoch these sections.
+
+```{r, echo=F, fig.align='center'}
+knitr::include_graphics('img/P6_roster.png')
+```
 
 All research papers share a common structure, usually revolving around the sections: introduction, literature overview, method, results, conclusion/discussion. But there are some variations to this theme, relating to the field of research (e.g., media psychology, political communication, marketing, corporate communication) and methodology (e.g., experiment, survey, content analysis).
 In the project in P6, you will conduct a content analysis of social media data, and you will learn what the key components of a research report are in a content analysis study.
 We focus less on literature and more on method, in line with the more methodological focus of this course.
-In this document we'll dedicate our attention to the introduction and method section. 
+In this practical we'll dedicate our attention to the introduction and method section. 
 
 # The introduction section
 
@@ -78,6 +106,51 @@ Normally these are often formulated in a separate **theory** (or literature) sec
 
 
 > Note that you are required to use academic literature (at least 5 papers or books). The most obvious parts of the introduction to include this are the *relevance* and *questions / hypotheses*. You can also refer to sources about methodological techniques, such as providing a reference for Structural Topic Models (if you use them), or studies that argue how social media analytics can be used to study public opinion.
+
+
+## Assignment 1
+
+For the first assignment, you'll answer some question to create a rough sketch for an introduction.
+This has to be an introduction for a study that you would be able to conduct with the techniques that we discussed in this course, and data that you could collect from OBI4wan.
+You are allowed to (but don't have to) use this sketch as a starting point for the final assignment in P6, so doing it well now can pay off twice.
+
+The first step is to come up with a topic and research question. 
+This is immediately the hardest step, so let's first discuss some useful guidelines.
+Research questions tend to have rather standard `formats`.
+Given certain types of research methods, there are certain types of questions that you can ask. 
+The following is a very flexible format for using social media data to study public opinion. 
+
+* How did <font color='red'>[event]</font> affect <font color='purple'>[public opinion]</font> about <font color='blue'>[person / organization / issue]</font>. 
+
+It doesn't have to be strictly this sentence. The format is simply that we can study how `some event` has changed `how people feel, think or talk` about `something or someone`. 
+Here are some examples of alternative questions with the same format (using nonsense placeholders to not steal any ideas you might have):
+
+* How did <font color='red'>[the fall of the Berlin wall]</font> affect <font color='purple'>[attitudes]</font> towards <font color='blue'>[walls]</font>?
+* Did people become <font color='purple'>[happier]</font> about <font color='blue'>[cats]</font> since <font color='red'>[the Corona lockdown]</font>? 
+* To what extent has <font color='red'>[the robot apocalypse]</font> changed <font color='purple'>[how people feel]</font> about <font color='blue'>[chat bots]</font>?
+
+Some additional things to keep in mind:
+
+* Pick a recent event, because you can only get up to 1 year back on OBI4wan.
+* Events can also be communication, such as the start of a marketing campaign or a political statement. 
+* Public opinion should be interpreted very broadly here. It can also be about emotion, and for some questions it might also be very interesting to look at how the public agenda (the amount of social media messages) changes.
+* You are free to not use this format, or a variation on this format.
+
+Now then, let's start sketching an introduction.  
+
+> **Question 1.a**. Come-up with a topic and introduce it. (tip: if you used the event-oriented format, this will typically be a paragraph saying what happened, and why this could impact public opinion).
+
+> **Question 1.b**. Formulate the overarching research question.
+
+Now, let's add the method and relevance parts. At this point you can't yet be very specific (since you haven't worked out the method yet), but for a sketch introduction you can already write down the general approach (using social media data). 
+
+> **Question 1.c**. Write down `how` you will answer your question. Make sure to mention what data you'd use (time before and after the event, just tweets or also other), and what techniques you (think you'll) use. (tip: if your question is about an event, we recommend collecting data before and after the event for comparison, and in general we recommend using only Twitter data for sake of simplicity)
+
+> **Question 1.d**. To sketch the relevance of your study, you make a bulletpoint list mentioning `theoretical relevance`, `societal relevance` and `practical relevance`. For each point describe whether and how your study would be relevant. In case of practical relevance you should also mention for whom it is relevant. 
+
+For the final part, you're going to come up with at least one sub-question and one hypothesis. For the hypothesis you do not yet have to justify it with literature. The goal is to think of (and show us) how you could break your research question down into smaller components that you can study. 
+
+> **Question 1.e**. Formulate at least one specific question and one hypothesis based on your overarching research question. 
 
 
 # The Method section
@@ -148,3 +221,64 @@ What matters is that you show us that you understand the limitations of your stu
 * You need to perform a precision measurement (no recall) for your **population query**. That is, the query that you use in OBI4wan to retrieve the messages. Here you manually code 100 random messages from the OBI4wan results to calculate the precision. (this is the same calculation as you used in assignment 2.d of the 2nd practical)
 
 
+
+
+## Assignment 2
+
+In this assignment we'll sketch the method section based on the idea that you developed in assignment 1. 
+
+> **Question 2.a**. Develop a query to collect your data from OBI4wan. Report the query, the time period and the source type (again, we recommend only using Twitter). Write this as you would write it in your research report. 
+
+> **Question 2.b**. Report the number of messages that you find. Now, think about how you could export these messages to R, keeping in mind that you can only export 20.000 messages at a time. Would you be able to use all messages, or would you have to take a sample? If so, how would you draw this sample?
+
+
+For the content analysis section you'll now only have to discuss one measurement from either the question or hypothesis that you formulated in `question 1.e` (in the final assignment you'll need to discuss the measurements of all your questions/hypotheses). 
+
+
+> **Question 2.c**. Report what question / hypothesis you used. Describe what you need to measure to answer or test this question or hypothesis.
+
+> **Question 2.d**. Now describe how you'll actually measure it, and reflect on how well you think this will work. In this stage (we're still sketching), you don't yet have to make a definite choice. You can say that you are doubting between two methods and reflect on which might work better.
+
+
+And this brings us to the `validation` part. 
+In a proper study, we don't just think about how well our method actually measures what we're trying to measure, but we also test this.
+As you've now seen several times, we can achieve this by creating a gold standard based on human evaluations, and then use measures such as Precision and Recall to see how well our automatic content analysis techniques can match this[^2].
+
+[^2]: Note that we're only talking about validating our content analysis techniques.
+Take the example of using the number of tweets about a company as an indication of public interest in the company.
+We can test whether our method for automatically counting tweets about a company is accurate. 
+But we cannot as easily test our assumption that the number of tweets is actually a good measurement of public interest.
+As with any research method, we should always be mindful about the the things we simply cannot see, and take this into account in estimating how certain we can be about our conclusions.
+
+You can't actually perform the validation now since we're still just sketching the set-up of our study. 
+But you can think about how you will perform the validation eventually.
+The following two questions cover the two type of validation that you need to perform in your final assignment (as discussed above)
+
+> **Question 2.e**. One thing that you need to validate is your *population query* (i.e. the query for retrieving your data from OBI4wan). For this you only need to measure the precision. Describe how you would do this. 
+
+> **Question 2.f**. You also need to measure the precision and recall for a measurement used in a question and/or hypothesis. For this assignment, use the same measurement that you described in question 2.c and 2.d. Describe how you would create the gold standard to measure the precision and recall.
+
+
+# Combining both sections
+
+## Assignment 3
+
+In this assignment you'll practice putting together the different components of the introduction and method section. 
+As a starting point, we'll provide you with a *skeleton* in which you can plug the answers to the questions above.
+Off course, this patchwork approach is not how one would normally write a research report, and the world would be a boring place if all research reports looked like this.
+This is purely an exercise to help you develop a better intuition for what key components you need to address in the introduction and method sections of a (automatic) content analysis study.
+
+The structure is pretty straightforwards, and corresponds to the descriptions above.
+
+* **section: Introduction**
+    * question 1.a - 1.e
+* **section: Method**
+  * **subsection: Data** 
+    * question 2.a - 2.b
+  * **subsection: Content analysis** 
+    * question 2.c - 2.d
+  * **subsection: Validation** 
+    * question 2.e - 2.f
+
+
+> **Question 3**. Copy the skeleton structure, and paste in your answers to the questions. Let every teammember read it from start to finish to get a sense of the coherence between the components. Discuss with your team what the strenghts and weaknesses are. Finally, do one round of revision where you tidy up the text into a more coherent whole. Report the final version.

@@ -144,7 +144,7 @@ Even if your precision and recall turn out to be hilariously low, you can simply
 You will be graded on how well you demonstrate your understanding of how to conduct good research, and good researchers can still end up with cases of low precision.
 What matters is that you show us that you understand the limitations of your study, which you can do in the `reflection` section of the assignment.
 
-* You need to perform a precision and recall measurement for `the most important measurement` in your study (discuss with your supervisor if it's not clear which measurement this is). For example, if your main question or hypothesis is based on sentiment analysis, then perform the P&R measurement for this sentiment analysis. For this measurement every team-member should manually code 25 messages (so with 5 members, you'd end up with a gold standard of 125 messages). 
+* You need to perform a precision and recall measurement for `the most important measurement` in your study (discuss with your supervisor if it's not clear which measurement this is). For example, if your main question or hypothesis is based on sentiment analysis, then perform the P&R measurement for this sentiment analysis. For this measurement every team-member should manually code 50 messages (so with 5 members, you'd end up with a gold standard of 250 messages). 
 * You need to perform a precision measurement (no recall) for your **population query**. That is, the query that you use in OBI4wan to retrieve the messages. Here you manually code 100 random messages from the OBI4wan results to calculate the precision. (this is the same calculation as you used in assignment 2.d of the 2nd practical)
 
 

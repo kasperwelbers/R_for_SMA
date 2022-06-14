@@ -45,7 +45,6 @@
 
 
 
-
 <link rel="stylesheet" href="data:text/css,blockquote%20%7B%0Apadding%3A%2010px%2020px%3B%0Amargin%3A%200%200%2020px%3B%0Afont%2Dsize%3A%2014px%3B%0Aborder%2Dleft%3A%205px%20solid%20%23eee%3B%0A%7D%0A" type="text/css" />
 
 
@@ -70,9 +69,6 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
-}
-details > summary > p:only-child {
-  display: inline;
 }
 pre code {
   padding: 0;
@@ -169,7 +165,6 @@ pre code {
 </ul>
 </div>
 
-<p>VU Amsterdam</p>
 <div id="this-document" class="section level1">
 <h1>This document</h1>
 <p>Your final assignment in P6 is to write a research report, for which you’ll work through a full research cycle of coming up with a research question, collecting the data, performing the analysis, and drawing conclusions. Each week you’ll write one of these components, and every Monday you’ll meet up with you supervisor to discuss progress and ask questions. At the end of the second week, you have to submit a draft version of the introduction and method section. In this document, we provide more detailed guidelines for how to appraoch these sections.</p>
@@ -241,7 +236,7 @@ pre code {
 <p>Now, we won’t ask you to validate EVERYTHING, and we’ll also keep the amount of messages that you need to manually code moderate. The reason is simply that doing manual coding for validation is time-consuming, and we would rather have you direct your energy elsewhere. However, we do emphasize that in a proper study validation should not be skipped, and when you read a research report with an automatic content analysis component you should always read the validation section (or worry when it’s absent).</p>
 <p>Specifically, you’ll need to perform two separate precision and recall measurements in your final paper<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
 <ul>
-<li>You need to perform a precision and recall measurement for <code>the most important measurement</code> in your study (discuss with your supervisor if it’s not clear which measurement this is). For example, if your main question or hypothesis is based on sentiment analysis, then perform the P&amp;R measurement for this sentiment analysis. For this measurement every team-member should manually code 25 messages (so with 5 members, you’d end up with a gold standard of 125 messages).</li>
+<li>You need to perform a precision and recall measurement for <code>the most important measurement</code> in your study (discuss with your supervisor if it’s not clear which measurement this is). For example, if your main question or hypothesis is based on sentiment analysis, then perform the P&amp;R measurement for this sentiment analysis. For this measurement every team-member should manually code 50 messages (so with 5 members, you’d end up with a gold standard of 250 messages).</li>
 <li>You need to perform a precision measurement (no recall) for your <strong>population query</strong>. That is, the query that you use in OBI4wan to retrieve the messages. Here you manually code 100 random messages from the OBI4wan results to calculate the precision. (this is the same calculation as you used in assignment 2.d of the 2nd practical)</li>
 </ul>
 </div>

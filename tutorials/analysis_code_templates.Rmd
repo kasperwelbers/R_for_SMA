@@ -74,7 +74,7 @@ This data is also provided as a CSV file with semicolon separators,
 so we use `read_csv2` to open it.
 
 ```{r}
-d = read_csv2('~/Downloads/obi4wan_export_20211705_174102.csv')
+d = read_csv2('~/Downloads/obi4wan_export_20222806_100006.csv')
 ```
 
 You should now have a data.frame with 4 columns: Name, Neutral, Negative and Positive.
@@ -82,7 +82,7 @@ It is possible, however, that your data is in Dutch (depending on your browser s
 In that case you can do three things. You could keep this in mind, and change the code below accordingly (for instance, using Naam where I use Name).
 Secondly, you could just change your language setting in OBI4wan into English. Finally, you could rename the columns in your data like this:
 
-```{r, eval=F}
+```{r, eval=T}
 d = d %>% rename(Name = Naam, 
                  Negative = Negatief, 
                  Positive = Positief, 
@@ -107,7 +107,7 @@ we create our own function called `fix_stupid_date`, which we can then use to fi
 fix_stupid_date <- function(stupid_date, latest_year=2022) {
   stupid_date = gsub('-', '/', stupid_date)
   start_year = if ('01/01' %in% stupid_date) which(stupid_date == '01/01') else 1
-  year = ifelse(1:nrow(d) >= start_year, latest_year, latest_year-1)
+  year = ifelse(1:length(stupid_date) >= start_year, latest_year, latest_year-1)
   datestring = paste(stupid_date, year, sep='/')
   proper_date = as.Date(datestring, format='%d/%m/%Y')
   return(proper_date)
@@ -127,7 +127,7 @@ So if your data runs from november 2021 to december 2021, the latest year is 202
 (so for most if not all of you, this will be 2022). We can then use the function like this:
 
 ```{r}
-d$date = fix_stupid_date(d$Name, latest_year = 2021)
+d$date = fix_stupid_date(d$Name, latest_year = 2022)
 d
 ```
 
@@ -544,10 +544,15 @@ library(tidyverse)
 library(lubridate)
 
 ## load data (as exported from OBI4wan sentiment line graph)
-d = read_csv2('~/Downloads/obi4wan_export_20211705_174102.csv')
+d = read_csv2('~/Downloads/obi4wan_export_20222806_100006.csv')
+
+d = d %>% rename(Name = Naam, 
+                 Negative = Negatief, 
+                 Positive = Positief, 
+                 Neutral = Neutraal)
 
 ## fix date (need to have created the fix_stupid_date function, as explained above)
-d$date = fix_stupid_date(d$Name, 2021)
+d$date = fix_stupid_date(d$Name, 2022)
 d
 ```
 
@@ -594,7 +599,7 @@ For your assignment, you might specifically want to compare all tweets before an
 In this case, we can just create a group based on a `date is greater than` condition.
 
 ```{r}
-d = d %>% mutate(after_christmas = date >= '2020-12-26')
+d = d %>% mutate(after_christmas = date >= '2021-12-26')
 d
 ```
 

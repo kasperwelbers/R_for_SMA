@@ -1,5 +1,5 @@
 ---
-title: 'Social Media Analytics III'
+title: 'Social Media Analytics VI'
 subtitle: "Introduction to R"
 output:
   html_document:
@@ -47,25 +47,16 @@ This course thereby follows the recommendation of [Van Atteveldt & Peng (2018)](
 ### How to work with the R tutorial documents
 
 As you probably noticed, the format of this tutorial is somewhat different from previous weeks.
-Before the tutorials were PDF files, but now it's this HTML document.
-So what's up with that?
+Before the tutorials were PDF files, but now it's this HTML document. Long story short, these tutorial documents are themselves generated in R (using RMarkdown). This guarantees that any code shown here does actually work. So, as long as you copy/paste all the code from this tutorial, and execute it in the same order as we showed it in the tutorial, everything *should* work.
 
-In R you will be working with the `R syntax`.
-That is, you'll be giving all the commands to R `via text`.
-For this, you will often want to copy/paste the `code` (i.e. text in the R syntax) that we provide in the tutorials into R.
-This format will make it easier and safer to copy this code.
-You personally might not mind the difference between a straight quote `"` and a curly (or smart) quote `”`, but for computers these are completely different symbols. Furthermore, this tutorial document itself is created with R to ensure that all the code shown here actually works.
+We say *should*, because you will most likely run into *some* errors.
+Even if the code itself is correct, things can still go wrong due to different (versions of) software and if the code is not executed in the right order.
+Think of it as a recipe: you can still mess it up if you use the wrong equipment or ingredients, or if you perform steps in the wrong order.
 
-Simply put, this means that as long as you copy/paste all the code from this tutorial, and execute it in the same order as we showed it in the tutorial, everything *should* work.
-We say *should*, because you will most definitely run into some errors.
-That's part of the programming game.
-However, it does mean that the errors are almost definitely the result of (1) problems due to installing packages or (2) the order in which code is executed.
-Accordingly, it will be much easier to solve your problem.
-
-In [this Google Docs document](https://docs.google.com/document/d/1aPV1LqFoRkQEc5oDsOE2QQSytVO8eEwxV1P0A9oOUqQ/edit?usp=sharing), we provide general tips for solving problems.
-We will also update this document for any new problems that pop-up.
-So whenever you run into errors that you can't solve, please first consult this document, and notify us if your problem isn't addressed.
-
+When you do run into an error, don't panic!
+Nobody writes perfect code, and one of the key skills of a data scientist is to learn how to solve errors.
+In [this Google Doc](https://docs.google.com/document/d/1aPV1LqFoRkQEc5oDsOE2QQSytVO8eEwxV1P0A9oOUqQ/edit?usp=sharing) we provide some general tips.
+When in class, you can of course consult your teacher, so if you find yourself struggling, it is recommended to prepare your assignment well before class, so that you have more time to ask questions
 
 # What is R?
 

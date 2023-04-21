@@ -292,6 +292,8 @@ install.packages("tm")
 install.packages("wordcloud")
 ```
 
+> Sometimes R asks you a question when trying to install a package. You should then answer the question by typing the answer in the console (the bottom left window) and pressing enter. Most commonly, if you are a macOS user, you might get the question whether you want to install the package from source. In this case your should enter “n” or “no” in your console (“yes” only works if you have certain software installed).
+
 This should have installed the tm and wordcloud package (if you got an error, consult your teacher).
 It is now stored on your computer in a special `library` for your R packages.
 Note that you do not need to run this line of code again next time that you want to use the wordcloud package.

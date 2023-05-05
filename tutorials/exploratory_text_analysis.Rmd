@@ -225,7 +225,7 @@ dtm = dfm(tokens(corp, remove_punct=T))
 dtm = dfm_remove(dtm, stopwords('en'))
 ```
 
-This time we're also stemming the data, as discussed in the video lecture.
+This time we're also stemming the data, as discussed homework.
 This isn't necessarily better, but rather has certain advantages and disadvantages.
 One thing you'll notice is that words will look weird, because stemming will
 sometimes cut-off the suffix (last part of the word).

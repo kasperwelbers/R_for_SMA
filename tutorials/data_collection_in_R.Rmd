@@ -136,6 +136,7 @@ install.packages('rtweet')
 
 ```{r, eval=F}
 library(rtweet)
+auth_setup_default()
 recent_tweets = search_tweets('#rstats', n = 1000)  ## change n for more
 ```
 

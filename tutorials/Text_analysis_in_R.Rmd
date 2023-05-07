@@ -1,6 +1,6 @@
 ---
 title: 'Social Media Analytics IV'
-subtitle: "Exploratory text analysis in R"
+subtitle: "Text analysis in R"
 output:
   html_document:
     theme: united
@@ -14,14 +14,14 @@ editor_options:
 
 
 ```{r opts, echo = FALSE}
-knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(results='hide', message=FALSE, warning=FALSE)
 ```
 
 VU Amsterdam
 
 # This practical
 
-In this practical you will learn how to import your own data into R and use a number of text analysis techniques to explore and visualize the content.
+In this practical you will learn how to import texts into R and use a number of text analysis techniques to explore and visualize the content.
 The first part of this practical is mostly a tutorial.
 The second part contains the assignments, but these will be hard to make if you did not complete the tutorial.
 
@@ -30,24 +30,25 @@ The second part contains the assignments, but these will be hard to make if you 
 
 The first step in social media analysis is to collect the data.
 The good news is that you can also use R as a data collection tool!
-The bad news is that data collection can be difficult and time-consuming, especially if you want to do it for free.
+The bad news is that data collection can be expensive or impossible for certain platforms.
+An important element of social media analytics is therefore to know what data collection options are available.
 
-In this course we will provide you with data, but it is still important to know a bit about how data collection usually works.
-Also, for the final assignment in Period 6, you can decide to collect our own data (but this is not required).
-
-There are three common ways to collect social media data:
+There are two common ways to collect social media data:
 
 * using an API
 * using web scraping
-* Buying Social Media data
 
-## API
+### API
 
-**API** stands for Application Programming Interface. Simply put, an API makes it easier for different application to talk to each other. For example, if you have an application on your phone for editing photo's that also allows you to immediately post these photo's on Twitter, it likely uses the Twitter API. The reason this is interesting for Social Media Analytics is that you can often also use an API to collect data. For example, Twitter has an [Academic Research API](https://developer.twitter.com/en/products/twitter-api/academic-research) that allows researchers to query 10 million tweets per month from the entire Twitter archive. Similar types of API access exist for companies, but these are often not free to use. 
+**API** stands for Application Programming Interface. Simply put, an API makes it easier for different application to talk to each other. For example, if you have an application on your phone for editing photo's that also allows you to immediately post these photo's on Twitter, this application communicates with Twitter via the Twitter API. 
 
-Here is an example of how the Twitter API would work. Do not try to run this example yourself, because you would need to register for the Academic Twitter API. This is only possible for Master students or University employees. Sadly, it's is also possible that the Twitter Academic API will get closed done soon or at least no longer be free to use, because Twitter is changing a lot now that it's owned by Elon Musk. The following example is just to demonstrate how API's can make data collection easy. One of the reasons R is so popular for data science is that there are often packages for working with these APIs  
+The reason APIs are relevant for Social Media Analytics is that you can often also use an API to collect data. For example, Twitter has an [Academic Research API](https://developer.twitter.com/en/products/twitter-api/academic-research) that allows researchers to query 10 million tweets per month from the entire Twitter archive. 
+Similar types of API access exist for other social media platforms.
+The limitation is that you can only collect data that the platform gives you access to, and often you need to pay to get access to the API.
 
-```{r}
+Here is an example of how the Twitter API would work. Do not try to run this example yourself, because you would need to register for the Academic Twitter API. This is only possible for Master students or University employees. Sadly, it's also possible that the Twitter Academic API will get closed done soon or at least no longer be free to use, because Twitter is changing a lot now that it's owned by Elon Musk. The following example is just to demonstrate how API's can make data collection easy. One of the reasons R is so popular for data science is that there are often packages for working with these APIs  
+
+```{r, eval=F}
 # don't try to run this code, because it doesn't work if you're not registered for the Academic Twitter API.
 library(academictwitteR)
 
@@ -63,13 +64,13 @@ tweets = get_all_tweets(
 )
 ```
 
-## Web Scraping
+### Web Scraping
 
 Another method for collecting data from the internet is to create a robot that visits websites and collects the data for you. This is a more time consuming method than using an API (and can have some ethical and legal issues), but it allows you to collect data if no API is available. These robots are often called **Web Scrapers**. You can create your own web scraper in R, but this does require a bit more experience in R than we cover in this course (Though if you're interested, we do have an (introduction video)[https://www.youtube.com/watch?v=9GR26Y4z_v4]).
 
 There are also packages in R that can do the web scraping for you. For instance, the RedditExtractoR let's you search for threads and then collect all comments in the thread. You can run the code below yourself. Just remember to run `install.packages("RedditExtractoR")` first.
 
-```{r}
+```{r, eval=F}
 library(RedditExtractoR)  
 
 ## search for threads about rstats in the last week (a common way to refer to R)
@@ -84,21 +85,6 @@ content = get_thread_content(first_thread)
 View(content$threads)
 View(content$comments)
 ```
-
-## Buying Social Media data
-
-If you work for a company that has plenty of money it can sometimes be worthwhile to pay another company to collect the data for you.
-Off course, this is not *really* a data collection method. 
-You're just paying someone else to do the work for you.
-We only mention it because it can be a viable option if you're a small company or research team.
-
-An important thing to consider is whether you're buying *data* or paying for an analysis tool.
-Some companies provide you with the raw Social Media data, that you can then analyse yourself.
-In this case you mainly need to verify that the data they provide is complete (remember the precision and recall of search queries that we discussed in the third practical).
-There are also companies that provide a *Social Media Dashboard* to analyse the data, and it is not always possible (or restricted) to download the data yourself.
-The problem is that this leaves you blind regarding the reliability and validity of the data.
-So if you're working with a social media dashboard, make sure to always request proof of the validity and reliability, such as intercoder reliability tests, precision and recall.
-
 
 # Reading CSV files into R
 
@@ -130,7 +116,7 @@ And now we can use `library` to use the package in our current session.
 library(readr)
 ```
 
-## Importing the tweets_rstats.csv file
+### Importing the tweets_rstats.csv file
 
 We're going to import the CSV file called `tweets_rstats.csv` that you can find on Canvas under this week's assignment.
 This is the data that we collected from Twitter using the Academic API, as shown above.
@@ -152,7 +138,7 @@ Here you can browse to the file on your computer.
 Then when you click on the file, RStudio will understand that it's a CSV file, and give you the `Import Dataset` option. 
 If you click "Import Dataset", then you'll get a window for importing the data.
 
-```{r, echo=F, fig.align='center'}
+```{r, echo=F, out.width="70%", fig.align='center', fig.width=15, fig.fullwidth=TRUE}
 knitr::include_graphics('img/import_data.png')
 ```
 
@@ -165,9 +151,9 @@ Copy this code and close the window by pressing the `Cancel` button.
 
 Now you can copy this code into R, which will look something like this, but the part between quotes should now contain the location of the file on your own computer.
 
-```{r}
+```{r, eval=F}
 library(readr)
-tweets_rstats <- read_csv("data/tweets_rstats.csv")
+tweets_rstats <-read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
 View(tweets_rstats)
 ```
 
@@ -176,13 +162,13 @@ Note that by default RStudio will import the data using the name of the file, wh
 So for now you'll want to change that into `tweets`, because that's how we called it above.
 (So not `tweets_rstats <- ...` but `tweets <- ...`)
 
-## Look at the Twitter data
+### Look at the Twitter data
 
 Now that you've imported the Twitter data, a good first step is to have a good look.
 You'll need to know a bit about what types of information you have about each tweet.
 A good way to do this is by using the `View` function (what RStudio also gave you when importing the data).
 
-```{r}
+```{r, eval=F}
 View(tweets)
 ```
 
@@ -194,7 +180,7 @@ We'll first re-cap the techniques that you worked with before, but this time usi
 This time, we'll take some more time to talk about what is actually happening in the code.
 The first step is to open the required libraries.
 
-```{r, cache=TRUE}
+```{r}
 library(quanteda)             
 library(quanteda.textstats)   
 library(quanteda.textplots)
@@ -204,7 +190,7 @@ Last time we used the `data_corpus_inaugural` data. This is a demo dataset inclu
 This time, we bring our own tweets data.
 Our first step is to tell R that our data.frame of Tweets can be seen as a `corpus` (i.e. a collection of texts).
 
-## Creating the corpus 
+### Creating the corpus 
 
 We can create a corpus with the aptly named `corpus` function.
 The only thing we need to add in this function, is that we tell it that the `text` column in the twitter data contains the text.
@@ -218,7 +204,7 @@ Looking at the corpus object, we see that it has 50,000 documents (tweets) and 8
 Remember that you can use the `docvars(corp)` function to view the document variables.
 This would show you that for every tweet we know some engagement statistics (likes, retweets, replies) and more.
 
-## Tokenizing the corpus 
+### Tokenizing the corpus 
 
 Last time we saw that we can create a wordcloud from a corpus. 
 Let's do this again, but take it a bit more slowly to see what is actually happening.
@@ -227,15 +213,15 @@ This function `tokenizes` the text, which simply means that it breaks the text u
 We can also provide some additional arguments, such as removing the punctuation (dots, commas, etc.).
 
 ```{r}
-t = tokens(corp, remove_punct=T)
-t
+tok = tokens(corp, remove_punct=T)
+tok
 ```
 
-When we look at `t` we see the tokenized corpus. 
+When we look at `tok` we see the tokenized corpus. 
 It looks pretty similar to `corp`, but this time the texts have been split into words.
 **Tokenization** is a fundamental step in text analysis. Computers cannot understand language, but they are very good at counting words. 
 
-## Creating the Document Term Matrix
+### Creating the Document Term Matrix
 
 The next step, that we also performed last time, is to create a `Document Term Matrix` (DTM).
 This is a matrix in which the rows are documents, the columns are words, and cells indicate how often each word occurred in each document.
@@ -243,11 +229,11 @@ In `quanteda` we create this matrix with the `dfm` function.
 In case you are wondering why the function isn't called `dtm`: quanteda uses a slightly more general (but less common) term of a `Document Feature Matrix`. 
 
 ```{r}
-dtm = dfm(t)
+dtm = dfm(tok)
 dtm
 ```
 
-When we look at the `dtm` we see something similar to the tokenized corpus `t`. 
+When we look at the `dtm` we see something similar to the tokenized corpus `tok`. 
 We still have our 50,000 documents and 8 docvars, and the texts are still broken into single words, but this time we have counted the words per document.
 This has two major implication:
 
@@ -263,7 +249,7 @@ After transforming this text into a DTM, it becomes impossible to say whether St
 To remind us of this limitation of the DTM representation, it is also referred to as a **bag-of-words** representation.
 The take-home message is that DTM's are very useful for performing automatic content analysis, but certain types of content analysis are not accurately possible with them. 
 
-## Preprocessing 
+### Preprocessing 
 
 In the current DTM we still included all words as they originally occurred in the corpus.
 This has important consequences:
@@ -271,7 +257,11 @@ This has important consequences:
 * Some words are much more relevant than others for certain types of analysis. If we want to learn something about the topic of a text, we are for instance not interested in very common words like `the`, `it` and `to`. These types of words are also referred to as `stopwords`. Last time, we therefore removed these stopwords before creating a wordcloud.
 * Our DTM does not know anything *about* the words, so it doesn't understand that words like `cat` and `cats` have a very similar meaning. A simplistic but sometimes effective solution is to `stem` the words. This tries to reduce words to their `stem`, so that `cats` becomes `cat`. However, simple stemming algorithms are pretty dumb, so they also mangle words like `societies` into `societi`. 
 
-You already saw how to remove stopwords last time. This time, look close at the columns to see that this simply removes the English language stopwords. 
+You already saw how to remove stopwords last time. 
+The `dfm_remove(dtm, [words to remove])` function removes words from the DTM.
+The `stopwords("en")` function creates a list of English stopwords ("it", "the", etc.).
+So `dfm_remove(dtm, stopwords('en'))` removes this list of stopwords.
+Look close at the columns in the result to see that the stopwords are indeed gone.
 
 ```{r}
 dtm = dfm_remove(dtm, stopwords('en'))
@@ -285,7 +275,7 @@ dtm = dfm_wordstem(dtm)
 dtm
 ```
 
-## Creating the wordcloud
+### Creating the wordcloud
 
 Now we are finally ready to create the wordcloud.
 
@@ -296,20 +286,71 @@ textplot_wordcloud(dtm, max_words = 40)
 We see that this wordcloud mainly contains hashtags.
 This makes sense, because hashtags are designed to make people use the same terms.
 
+You can also remove the hashtags. 
+Here we again use the `dfm_remove` function, but this time instead of providing a list of stopwords, we provide the string `"#*"`.
+The `*` here is a wildcard, just as you saw in the lesson on Boolean queries.
+So what we're saying here is: remove all words that start with a hashtag.
+
+```{r}
+dtm_no_hashtag = dfm_remove(dtm, '#*')
+textplot_wordcloud(dtm_no_hashtag, max_words = 40)
+```
+
+### Exploring the context of words
+
+One of the limitations of wordclouds is that they only show you the frequencies of words.
+They don't tell you anything about how these words are related, or in what context they are used.
+As a visualization of a DTM, it can only visualize the `bag-of-words`.
+
+A solution is to use the `kwic` function, which stands for `key-word-in-context`.
+The first argument to this function is the tokenized corpus (that we called `tok` above).
+The second argument is a string (a word between quotes) for a word that you want to examine.
+This string can also have the `*` wildcard, that you also used in the lesson about Boolean queries.
+The following code creates a `key-word-in-context` listing for all occurences of words that start with "package" (e.g., package, packages, package's).
+We then use `head(kw, 10)` to only print the first 10 rows (you can change the number for more rows if you want).
+
+```{r}
+kw = kwic(tok, "package")
+head(kw, 10)
+```
+
+You should now see the rows that look like this:
+
+> [text47, 12]   putting off making an#rstats     |    package    | that would just make more                                             
+> [text76, 7]    Data Wrangling and Data Cleaning |   Packages    | for R in 2023 A     
+
+If this is not the case, your console panel (the bottom-left panel) might not be wide enough. 
+If so, try making it wider (you can drag the borders of the RStudio panels)
+Alternatively, you could use View to explore the `kwic` results as a data.frame
+
+```{r, eval=F}
+View(kw)
+```
+
+You then see the columns `pre`, `keyword` and `post` for the text before (pre) and after (post) the keyword.
 
 # Assignment 1: Analyzing Twitter
 
+For this assignment we use the `tweets_rstats.csv` data, just as in the `Analyzing the tweets data` section above.
+You can find this data on Canvas under this weeks assignment.
+
 > **Question 1.a**.
-> Produce the wordcloud from the "Analyzing the tweets data" secion. Include the code and the wordcloud itself.
+> Create a wordcloud of the tweets_rstats.csv data that **includes** the hashtags. DO remove stopwords, but DO NOT use stemming. Include the code and the wordcloud itself.
 
 > **Question 1.b**.
-> Interpret the wordcloud. What does this tell you about the tweets that mention `rstat`?
+> Interpret the wordcloud from **1.a**. What does this tell you about the tweets that mention `rstat`?
+
+> **Question 1.c**.
+> Create the wordcloud again, but this time **exclude** the hashtags. Include the code and the wordcloud itself.
+
+> **Question 1.d**.
+> Create key-word-in-context listings for two words from the wordcloud in question **1.c** (without the hashtags). Use the `head` function to only show the top 10 results. Include both listings in your answer, and provide your own interpretation of how the words were used.
 
 Last time we used `dfm_subset` to make a wordcloud just about Obama (`President == Obama`). 
 In the current data we also have information about the number of likes for each tweet, which we can use to subset data on only tweets that received at least 100 likes (`likes >= 100`).
 
-> **Question 1.c**.
-> Create the wordcloud that only uses tweets with at least 100 likes. Include the code and the wordcloud in your answer.
+> **Question 1.f**.
+> Re-create the wordcloud from **1.a** that only uses tweets with at least 100 likes. Include the code and the wordcloud in your answer.
 
 
 # Assignment 2: Analyzing Reddit
@@ -324,10 +365,13 @@ As a starting point, you decide to scrape any new threads in the past month. *No
 > Create a Document Term Matrix and perform preprocessing. You can yourself decide what preprocessing steps to perform (e.g., removing punctuation, removing stopwords, stemming, subsetting). In addition to providing the code, justify any decision that you made in the preprocessing.
 
 > **Question 2.c**.
-> Make a wordcloud from this corpus.
+> Make a wordcloud from this corpus. Include the code and wordcloud in your answer.
+
+> **Question 1.d**.
+> Create key-word-in-context listings for two words from the wordcloud in question **2.c**. Use the `head` function to only show the top 10 results. Include both listings in your answer, and provide your own interpretation of how the words were used.
 
 > **Question 2.d**.
-> You realize that the threads also mention the subreddit category. Make a wordcloud of the subreddit categories
+> The threads also mention the subreddit category. Make a wordcloud again, but this time use the subreddit categories instead of the titles
 
 
 # Writing better code with pipes
@@ -355,6 +399,7 @@ dtm = tweets %>%
 ```
 
 With this notation, it is immediately clear that these lines of code belong together as a single operation, and no needless names are created.
+
 You can even put parts of the pipe on the same line if you like.
 
 ```{r}
@@ -393,98 +438,8 @@ see people using pipes. So it's best to learn it sooner rather than later.
 # Assignment 3: Working with pipes
 
 > **Question 3.a**.
-> Rewrite the code from question 1.a (from the `Analyzing the tweets data` section) using the pipe syntax.
+> Rewrite the code from question **1.a** using the pipe syntax. 
 
-
-
-
-# Assignment 2
-
-Now you're going to combine all that we've discussed to conduct your own little exploratory analysis.
-For this assignment you'll investigate how people on Twitter talked about a certain person, organization or topic.
-Given the limitations for exporting data from OBI4wan, you'll have to focus on max. 1 week of messages.
-This doesn't have to be a special week. 
-You could for instance just ask: `"how did people talk about Mark Rutte in the past week?"`. 
-Still, for your analysis it's easier (and more fun) to pick a person/organization/topic where something interesting happened within this week.
-
-You will collect the data yourself from OBI4wan, using the trick described in `Getting more data from OBI4wan`.
-
-* Make sure to filter sources so that you only look at Tweets. 
-* If there are more than 20,000 messages on a day, you can just download these 20,000 messages and ignore the rest (so you won't have to query on shorter time periods).
-* You should focus the analysis on a period of max 1 week, but you can also focus on a few days. 
-
-> **Question 2.a**. Pick a person, organization or topic and create a query. Perform the query to look for all messages in the time period (max 1 week) of your question. Report what you will investigate, and provide the query and number of messages in your answer.
-
-Now you're going to download the results per day from OBI4wan, import them into R, and perform a wordcloud and topic model analysis. 
-We summarize the code here.
-Remember that you can navigate to the file in the file window (bottom-right corner of RStudio) and click on the file to get the location, and that you need to use `read_csv2` instead of `read_csv` to import it correctly.
-
-```{r, eval=F}
-## load the packages
-library(dplyr)
-library(readr)   
-
-## import the data into R
-## (maybe you'll need more lines, if you have more files)
-d = bind_rows(
-  read_csv2("location_on_your_computer/file_from_obi4wan.csv"),
-  read_csv2("location_on_your_computer/another_file_from_obi4wan.csv"),
-  read_csv2("location_on_your_computer/yet_another_file_from_obi4wan.csv"))
-
-## check whether it worked
-d
-```
-
-Now you can see whether it worked. If successful, the output should show you the top rows of the data frame (here called a tibble, which is a special type of data frame). It also shows you how many rows and columns you have: `# A tibble: [rows] x [columns]`.
-
-> **Question 2.b**. Make a screenshot of the output and paste it in your answer document. 
-
-
-Now you can create the DTM and perform the analysis.
-We again provide you with the code. 
-However, you might have to change some parts yourself.
-`stopwords` are currently English, so set them to Dutch if you have Dutch data).
-Also, if you run OBI4wan in Dutch, then the columns in your data might be in 
-Dutch as well. So in the `corpus()` function you might have to use
-`text_field = "Bericht"` instead of `"Message"`.
-You can also choose whether or not you want to use *stemming* (`dfm_wordstem`), and **we will ask you about this choice in the assignment**.
-Furthermore, you can get points for doing things better, such as adding colors to the wordcloud, and changing some settings for training the topic model (for which there are hints in the section on topic modeling).
-
-```{r, eval=F}
-## load the packages
-library(quanteda)             
-library(quanteda.textplots)
-library(stm)
-
-## creating the DTM
-corp = corpus(d, text_field = 'Message')    
-dtm = dfm(tokens(corp, remove_punct=T))
-
-## some preprocessing
-dtm = dfm_remove(dtm, stopwords('en'))    ## or stopwords('nl') for Dutch
-dtm = dfm_wordstem(dtm)
-
-## making a wordcloud
-textplot_wordcloud(dtm, max_words = 50)
-
-## training a topic model
-dtm_trimmed = dfm_select(dtm, pattern='@*', selection='remove', min_nchar = 3)
-dtm_trimmed = dfm_trim(dtm_trimmed, min_termfreq = 2500, termfreq_type = 'rank', 
-                                    max_docfreq = 0.5, docfreq_type='prop')
-m = stm(dtm_trimmed, K=10, max.em.its = 20)
-
-## analyzing the topic model
-plot(m, n=5)
-cloud(m, topic=1)
-cloud(m, topic=2) # etc.
-```
-
-
-> **Question 2.c**. There are advantages and disadvantages to `stemming` data (as discussed in the video lecture). You could now choose whether or not to use stemming (whether or not you used `dfm_wordstem`). What did you choose and why. (hint: both stemming and not stemming can be correct. The question is purely about your justification for the choice.)
-
-> **Question 2.d**. Report and interpret the wordcloud. Does it give you a clear idea of what the tweets are about?
-
-> **Question 2.e**. Report and interpret the topic model. Describe 2 topics with the clearest interpretation (based on the model plot and the topic wordclouds). Does it help you get a better idea of what the tweets are about? 
-
-> **Question 2.f**. You work for a social media dashboard company, and they just implemented topic modeling as a new feature. Before, they just showed a single wordcloud based on the total frequences of words in a collection of texts. Now, they also give the option to show "topic word clouds" for each topic found by the topic model. However, users have a hard time understanding how to use this new feature. You are asked to write a non-technical explanation for what these "topic word clouds" are, and how they can use them. 
+> **Question 3.b**.
+> Rewrite the code from question **1.c** using the pipe syntax.
 

@@ -1,0 +1,522 @@
+---
+title: 'Social Media Analytics VI'
+subtitle: "Machine Learning and sentiment analysis"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, results=FALSE)
+```
+
+VU Amsterdam
+
+# This practical
+
+In this practical you will learn how to use machine learning to perform automatic content analysis.
+Specifically, we will be using machine learning for performing sentiment analysis.
+The approach itself can also be used for other types of content characteristics, such as determining whether emails are spam or not or classifying the topics of texts.
+What makes sentiment analysis an interesting example case, is that you can imagine how hard it would be to analyze sentiment with a rule-based approach.
+
+Before we begin, please install the following packages beforehand. 
+
+```{r, eval=F}
+install.packages('quanteda.textmodels')
+install.packages('tidyverse')
+```
+
+## Rules based versus supervised machine learning
+
+The difference between rule-based and supervised machine learning has also been discussed in the second lecture, so we won't discuss it here in detail. But we'll re-cap the main overview with a focus on sentiment analysis.
+
+### Rule-based 
+
+One way to teach a computer to perform a certain measurement, is by giving the computer a set of specific rules for how to measure. An example that you already worked with is search queries. A query tells a computer very specifically what to look for. The query `corona AND vaccin*` tells the computer unambiguously: if a text contains the word "corona", and contains a word that starts with "vaccin", measure this as TRUE (i.e. the text did match the query). If not, measure this as FALSE. 
+
+The benefit of this approach is that you have complete control over how the computer performs the measurement. 
+The limitation is that for good performance on complicated measurements you would need very many and very specific rules. 
+
+Sentiment analysis is a very good example of such a complicated measurement task.
+A common rule-based approach for measuring sentiment is to create a `dictionary`, that tells us which words are `positive` or `negative`. 
+We can then simply let the computer count how many negative and positive words occur in a text, and use this to calculate a sentiment score. 
+Note that this is very similar to working with search queries.
+Each term in the dictionary is a simple rule for the computer: for every time the word "decline" occurs, add 1 to the number of negative words in this text. 
+
+This approach works to some extent, and has been used in many studies.
+However, it has some clear limitations, and several recent studies show that the accuracy of rule-based sentiment analysis with dictionaries is often bad (see e.g., [Van Atteveldt, Van der Velden \& Boukes, 2021](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198)).
+The problem is simply that sentiment in language is so complex, that it's virtually impossible to make a sufficiently complex list of rules.
+Some dictionaries have thousands of words, include special rules for negations ("not good") and amplifiers ("very good!"), and distinguish between how positive or negative words are ("best" is more positive than "good").
+And yet still, it tends to perform poorly for many real-life applications.
+
+
+### Supervised machine-learning
+
+So, a big limitation of rule-based approaches for sentiment analysis seems to be that we just can't seem to come up with a sufficiently complex set of rules.
+But how can we teach a computer to do something without specifically telling it how to do it?
+This is where `supervised machine-learning` comes in.
+In `supervised machine learning` we provide the computer with `training data`, and then let it figure out the rules by itself! 
+
+For example, consider the case of a `spam filter`.
+We want to teach a computer to automatically label new emails as spam or not spam.
+We first need to create our training data.
+For this we collect some old emails, and manually label them as either spam or not spam.
+So now we can give the computer a set of emails that are spam, and a set of emails that are not spam, according to our own interpretation.
+From this data the computer can learn how the spam and not spam emails are different.
+In a way, it can itself *learn* the 'rules'[^1] for distinguishing between them.
+Then, when it receives new emails, it can use these rules to decide whether it is more likely to be spam or not spam.
+
+[^1]: It should be mentioned that at this point the definition of a rule becomes a bit fuzzy. 
+In simple machine learning algorithms, the computer will come up with simple rules.
+The Naive Bayes algorithm that you'll also see in this practical basically creates something very similar to a dictionary. 
+But there are also much more complex algorithms such as neural networks and transformers (this is also the technology behind chatGPT).
+In these algorithms the model stores what it has learned in billions of numbers that cannot really be interpreted as 'rules'.
+So technically, we really shouldn't say that a machine learning model learns *rules* or creates its own *codebook*.
+But this is a good way to think about it for developing a non-technical intuition for what machine learning can do.
+
+A very simple machine learning algorithm would for instance just look at the occurrences of certain words.
+By looking at the training data, it would figure out that certain words are much more likely to be used in spam emails.
+Then, when it encounters these words in new emails, it can decide that these emails are likely to be spam as well.
+
+The cool thing about supervised machine learning is that this same approach works for many different types of data.
+The input can be a set of emails that we want to classify into either spam or not spam, but it can also be a set of animal pictures that we want to classify into which animal is depicted. 
+If you take this much further, it could be many games of chess to learn which next move is most likely to make you win.
+Generally speaking, supervised machine leaning lets you teach computers to perform complicated tasks without having to tell them how to perform these tasks.
+The price is that you need to provide sufficient training data for them to learn this themselves.
+
+
+# Preparing the data
+
+In order to use machine learning, we first need to have data to train and evaluate our model on.
+That we, we need text for which we already know the outcome that we want to measure.
+In machine learning, this outcome is often referred to as the *label*.
+For example, if we want to train a model that can recognize spam, we first need to provide it with texts that have the labels "spam" and "not spam". 
+
+In our case we want to train a model that can recognize sentiment. 
+So we need a dataset that has texts, and for each text has labels about the sentiment of the text.
+One way to create this data is by first performing a manual content analysis.
+However, there are also many existing datasets out there that you can use.
+For this tutorial, we'll use a dataset from the [TweetEval](https://github.com/cardiffnlp/tweeteval/tree/main) benchmark.
+This is an open dataset with tweets that have been labeled with various common labels of interest when analyzing tweets, such as sentiment, emotion, hate speech and stance.
+
+The data can be downloaded from the TweetEval page that we linked here, but to make it a bit easier to work with we created a CSV file for the *sentiment* label data.
+**Please download the practical_6.zip file from Canvas, and unzip it to get the sentiment_tweets.csv file**.
+
+
+```{r}
+library(readr)
+sentiment = read_csv('~/projects/r_for_sma/data/sentiment_tweets.csv')
+sentiment
+```
+
+Here we have almost 60,000 tweets, and for each tweets we also have a *label*. 
+We can use the `table` function to count the number of times each label occurred.
+(`sentiment$label` gives us the `label` column from the `sentiment` data)
+
+```{r}
+table(sentiment$label)
+```
+
+So we have three labels: "negative", "positive" and "neutral".
+For each label we have quite a lot of tweets, so our model should be able to learn quite a bit about what positive, negative and neutral tweets look like.
+
+As we learned in the previous practical, we first need to represent our texts in a way that we can do calculations with them.
+For this, we will again use the Document Term Matrix format. 
+For now, let's only use some simple preprocessing steps.
+We'll use `stemming`, remove the `stopwords`, and we'll also `trim` the data by removing all terms that occur less than 10 times.
+
+```{r}
+library(quanteda)
+
+dtm = sentiment %>% 
+  corpus(text_field='text') %>% 
+  tokens() %>% 
+  dfm() %>%
+  dfm_trim(min_termfreq=10) %>% 
+  dfm_remove(stopwords('en')) %>% 
+  dfm_wordstem() 
+
+dtm
+```
+
+Ok, so now we have our Document Term Matrix. 
+Remember that quanteda automatically stores any column in the input data as document variables.
+
+```{r}
+docvars(dtm) %>% head()
+```
+
+So for every row in the DTM we still know what the sentiment label is.
+This gives us everything we need to train and test our model.
+
+
+## Splitting the train and test data
+
+The next step is that we'll split our data into `test` and `training` data.
+We'll use the training data to train our model, and the test data to evaluate our model by calculating the precision and recall. 
+It's important to keep these separated, because if we test the model on the same data that we trained it on, it's not really a fair test.
+It would be like giving students the same questions that they get on the exam to train themselves for the exam.  
+
+In this case we'll use 5000 tweets (almost 10% of our data) for testing.
+The most important thing here is that we want to have as much training data as possible, but we also need to have sufficient test data to measure how well the model performs.
+
+We'll split the data with the following process:
+
+* use `docnames(dtm)` toget the document names. (we didn't provide names, so these are just 'text1','text2', etc.)
+* draw a random sample of 5000 names.
+* create `test_dtm` by subsetting the DTM to get the documents for which the name is in our test samlpe
+* create `train_dtm` by subsetting the DTM to get document for which the name is NOT (!) in our test sample.
+
+```{r, echo=F}
+set.seed(1)
+```
+
+```{r}
+test_docnames = sample(docnames(dtm), size = 5000)
+test_dtm = dfm_subset(dtm, docnames(dtm) %in% test_docnames)
+train_dtm = dfm_subset(dtm, !docnames(dtm) %in% test_docnames)
+```
+
+**Important side-note**. Since we used a random sample to split the data, the results of all the steps below can be different if you run the analysis again, or on a different computer!!
+
+**Less important side-note**. This method for splitting the train and test data is also called the `holdout method`, because we holdout a specific sample of the data for testing. There are actually better approaches. For instance, we could split the data in 5 equal parts, then train on 4 parts and test on 1, and repeat this 5 times while rotating the parts. This way each review will be used for both training and testing. This is called `k-fold cross-validation`, where k is the number of parts (in this example 5). However, here we'll just stick with the holdout method because it's easier to understand and apply.
+
+
+# Training and testing the model
+
+So now we can use the training data to train the model.
+In this case we're using a Naive Bayes classifier.
+This is one of the earliest and simplest machine learning models.
+It is not the best model, but it is very fast, which makes it great for learning.
+
+For this we use the `textmodel_nb` (`nb` for `Naive Bayes`) function from the `quanteda.textmodels` package.
+
+## Training the model
+
+As input we just need to provide the DTM (train_dtm), and the labels that we want to model to be able to predict. 
+We can use `train_dtm$label` to get the sentiment labels from the document variables (that we looked at above).
+We'll call our sentiment classifier `sent_classifier`. 
+
+```{r}
+library(quanteda.textmodels)
+
+sent_classifier = textmodel_nb(train_dtm, train_dtm$label)
+```
+
+So yes, we've now trained ourselves a sentiment classifier!
+
+As mentioned above, a Naive Bayes classifier is relatively simple. A nice thing about this for learning about machine learning, is that you can look **under-the-hood** and still understand quite well **what** the model actually learned.
+
+```{r}
+summary(sent_classifier)
+```
+
+Here you see that the model has simply calculated values for every word in the DTM (only a few columns are shown here).
+These values are commonly called `weights` in machine learning (this is similar to what you commonly call the coefficients in statistics).
+Based on these learned weights, the model will for instance predict that if the word "sorri" (the stem of "sorry") occurs, the text is more likely to be negative.
+
+The next step is to use our test data to see how accurate our model is.
+
+## Testing the model
+
+We can now use our `test_dtm` in the same way as one would use an exam to test students.
+We already know the **real** labels for the tweets in the test dtm (i.e. the answers to our exam).
+So to evaluate our model, we'll also ask our `sent_classifier` what labels it would give these tweets.
+We can then calculate how often our model was correct.
+
+When we ask a model to label data, we commonly refer to this as `predicting`.
+That is, based on what the model learned from the training data, we ask it to `predict` the label of texts that it has not seen before.
+Notice that this is quite literally what the following code says: we use the `predict` function, with as arguments our `sent_classifier` and the `test_dtm`.
+
+```{r}
+predicted_sentiment = predict(sent_classifier, newdata = test_dtm)
+```
+
+So now we have both the predicted sentiment labels and the **real** sentiment labels.
+Just like for `train_dtm`, we can get the **real** labels with `test_dtm$label`.
+Let's grab these labels and give them the name `real_sentiment`, just for sake of clarity.
+
+```{r}
+real_sentiment = test_dtm$label
+```
+
+Now that we have both the `real_sentiment` and the `predicted_sentiment`, we can create a **confusion matrix**.
+You have already seen this matrix when we calculated the `Cohen's Kappa` and the `Precision and Recall` scores in the previous practicals.
+
+```{r}
+cm = table(gold_standard = real_sentiment, 
+           predicted = predicted_sentiment)
+cm
+```
+
+Just like in those practicals, we called our **real** values the **gold standard**. 
+Based on this matrix, we can now see how often the predictions are correct (true positive or true negative) versus how often they were wrong (false positive or false negative).
+
+Till now you've always calculated precision and recall by hand, but off course we can also just do this in R.
+Here we use the `confusionMatrix` function from the `caret` package.
+
+```{r}
+library(caret)
+confusionMatrix(cm, mode = 'prec_recall')
+```
+
+So how well did we do?
+Remember the interpretation of precision and recall.
+In our results (which can be different from yours), the `positive` label had a precision of 62%, which means that when our model predicted `positive` it was correct 62% of the times. The recall of 71% tells us that of all tweets that were actually `positive` or model correctly measured 71% as positive. 
+
+This is not *great*, but for a complicated task like sentiment analysis it's not terrible either. 
+If you look at table 2 in [Van Atteveldt et al, 2021](https://www.tandfonline.com/doi/full/10.1080/19312458.2020.1869198) you'll also see precision, recall and F1 scores of around 0.60 for the **Machine Learning** approaches.
+Also, note that this is much higher compared to the **dictionary** (i.e. rule-based) approaches!!.
+
+Furthermore, note that on the [TweetEval](https://github.com/cardiffnlp/tweeteval/tree/main) page where we got our data, they also report the performance of other models. 
+At the bottom we see the SVM (support vector machine) model, which is the least accurate model in this case.
+For the Sentiment task this model reports a 62.9, which is their average F1 score across the three labels. 
+So (in our sample) our good old Naive Bayes model did not do much worse![^2]
+
+[^2]: It should be noted that it's not a completely fair comparison. For the TweetEval leaderboard they had to use stricter rules for how to split the train and test data. Still, it's a good indication for what level of accuracy we can expect here.
+
+### Testing the model on individual texts
+
+You can also use your classifier to predict the sentiment for any individual texts that you throw at it.
+This is useful for trying out the model and finding out for what types of texts it cannot properly identify the sentiment.
+
+What's a bit annoying about this though, is that you would have to preprocess every individual text. 
+Whenever you have code that would have to be repeated often, it is often convenient to create your own function.
+Don't worry, you won't have to learn how to create your own functions for this course.
+But it is good to know that it is possible, and how you could use a function created by someone else.
+
+To create the following function, select the entire piece of code starting at `predict_text <- ...` and ending after the `}` and execute it.
+
+```{r}
+predict_text <- function(classifier, text) {
+  single_row_dtm = tokens(text) %>% dfm() %>% dfm_wordstem() %>% dfm_match(colnames(classifier$x))
+  predict(classifier, single_row_dtm) %>% as.character()
+}
+```
+
+In the upper right corner in RStudio, in the Environment tab, there should now be a `Functions` section that lists the `predict_text` function.
+You can see that the input for this function is a `classifier` and `text`. 
+We can use it as follows to use our `sent_classifier`
+
+```{r}
+predict_text(sent_classifier, "Very sad. Much anger #negativetweet")
+```
+
+Try plugging in different texts to see if your classifier can correctly predict the sentiment label!
+
+# Assignment 1: My first classifier
+
+The first assignment is to perform the steps that we discussed above to train and evaluate your own sentiment classifier.
+
+> **Question 1.a**. Train your own classifier using the code above. Report the code that you used, and include the results of the `summary(sent_classifier)` code.
+> **Question 1.b**. Use the test data to create the confusion matrix and calculate the precision, recall and F1 scores. Report the code, the matrix, and the scores.
+> **Question 1.c**. Interpret the precision and recall for all three labels (positive, negative and neutral). 
+> **Question 1.d**. Using the predict_text function, create a text that according to you has a 'positive' sentiment, but that your classifier incorrectly classifies as 'negative'. Explain why you think the model makes this mistake.
+> **Question 1.e**. Do the same as 1.d, but this time create a text that you think is 'positive', but your model thinks is 'negative'.
+
+# Using the classifier on other data
+
+Till now we haven't yet done any real content analysis.
+We have only used our classifier to evaluate it, using data for which we already knew the sentiment.
+But now that we have trained and validated our model, we can use it on other data as well!
+
+Let's again load the `tweets_rstats.csv` data that we used in the fifth practical (I've included this file in **practical_6.zip**).
+We can then see whether we can measure the sentiment of tweets about `rstats`, and whether this tells us anything interesting.
+
+```{r}
+tweets = read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
+```
+
+
+## Preparing the data to apply an existing classifier
+
+Our first step will be to create the DTM for our `tweets` data.
+Now, a **very important thing** to remember, is that our classifier was trained on a particular DTM.
+We will need to make sure that our new DTM has the same columns as the DTM on which the model was trained. 
+Luckily, the classifier also includes a copy of the DTM on which it was trained, which we can access with `sent_classifier$x`. 
+We can extract the column names from this copy.
+
+```{r}
+classifier_terms = colnames(sent_classifier$x)
+
+## look at the first 10 values
+classifier_terms %>% head(10) 
+```
+
+To prepare our DTM, we now need to do two things:
+
+* First, since we used `dfm_wordstem` above, we need to use it again here. Think about it: if we trained our model to learn which *stemmed* words are positive, negative or neutral, then it won't know what to do with words that have not been stemmed.
+* Second, we'll **match** the columns of our DTM to the `classifier_terms` that we extracted above. We can do this witm `dfm_match(classifier_terms)`.
+
+This looks as follows:
+
+```{r}
+tweets_dtm = tweets %>%
+  corpus(text_field = 'text') %>%
+  tokens() %>%
+  dfm() %>%
+  dfm_wordstem() %>%
+  dfm_match(classifier_terms)
+```
+
+Note that we do not need to `remove stopwords` or `trim` the data, because by matching the columns to the classifier terms we have already ensured that we have exactly the terms that we need.
+
+## Using the classifier to predict sentiment
+
+Now we can apply our classifier on the `tweets_dtm` using the same `predict` function that we used above.
+This will return the predicted sentiment labels.
+Since the rows of the `tweets_dtm` match the rows of the `tweets` data.frame, we can directly add these labels to the tweets data.
+
+```{r}
+tweets$sentiment = predict(sent_classifier, tweets_dtm)
+```
+
+That's already nice, but let's do a bit more processing.
+In particular, it would be nice to also have the sentiment as a number, because then we can do things like calculate the average sentiment per day.
+A simple way to achieve this is to say that a negative sentiment equals `-1`, a positive sentiment equals `1`, and neutral sentiment equals `0`.
+
+```{r}
+tweets$sentiment_score = 0
+tweets$sentiment_score[tweets$sentiment == 'positive'] = 1
+tweets$sentiment_score[tweets$sentiment == 'negative'] = -1
+```
+
+Now let's check out the data:
+
+```{r, eval=F}
+View(tweets)
+```
+
+
+# Analyzing sentiment
+
+If you performed the steps from the previous sections, you should now have a data.frame called `tweets` that has the `tweets_rstats.csv` data, but with the additional `sentiment` and `sentiment_score` columns.
+So what could you do with this data?
+
+First of all, let's store the data as a CSV file. This is not only nice as a back-up, but it would also enable you to analyse the data in other software (like Excel, Google Sheets or SPSS) if you so prefer. 
+This will also be allowed for your research project in P6. 
+
+```{r, eval=F}
+write_csv(tweets, 'rstats_tweets_with_sentiment.csv')
+```
+
+For the analysis in R we'll keep things simple, because most students will have learned to perform their analyses using other software. 
+As such, doing the analysis in R for the project in period 6 is optional, and for this assignment you will only need to run the following code.
+We will provide additional explanation and code examples for students that do want to use R for the analyses.
+
+We'll be using the `tidyverse` package to summarize (i.e. aggregate) and visualize the data.
+The following code summarizes the data `grouped` by the sentiment score.
+This allows us to calculate summarizing statistics (like the `mean` or `standard deviation`) for every sentiment label.
+Here we'll calculate the average number of retweets and likes per sentiment label, to see if there is maybe a relation between the sentiment of a tweet and these engagement metrics.
+
+```{r}
+library(tidyverse)
+
+tweets %>%
+  group_by(sentiment) %>%
+  summarize(n=n(), avg_retweets=mean(retweets), avg_likes = mean(likes))
+```
+
+Another useful analysis is often to analyze sentiment over time. 
+This could for instance show you if there is a sudden fall in sentiment as result of some scandal, or if there is maybe a positive trend over time following the launch of a new marketing campaign.
+In the following code we'll first convert the `created_at` string to a `Date`. 
+By default this will give the day (and ignore the time).
+We'll then group by this date, and calculate the average sentiment for every day.
+
+```{r}
+sentiment_per_day = tweets %>%
+  mutate(date = as.Date(created_at)) %>%
+  group_by(date) %>%
+  summarize(n=n(), sentiment = mean(sentiment_score))
+
+sentiment_per_day
+```
+
+That sort of data is easier to inspect as a line graph
+
+```{r}
+ggplot(sentiment_per_day) +
+  geom_line(aes(x=date, y=sentiment))
+```
+
+# Assignment 2
+
+For this assignment you will perform all the steps in the "Using the classifier on other data" section.
+
+> **Question 2.a**. Report the analysis that shows the average number of retweets and likes per sentiment label. Include the code and the table.  
+> **Question 2.b**. Interpret the results from 1.a. Does there appear to be a relation between sentiment and engagement metrics?
+> **Question 2.c**. Also calculate the average number of replies and impressions. Report the code and results.
+> **Question 2.d**. Interpret the results from 1.c.
+> **Question 2.e**. Perform the analysis of the sentiment score over time. Report the code and the line graph.
+> **Question 2.f**. Interpret the results from 1.e. What are the notable changes in sentiment over time?
+
+# Validating your machine learning model (again?!)
+
+Above we skipped straight to the analysis.
+But by doing so we have actually been a bit naive about the validity of our machine learning model.
+Sure, we did analyze the validity of the model earlier, when we predicted the sentiment score for the test data, and then calculated the precision and recall. 
+However, can we safely assume that the model is just as good on the data that we now used it on?
+
+Indeed, this is not always a safe assumption!
+For example, imagine that the model was trained and tested on sentiment analysis in newspaper articles from the 1950's.
+Even if the model would have very high precision and recall scores on this task, it could still be very bad at predicting the sentiment of tweets about rstats.
+The question we should ask ourselves is: **how similar is the data on which the model was evaluated compared to the data on which we use the model**?
+
+In our case, the model was trained on tweets, so in that case it's similar to our rstats tweets data. 
+But it's not far fetched to assume that tweets about the R statistical language are not the most typical tweets. 
+Sentiment in the context of rstats might be expresses quite differently from sentiment on Twitter in general. 
+Furthermore, the TweetsEval Sentiment analysis data is from 2017, and zeitgeist is important to communication.
+Most people would agree that a tweet like "R is as nice as Covid" is negative, but our 2017-based model wouldn't get that. 
+
+Long story short, it's important to always evaluate your machine learning model on a sample of the texts that you use it for. So while it's great that you can depend on existing open datasets like TweetEval to get data to train your model on, you will still have to do some manual coding on your own data to evaluate the model. 
+
+Don't worry, for the current assignment we won't ask you to some manual coding (because we have much more interesting questions to ask you). But we will show here how you would normally approach this, because you will need to do it if you use machine learning in the research project in period 6. 
+
+## Validating a machine learning model on a sample of your own data
+
+The process is really quite simple. We already have the tweets and the predicted sentiment scores in the `tweets` data.
+We only have to draw a sample from this data, manually code the sentiment of this sample, and then calculate the precision and recall. 
+The following code draws a random sample of 200 tweets, and only keeps the id, text and sentiment columns.
+We'll also add a new, empty column for the manually coded sentiment.
+
+```{r}
+validation_sample = tweets[sample(nrow(tweets), 200), c('id','text','sentiment')] 
+validation_sample$manual_sentiment = ''
+validation_sample
+```
+
+Now we can write this data to a CSV file. You could then import this data into a spreadsheet program like Google Sheets and manually code the sentiment. 
+
+```{r, eval=F}
+write_csv(validation_sample, "validation_sample.csv")
+```
+
+Then, when you've added the manually coded sentiment, you could read the CSV into R again, create the confusion matrix, and calculate the precision and recall.
+
+```{r, eval=F}
+coded_validation_sample = read_csv('validation_sample.csv')
+
+m = table(gold_standard = coded_validation_sample$manual_sentiment,
+          predicted = coded_validation_sample$sentiment)
+m
+```
+
+There is **one major flaw** with this approach. Namely, it is very bad practice if the human coder can already see the sentiment label that the machine learning algorithm predicted. 
+A simple solution is to make the sentiment label invisible when you're coding it (by making the column really small or the text white)
+Normally, you would not include the sentiment label in the validation sample at all. 
+Here we only recommend it because it makes the code easier.
+
+
+# Assignment 3
+
+> **Question 3.a**. A researcher wants to measure the subjectivity of 1,000,000 Dutch newspaper articles using machine learning. They already looked around for existing training data, but could not find anything that would work for what they're trying to measure. Describe in detail the steps that the researcher should take to train and validate the machine learning model.
+
+> **Question 3.b**. A polling company wants to be able to measure whether people on social media are taking a stance in favor or against certain issues. They have collected various stance detection datasets that they can use as a starting point to train a machine learning model. Describe in detail how should they train and validate their model?
+
+

@@ -1,4 +1,5 @@
 library(stringi)
+library(tidyverse)
 
 get_data <- function(dataset) {
   map_labels = get_mapping_function(dataset)
@@ -46,3 +47,14 @@ get_labels <- function(dataset, split) {
   filename = paste0(split, '_labels')
   as.numeric(read_data(dataset, filename))
 }
+
+
+#sentiment = get_data('sentiment')
+#sentiment = as_tibble(sentiment)
+#emotion = get_data('emotion')
+#emotion = as_tibble(emotion)
+
+#sentiment = sentiment %>% select(text, label)
+#write_csv(sentiment, 'data/sentiment_tweets.csv')
+#sentiment[grep('Microsoft.yes', sentiment$text),]
+

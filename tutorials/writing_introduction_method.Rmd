@@ -77,7 +77,7 @@ The overarching research question is typically very broad, so researchers formul
 Normally these are often formulated in a separate **theory** (or literature) section, but for the final assignment you won't have to write an extensive theory section, and can include the questions/hypotheses in the introduction. We strongly advise formulating at least one explorative question, and one hypothesis. 
 
 
-> Note that you are required to use academic literature (at least 5 papers or books). The most obvious parts of the introduction to include this are the *relevance* and *questions / hypotheses*. You can also refer to sources about methodological techniques, such as providing a reference for Structural Topic Models (if you use them), or studies that argue how social media analytics can be used to study public opinion.
+> Note that you are required to use academic literature (at least 5 academic papers or books). The most obvious parts of the introduction to include this are the *relevance* and *questions / hypotheses*. 
 
 
 # The Method section

@@ -1,0 +1,74 @@
+---
+title: 'Social Media Analytics'
+subtitle: "Writing the introduction section"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+# The introduction section
+
+In the introduction section you need to explain to the reader what your study is all about. Although there is quite some freedom in how to approach this, there are some common components that need to be in there. For your research report, the following components are most important. 
+
+> Note that you are required to use academic literature (at least 5 academic papers or books). The most obvious parts of the introduction to include literature are the *relevance* and *questions / hypotheses*. You can use any literature that you have had in other courses, but are also encouraged to search for new literature. You should at least search for existing content analysis literature on your topic of interest. For example, if you want to study hate speech on Reddit, look for articles that analyzed hate speech or incivility on Reddit or on other platforms.
+
+<!-- > A good way to get started is to first think of the broader type of issue that you want to investigate, and then look for content analysis literature on this issue. For example, if you  -->
+
+### Introduce the topic
+Start the introduction with a short lead in which you introduce the main topic. Don't just start with: "in this study we investigate ...", but pull your reader in first. For example, imagin that your study is about [the debate on April 1 about the leaked notes from the Dutch cabinet formation process](https://nltimes.nl/2021/04/02/pm-rutte-survives-debate-formation-leak-image-severely-damaged), and how this affected public opinion about Mark Rutte. Your first paragraph should then convince your reader that this was indeed a key debate for Mark Rutte, and well worth investigating. In that purpose it could be similar to the first paragraph of the news article.
+
+### Research question
+A study should have a clear overarching question. The main purpose of this question is to help your readers understand what they will learn by reading your report, as well as help yourself focus in writing the report. 
+
+Writing a good question is a bit of an art, but there are [some guidelines](https://writingcenter.gmu.edu/guides/how-to-write-a-research-question). 
+An important thing to keep in mind is that this overarching research question is broader then the specific questions that you answer in your analysis (this is what the (sub)questions and hypotheses are for). 
+
+For example, a paper might say: "In this study we investigate how the parliamentary debate about the leaked notes from the Dutch cabinet formation process affected public opinion of Mark Rutte". 
+This makes it sufficiently clear what the main goal of the paper is.
+It doesn't yet have to specify how this study contributes to answering this question.
+Later on you can clarify that you analyze public opinion based on how people talk on Twitter, and that you mainly focus on whether people are positive or negative (which tells us something, but certainly not everything, about public opinion).
+In short, the research question should clearly communicate the main goal of the study, but doesn't yet have to contain all the details. 
+
+### Method
+The introduction section should also mention the method.
+This shouldn't yet contain the details (that's what the method section is for), but it should clarify your general approach.
+You first of all want to mention the type of research method (content analysis, experiment, survey, interview, etc.).
+In this project, you'll want to specify that you used content analysis (as opposed to an experiment, survey, etc.), and specify whether you use manual content analysis or automatic content analysis.
+You should mention what content you analyze (e.g. tweets about Mark Rutte within a week before and after the debate), and what the main concepts are that you'll be measuring (e.g., sentiment and topics). 
+Note that you can often summarize this key information quite compactly: "we used automatic content analysis to analyze the sentiment and topics of tweets about Mark Rutte in one week before and after the debate".
+
+The hard part (again) is to distinguish key information from details.
+For instance, if you analyze social media data, it is good to mention what platforms and what time period, but you shouldn't go into details about how you collected this data.
+You should mention what types techniques you use (e.g., manual content analysis, supervised machine learning), but any details about how you used this method (e.g., the codebook, what type of machine learning model) can wait untill the Method section.
+
+Finally, it is often good to say something about why this method makes sense for this study. 
+Different methods have different pro's and con's, and you might want to spend a sentence or two to convince your reader of why your method is a good choice.
+For instance, if you study public opinion using a sentiment analysis on Twitter, you could refer to other studies that have done something similar (tip: search on Google Scholar for `twitter public opinion analysis`)
+
+All of this typically goes into a single paragraph, so keep it snappy, and think hard on what they key information is.
+
+### Relevance
+It should be explained why the study is relevant (even if you think the relevance is obvious). In scientific studies relevance is typically theoretical and/or societal. But research can also serve a more practical purpose, for instance for a specific organization. For the final assignment you are allowed to choose whether you focus more theoretical, societal or practical relevance, and you can pretend that this is a study performed for a certain organization (e.g., a company, NGO, political party). 
+
+Also, you don't have to worry much about novelty for this assignment (as will for instance be a criterion for your master thesis). You don't have to search for 'holes' in the literature, and it's not a problem if your study addresses a very similar question as an existing study. 
+
+
+### Questions and hypotheses
+The overarching research question is typically very broad, so researchers formulate more specific (sub)questions to answer and/or hypotheses to test. For example, to investigate how the debate might have affected how people think and talk about Mark Rutte, we can more specifically ask ourselves: `(RQ1) What are the main topics of Twitter messages about Mark Rutte in the week following the debate`. We can also formulate very specific hypotheses about how the way people talk about Mark Rutte on Twitter changes due to the debate. Based on theory (and a bit of common knowledge), we can expect that `(H1) Tweets about Mark Rutte one week after the debate are on average more negative compared to one week before the debate`.
+
+In a full paper the specific RQs and Hypotheses are often formulated in a separate **theory** (or literature) section, but for the final assignment you won't have to write an extensive theory section, and can include the questions/hypotheses in the introduction. Note that you don't need both an RQ and Hypothesis, but can pick what best suites your study. There is no minimum or maximum number of RQ's or Hypotheses, but in general it's good to aim for two or three for this assignment.
+
+<!-- Note that the relation between the overarching RQ, specific RQ's and hypotheses is often blurry, and also comes down to style. Consider for instance the RQ from the [Buijzen and Valkenburg (2002)](https://repository.ubn.ru.nl/bitstream/handle/2066/134775/134775-OA.pdf?sequence=1) study: "Which appeals prevail in television commercials and how do these appeals vary in commercials aimed at male and female children and teenagers?" This is an overarching RQ that is cleverly written to imply some more specific RQs. Although the authors could have formulated hypotheses about their expectation that there will be gender differences, they decided that this wasn't necessary to clarify the importance of their study. -->
+
+
+

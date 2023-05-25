@@ -111,7 +111,7 @@ The data can be downloaded from the TweetEval page that we linked here, but to m
 
 ```{r}
 library(readr)
-sentiment = read_csv('~/projects/r_for_sma/data/sentiment_tweets.csv')
+sentiment = read_csv('~/projects/R_for_SMA/tutorials/data/sentiment_tweets.csv')
 sentiment
 ```
 
@@ -315,9 +315,13 @@ Try plugging in different texts to see if your classifier can correctly predict 
 The first assignment is to perform the steps that we discussed above to train and evaluate your own sentiment classifier.
 
 > **Question 1.a**. Train your own classifier using the code above. Report the code that you used, and include the results of the `summary(sent_classifier)` code.
+
 > **Question 1.b**. Use the test data to create the confusion matrix and calculate the precision, recall and F1 scores. Report the code, the matrix, and the scores.
+
 > **Question 1.c**. Interpret the precision and recall for all three labels (positive, negative and neutral). 
+
 > **Question 1.d**. Using the predict_text function, create a text that according to you has a 'positive' sentiment, but that your classifier incorrectly classifies as 'negative'. Explain why you think the model makes this mistake.
+
 > **Question 1.e**. Do the same as 1.d, but this time create a text that you think is 'positive', but your model thinks is 'negative'.
 
 # Using the classifier on other data
@@ -330,7 +334,7 @@ Let's again load the `tweets_rstats.csv` data that we used in the fifth practica
 We can then see whether we can measure the sentiment of tweets about `rstats`, and whether this tells us anything interesting.
 
 ```{r}
-tweets = read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
+tweets = read_csv('~/projects/R_for_SMA/tutorials/data/tweets_rstats.csv')
 ```
 
 
@@ -440,7 +444,7 @@ sentiment_per_day
 
 That sort of data is easier to inspect as a line graph
 
-```{r}
+```{r, eval=F}
 ggplot(sentiment_per_day) +
   geom_line(aes(x=date, y=sentiment))
 ```
@@ -450,10 +454,15 @@ ggplot(sentiment_per_day) +
 For this assignment you will perform all the steps in the "Using the classifier on other data" section.
 
 > **Question 2.a**. Report the analysis that shows the average number of retweets and likes per sentiment label. Include the code and the table.  
+
 > **Question 2.b**. Interpret the results from 1.a. Does there appear to be a relation between sentiment and engagement metrics?
+
 > **Question 2.c**. Also calculate the average number of replies and impressions. Report the code and results.
+
 > **Question 2.d**. Interpret the results from 1.c.
+
 > **Question 2.e**. Perform the analysis of the sentiment score over time. Report the code and the line graph.
+
 > **Question 2.f**. Interpret the results from 1.e. What are the notable changes in sentiment over time?
 
 # Validating your machine learning model (again?!)

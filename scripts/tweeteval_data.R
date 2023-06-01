@@ -48,13 +48,10 @@ get_labels <- function(dataset, split) {
   as.numeric(read_data(dataset, filename))
 }
 
-
-#sentiment = get_data('sentiment')
-#sentiment = as_tibble(sentiment)
-#emotion = get_data('emotion')
-#emotion = as_tibble(emotion)
-
-#sentiment = sentiment %>% select(text, label)
-#write_csv(sentiment, 'data/sentiment_tweets.csv')
-#sentiment[grep('Microsoft.yes', sentiment$text),]
-
+for (dataset in c('sentiment','emotion','hate','offensive')) {
+  message(dataset)
+  get_data(dataset) %>%
+    as_tibble() %>%
+    select(text, label) %>%
+    write_csv(sprintf('data/%s_tweets.csv', dataset))
+}

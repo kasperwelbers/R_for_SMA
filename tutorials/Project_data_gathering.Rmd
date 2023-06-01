@@ -1,0 +1,146 @@
+---
+title: 'Gathering Reddit data'
+subtitle: "SMA project"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(results='hide', message=FALSE, warning=FALSE)
+```
+
+VU Amsterdam
+
+# This document
+
+If you choose to use automatic content analysis for the project in period 6, you'll need to gather a good amount of data. As discussed in the fifth practical, there are several ways to gather data using R. For this project, we'll work with Reddit data, because this is relatively easy (and free). This document shows you how to collect the data.
+
+Specifically, our approach will be to first search for threads given a query, and then collect all the comments from these threads. 
+
+We provide two versions of the code. 
+
+* The first version is the simplest, and should work well if you need to gather a moderate amount of data. 
+* The second version is provided for cases where gathering the data would take more than an hour or so. This is also possible with the first version, but if the process breaks halfway you would have to start all over again! The second version therefore makes intermediate backups, so that when the process crashes you can continue where you left off.
+
+# Simple script for moderate amount of data
+
+In the fifth practical we showed you how to look for threads based on a query, and then collect the comments for a single thread. Getting the comments from all threads is even easier. Here is an example using (again) the `rstats` query.
+
+```{r, eval=F}
+library(RedditExtractoR)  
+threads = find_thread_urls("rstats", period='week')
+content = get_thread_content(threads$url)
+```
+
+In the second line we get all threads for a query in a given time period. Here we looked for one week, but depending on how many results you get for your query (and whether your RQ requires a specific time period) you could change `period='week'` to `period='year'`, or even `period='all'`.  
+
+In the third line we take all the URLs from the threads that we gathered (`threads$url`), and plug them all into the `get_thread_content` function. Depending on how much data you have (i.e. how many threads, and how many comments per thread) this process can take quite a while. `RedditExtractoR` scrapes the data directly from the Reddit website without requiring you to register (or pay) for using their API. The trade-off is that the process is quite slow, because it waits every now and then to prevent making Reddit angry (and blocking your IP).
+
+## Cleaning up the data
+
+Once you have the data, we can clean it up a bit. In particular, the data is now still split into threads (the name of the thread and first post) and comments. We'll put these together in a single data.frame, so that it's easy to later on make a DTM. 
+
+You do not need to understand the following code, because we didn't yet get into data mangling. But I would invite you to see if you follow in broad strokes what's going on. We'll take the following steps:
+
+* For the thread data, we'll combine the `title` of the thread and the first post (in the `text` column) to create the `text`. Then, we select the columns we want to use (and immediately rename `url` to `thread_url` for clarity)
+* For the comment data, we can simply rename the `comment` column into text. Then, we select the same columns as we did for the thread data.
+* Now that we have two data tables (`tibbles`) with the same columns, we can `bind the rows` together.
+* Next, we convert the timestamp into a proper date. (from the Reddit documentation we found that it uses the common Unix timestamp, which is the number of seconds since 1970-01-01)
+* Finally, just to make things a bit nicer, we re-order our columns and sort the data by thread_url and timestamp
+
+```{r, eval=F}
+library(tidyverse)
+
+thread_data = as_tibble(content$threads) %>%
+  mutate(text = paste(title, text, sep='\n\n')) %>%
+  select(thread_url=url, author, timestamp, text, score, upvotes, downvotes)
+
+comment_data = as_tibble(content$comments) %>%
+  select(thread_url=url, author, timestamp, text=comment, score, upvotes, downvotes)
+
+data = bind_rows(thread_data, comment_data) %>%
+  mutate(date = as.POSIXct(timestamp, origin='1970-01-01')) %>%
+  select(thread_url, date, author, text, score, upvotes, downvotes) %>%
+  arrange(thread_url, date)
+
+View(data)
+```
+
+If you did things correctly, you should now have a single tibble/data.frame (`data`) with all the comments. Let's now write this data to a csv file. 
+
+```{r, eval=F}
+write_csv(data, "reddit_comments_rstats.csv")
+```
+
+This has two main benefits. Firstly, it serves as a back-up. If you somehow kill your R session or overwrite your data, you won't have to download it again. Secondly, you can now also split your data gathering and analyses into separate R scripts. For example, store your data gathering code in a file called `gather_data.r` and your analysis code in a file called `analysis.r`.  
+
+# Gathering lots of Reddit data
+
+This is a bit more complicated, and you definitely don't need to understand the following code. In short, it loops over the threads one-by-one, retrieves the comments for that thread, and stores them in a `reddit_data` folder. If you run the code a second time, it will skip any threads that it already finished. 
+
+We've made a function out of it so you can use it more easily. Simply execute the code in the following code block (from `scrape_redit <- function ...` until the final `}` at the bottom). This will give you the `scrape_reddit` function (you can see this in the top-right panel in RStudio in the Environment tab).
+
+```{r, eval=F}
+library(RedditExtractoR)  
+library(tidyverse)
+
+scrape_reddit <- function(query, period) {
+  ## get threads
+  threads = find_thread_urls(query, period=period)
+  
+  ## create folder for storing comments
+  query_folder = file.path('reddit_data', query)
+  if (!file.exists(query_folder)) dir.create(query_folder, recursive = T)
+  
+  ## gather comments and save to file (it not done before). 
+  thread_data = list()
+  comments_data = list()
+  for (thread_url in threads$url) {
+    fname = URLencode(thread_url, reserved=T)
+    fpath = file.path(query_folder, fname)
+    if (!file.exists(fpath)) {
+      message("Gathering comments from ", thread_url)
+      tc = get_thread_content(thread_url)
+      saveRDS(tc, fpath)
+    } else {
+      tc = readRDS(fpath)
+    } 
+    tc$comments$comment_id = as.character(tc$comments$comment_id)
+    thread_data[[thread_url]] = tc$threads
+    comments_data[[thread_url]] = tc$comments
+  }
+  list(threads=bind_rows(thread_data), comments=bind_rows(comments_data))
+}
+```
+
+Now we can use the function as follows.
+
+```{r, eval=F}
+content = scrape_reddit('rstats', 'week')
+```
+
+And here we can use the same cleanup script as we used above.
+
+```{r, eval=F}
+thread_data = as_tibble(content$threads) %>%
+  mutate(text = paste(title, text, sep='\n\n')) %>%
+  select(thread_url=url, author, timestamp, text, score, upvotes, downvotes)
+
+comment_data = as_tibble(content$comments) %>%
+  select(thread_url=url, author, timestamp, text=comment, score, upvotes, downvotes)
+
+data = bind_rows(thread_data, comment_data) %>%
+  mutate(date = as.POSIXct(timestamp, origin='1970-01-01')) %>%
+  select(thread_url, date, author, text, score, upvotes, downvotes) %>%
+  arrange(thread_url, date)
+
+write_csv(data, "reddit_comments_rstats.csv")
+```

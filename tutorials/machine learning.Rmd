@@ -143,6 +143,8 @@ dtm = sentiment %>%
   dfm_wordstem() 
 
 dtm
+
+corpus('test') %>% tokens %>% dfm()
 ```
 
 Ok, so now we have our Document Term Matrix. 
@@ -168,19 +170,16 @@ The most important thing here is that we want to have as much training data as p
 
 We'll split the data with the following process:
 
-* use `docnames(dtm)` toget the document names. (we didn't provide names, so these are just 'text1','text2', etc.)
-* draw a random sample of 5000 names.
-* create `test_dtm` by subsetting the DTM to get the documents for which the name is in our test samlpe
-* create `train_dtm` by subsetting the DTM to get document for which the name is NOT (!) in our test sample.
+* To get the test data, we first draw a sample of 5000 documents from `dtm` using `dfm_sample()`
+* Then for the training data we want to take all the remaining documents. We do this by taking a subset with `dfm_subset`. With `!docnames(dtm) %in% docnames(test_dtm)` we say that we want to get all the documents for which the unique document name does not occur in the `test_dtm`. (the exclamation mark means `NOT`)
 
 ```{r, echo=F}
 set.seed(1)
 ```
 
 ```{r}
-test_docnames = sample(docnames(dtm), size = 5000)
-test_dtm = dfm_subset(dtm, docnames(dtm) %in% test_docnames)
-train_dtm = dfm_subset(dtm, !docnames(dtm) %in% test_docnames)
+test_dtm = dfm_sample(dtm, 5000)
+train_dtm = dfm_subset(dtm, !docnames(dtm) %in% docnames(test_dtm))
 ```
 
 **Important side-note**. Since we used a random sample to split the data, the results of all the steps below can be different if you run the analysis again, or on a different computer!!
@@ -250,8 +249,8 @@ Now that we have both the `real_sentiment` and the `predicted_sentiment`, we can
 You have already seen this matrix when we calculated the `Cohen's Kappa` and the `Precision and Recall` scores in the previous practicals.
 
 ```{r}
-cm = table(gold_standard = real_sentiment, 
-           predicted = predicted_sentiment)
+cm = table(predicted = predicted_sentiment,
+           gold_standard = real_sentiment)
 cm
 ```
 
@@ -260,6 +259,7 @@ Based on this matrix, we can now see how often the predictions are correct (true
 
 Till now you've always calculated precision and recall by hand, but off course we can also just do this in R.
 Here we use the `confusionMatrix` function from the `caret` package.
+
 
 ```{r}
 library(caret)
@@ -511,8 +511,8 @@ Then, when you've added the manually coded sentiment, you could read the CSV int
 ```{r, eval=F}
 coded_validation_sample = read_csv('validation_sample.csv')
 
-m = table(gold_standard = coded_validation_sample$manual_sentiment,
-          predicted = coded_validation_sample$sentiment)
+m = table(predicted = coded_validation_sample$sentiment,
+          gold_standard = coded_validation_sample$manual_sentiment)
 m
 ```
 
@@ -527,5 +527,7 @@ Here we only recommend it because it makes the code easier.
 > **Question 3.a**. A researcher wants to measure the subjectivity of 1,000,000 Dutch newspaper articles using machine learning. They already looked around for existing training data, but could not find anything that would work for what they're trying to measure. Describe in detail the steps that the researcher should take to train and validate the machine learning model.
 
 > **Question 3.b**. A polling company wants to be able to measure whether people on social media are taking a stance in favor or against certain issues. They have collected various stance detection datasets that they can use as a starting point to train a machine learning model. Describe in detail how should they train and validate their model?
+
+
 
 

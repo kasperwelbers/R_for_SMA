@@ -11,7 +11,7 @@
 
 
 
-<title>Social Media Analytics VI</title>
+<title>Gathering Reddit data</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -432,637 +432,178 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Social Media Analytics VI</h1>
-<h3 class="subtitle">Machine Learning and sentiment analysis</h3>
+<h1 class="title toc-ignore">Gathering Reddit data</h1>
+<h3 class="subtitle">SMA project</h3>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#this-practical" id="toc-this-practical">This
-practical</a></li>
-<li><a href="#preparing-the-data" id="toc-preparing-the-data">Preparing
-the data</a></li>
-<li><a href="#training-and-testing-the-model" id="toc-training-and-testing-the-model">Training and testing the
-model</a></li>
-<li><a href="#assignment-1-my-first-classifier" id="toc-assignment-1-my-first-classifier">Assignment 1: My first
-classifier</a></li>
-<li><a href="#using-the-classifier-on-other-data" id="toc-using-the-classifier-on-other-data">Using the classifier on
-other data</a></li>
-<li><a href="#analyzing-sentiment" id="toc-analyzing-sentiment">Analyzing sentiment</a></li>
-<li><a href="#assignment-2" id="toc-assignment-2">Assignment 2</a></li>
-<li><a href="#validating-your-machine-learning-model-again" id="toc-validating-your-machine-learning-model-again">Validating your
-machine learning model (again?!)</a></li>
-<li><a href="#assignment-3" id="toc-assignment-3">Assignment 3</a></li>
+<li><a href="#this-document" id="toc-this-document">This
+document</a></li>
+<li><a href="#simple-script-for-moderate-amount-of-data" id="toc-simple-script-for-moderate-amount-of-data">Simple script for
+moderate amount of data</a></li>
+<li><a href="#gathering-lots-of-reddit-data" id="toc-gathering-lots-of-reddit-data">Gathering lots of Reddit
+data</a></li>
 </ul>
 </div>
 
 <p>VU Amsterdam</p>
-<div id="this-practical" class="section level1">
-<h1>This practical</h1>
-<p>In this practical you will learn how to use machine learning to
-perform automatic content analysis. Specifically, we will be using
-machine learning for performing sentiment analysis. The approach itself
-can also be used for other types of content characteristics, such as
-determining whether emails are spam or not or classifying the topics of
-texts. What makes sentiment analysis an interesting example case, is
-that you can imagine how hard it would be to analyze sentiment with a
-rule-based approach.</p>
-<p>Before we begin, please install the following packages
-beforehand.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;quanteda.textmodels&#39;</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;tidyverse&#39;</span>)</span></code></pre></div>
-<div id="rules-based-versus-supervised-machine-learning" class="section level2">
-<h2>Rules based versus supervised machine learning</h2>
-<p>The difference between rule-based and supervised machine learning has
-also been discussed in the second lecture, so we won’t discuss it here
-in detail. But we’ll re-cap the main overview with a focus on sentiment
-analysis.</p>
-<div id="rule-based" class="section level3">
-<h3>Rule-based</h3>
-<p>One way to teach a computer to perform a certain measurement, is by
-giving the computer a set of specific rules for how to measure. An
-example that you already worked with is search queries. A query tells a
-computer very specifically what to look for. The query
-<code>corona AND vaccin*</code> tells the computer unambiguously: if a
-text contains the word “corona”, and contains a word that starts with
-“vaccin”, measure this as TRUE (i.e. the text did match the query). If
-not, measure this as FALSE.</p>
-<p>The benefit of this approach is that you have complete control over
-how the computer performs the measurement. The limitation is that for
-good performance on complicated measurements you would need very many
-and very specific rules.</p>
-<p>Sentiment analysis is a very good example of such a complicated
-measurement task. A common rule-based approach for measuring sentiment
-is to create a <code>dictionary</code>, that tells us which words are
-<code>positive</code> or <code>negative</code>. We can then simply let
-the computer count how many negative and positive words occur in a text,
-and use this to calculate a sentiment score. Note that this is very
-similar to working with search queries. Each term in the dictionary is a
-simple rule for the computer: for every time the word “decline” occurs,
-add 1 to the number of negative words in this text.</p>
-<p>This approach works to some extent, and has been used in many
-studies. However, it has some clear limitations, and several recent
-studies show that the accuracy of rule-based sentiment analysis with
-dictionaries is often bad (see e.g., <a href="https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198">Van
-Atteveldt, Van der Velden &amp; Boukes, 2021</a>). The problem is simply
-that sentiment in language is so complex, that it’s virtually impossible
-to make a sufficiently complex list of rules. Some dictionaries have
-thousands of words, include special rules for negations (“not good”) and
-amplifiers (“very good!”), and distinguish between how positive or
-negative words are (“best” is more positive than “good”). And yet still,
-it tends to perform poorly for many real-life applications.</p>
-</div>
-<div id="supervised-machine-learning" class="section level3">
-<h3>Supervised machine-learning</h3>
-<p>So, a big limitation of rule-based approaches for sentiment analysis
-seems to be that we just can’t seem to come up with a sufficiently
-complex set of rules. But how can we teach a computer to do something
-without specifically telling it how to do it? This is where
-<code>supervised machine-learning</code> comes in. In
-<code>supervised machine learning</code> we provide the computer with
-<code>training data</code>, and then let it figure out the rules by
-itself!</p>
-<p>For example, consider the case of a <code>spam filter</code>. We want
-to teach a computer to automatically label new emails as spam or not
-spam. We first need to create our training data. For this we collect
-some old emails, and manually label them as either spam or not spam. So
-now we can give the computer a set of emails that are spam, and a set of
-emails that are not spam, according to our own interpretation. From this
-data the computer can learn how the spam and not spam emails are
-different. In a way, it can itself <em>learn</em> the ‘rules’<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> for
-distinguishing between them. Then, when it receives new emails, it can
-use these rules to decide whether it is more likely to be spam or not
-spam.</p>
-<p>A very simple machine learning algorithm would for instance just look
-at the occurrences of certain words. By looking at the training data, it
-would figure out that certain words are much more likely to be used in
-spam emails. Then, when it encounters these words in new emails, it can
-decide that these emails are likely to be spam as well.</p>
-<p>The cool thing about supervised machine learning is that this same
-approach works for many different types of data. The input can be a set
-of emails that we want to classify into either spam or not spam, but it
-can also be a set of animal pictures that we want to classify into which
-animal is depicted. If you take this much further, it could be many
-games of chess to learn which next move is most likely to make you win.
-Generally speaking, supervised machine leaning lets you teach computers
-to perform complicated tasks without having to tell them how to perform
-these tasks. The price is that you need to provide sufficient training
-data for them to learn this themselves.</p>
-</div>
-</div>
-</div>
-<div id="preparing-the-data" class="section level1">
-<h1>Preparing the data</h1>
-<p>In order to use machine learning, we first need to have data to train
-and evaluate our model on. That we, we need text for which we already
-know the outcome that we want to measure. In machine learning, this
-outcome is often referred to as the <em>label</em>. For example, if we
-want to train a model that can recognize spam, we first need to provide
-it with texts that have the labels “spam” and “not spam”.</p>
-<p>In our case we want to train a model that can recognize sentiment. So
-we need a dataset that has texts, and for each text has labels about the
-sentiment of the text. One way to create this data is by first
-performing a manual content analysis. However, there are also many
-existing datasets out there that you can use. For this tutorial, we’ll
-use a dataset from the <a href="https://github.com/cardiffnlp/tweeteval/tree/main">TweetEval</a>
-benchmark. This is an open dataset with tweets that have been labeled
-with various common labels of interest when analyzing tweets, such as
-sentiment, emotion, hate speech and stance.</p>
-<p>The data can be downloaded from the TweetEval page that we linked
-here, but to make it a bit easier to work with we created a CSV file for
-the <em>sentiment</em> label data. <strong>Please download the
-practical_6.zip file from Canvas, and unzip it to get the
-sentiment_tweets.csv file</strong>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentiment <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;~/projects/R_for_SMA/tutorials/data/sentiment_tweets.csv&#39;</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sentiment</span></code></pre></div>
-<p>Here we have almost 60,000 tweets, and for each tweets we also have a
-<em>label</em>. We can use the <code>table</code> function to count the
-number of times each label occurred. (<code>sentiment$label</code> gives
-us the <code>label</code> column from the <code>sentiment</code>
-data)</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(sentiment<span class="sc">$</span>label)</span></code></pre></div>
-<p>So we have three labels: “negative”, “positive” and “neutral”. For
-each label we have quite a lot of tweets, so our model should be able to
-learn quite a bit about what positive, negative and neutral tweets look
-like.</p>
-<p>As we learned in the previous practical, we first need to represent
-our texts in a way that we can do calculations with them. For this, we
-will again use the Document Term Matrix format. For now, let’s only use
-some simple preprocessing steps. We’ll use <code>stemming</code>, remove
-the <code>stopwords</code>, and we’ll also <code>trim</code> the data by
-removing all terms that occur less than 10 times.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>dtm <span class="ot">=</span> sentiment <span class="sc">%&gt;%</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">corpus</span>(<span class="at">text_field=</span><span class="st">&#39;text&#39;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tokens</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_trim</span>(<span class="at">min_termfreq=</span><span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_remove</span>(<span class="fu">stopwords</span>(<span class="st">&#39;en&#39;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_wordstem</span>() </span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>dtm</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">corpus</span>(<span class="st">&#39;test&#39;</span>) <span class="sc">%&gt;%</span> tokens <span class="sc">%&gt;%</span> <span class="fu">dfm</span>()</span></code></pre></div>
-<p>Ok, so now we have our Document Term Matrix. Remember that quanteda
-automatically stores any column in the input data as document
-variables.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">docvars</span>(dtm) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div>
-<p>So for every row in the DTM we still know what the sentiment label
-is. This gives us everything we need to train and test our model.</p>
-<div id="splitting-the-train-and-test-data" class="section level2">
-<h2>Splitting the train and test data</h2>
-<p>The next step is that we’ll split our data into <code>test</code> and
-<code>training</code> data. We’ll use the training data to train our
-model, and the test data to evaluate our model by calculating the
-precision and recall. It’s important to keep these separated, because if
-we test the model on the same data that we trained it on, it’s not
-really a fair test. It would be like giving students the same questions
-that they get on the exam to train themselves for the exam.</p>
-<p>In this case we’ll use 5000 tweets (almost 10% of our data) for
-testing. The most important thing here is that we want to have as much
-training data as possible, but we also need to have sufficient test data
-to measure how well the model performs.</p>
-<p>We’ll split the data with the following process:</p>
+<div id="this-document" class="section level1">
+<h1>This document</h1>
+<p>If you choose to use automatic content analysis for the project in
+period 6, you’ll need to gather a good amount of data. As discussed in
+the fifth practical, there are several ways to gather data using R. For
+this project, we’ll work with Reddit data, because this is relatively
+easy (and free). This document shows you how to collect the data.</p>
+<p>Specifically, our approach will be to first search for threads given
+a query, and then collect all the comments from these threads.</p>
+<p>We provide two versions of the code.</p>
 <ul>
-<li>To get the test data, we first draw a sample of 5000 documents from
-<code>dtm</code> using <code>dfm_sample()</code></li>
-<li>Then for the training data we want to take all the remaining
-documents. We do this by taking a subset with <code>dfm_subset</code>.
-With <code>!docnames(dtm) %in% docnames(test_dtm)</code> we say that we
-want to get all the documents for which the unique document name does
-not occur in the <code>test_dtm</code>. (the exclamation mark means
-<code>NOT</code>)</li>
+<li>The first version is the simplest, and should work well if you need
+to gather a moderate amount of data.</li>
+<li>The second version is provided for cases where gathering the data
+would take more than an hour or so. This is also possible with the first
+version, but if the process breaks halfway you would have to start all
+over again! The second version therefore makes intermediate backups, so
+that when the process crashes you can continue where you left off.</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>test_dtm <span class="ot">=</span> <span class="fu">dfm_sample</span>(dtm, <span class="dv">5000</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>train_dtm <span class="ot">=</span> <span class="fu">dfm_subset</span>(dtm, <span class="sc">!</span><span class="fu">docnames</span>(dtm) <span class="sc">%in%</span> <span class="fu">docnames</span>(test_dtm))</span></code></pre></div>
-<p><strong>Important side-note</strong>. Since we used a random sample
-to split the data, the results of all the steps below can be different
-if you run the analysis again, or on a different computer!!</p>
-<p><strong>Less important side-note</strong>. This method for splitting
-the train and test data is also called the <code>holdout method</code>,
-because we holdout a specific sample of the data for testing. There are
-actually better approaches. For instance, we could split the data in 5
-equal parts, then train on 4 parts and test on 1, and repeat this 5
-times while rotating the parts. This way each review will be used for
-both training and testing. This is called
-<code>k-fold cross-validation</code>, where k is the number of parts (in
-this example 5). However, here we’ll just stick with the holdout method
-because it’s easier to understand and apply.</p>
 </div>
-</div>
-<div id="training-and-testing-the-model" class="section level1">
-<h1>Training and testing the model</h1>
-<p>So now we can use the training data to train the model. In this case
-we’re using a Naive Bayes classifier. This is one of the earliest and
-simplest machine learning models. It is not the best model, but it is
-very fast, which makes it great for learning.</p>
-<p>For this we use the <code>textmodel_nb</code> (<code>nb</code> for
-<code>Naive Bayes</code>) function from the
-<code>quanteda.textmodels</code> package.</p>
-<div id="training-the-model" class="section level2">
-<h2>Training the model</h2>
-<p>As input we just need to provide the DTM (train_dtm), and the labels
-that we want to model to be able to predict. We can use
-<code>train_dtm$label</code> to get the sentiment labels from the
-document variables (that we looked at above). We’ll call our sentiment
-classifier <code>sent_classifier</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>sent_classifier <span class="ot">=</span> <span class="fu">textmodel_nb</span>(train_dtm, train_dtm<span class="sc">$</span>label)</span></code></pre></div>
-<p>So yes, we’ve now trained ourselves a sentiment classifier!</p>
-<p>As mentioned above, a Naive Bayes classifier is relatively simple. A
-nice thing about this for learning about machine learning, is that you
-can look <strong>under-the-hood</strong> and still understand quite well
-<strong>what</strong> the model actually learned.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sent_classifier)</span></code></pre></div>
-<p>Here you see that the model has simply calculated values for every
-word in the DTM (only a few columns are shown here). These values are
-commonly called <code>weights</code> in machine learning (this is
-similar to what you commonly call the coefficients in statistics). Based
-on these learned weights, the model will for instance predict that if
-the word “sorri” (the stem of “sorry”) occurs, the text is more likely
-to be negative.</p>
-<p>The next step is to use our test data to see how accurate our model
-is.</p>
-</div>
-<div id="testing-the-model" class="section level2">
-<h2>Testing the model</h2>
-<p>We can now use our <code>test_dtm</code> in the same way as one would
-use an exam to test students. We already know the <strong>real</strong>
-labels for the tweets in the test dtm (i.e. the answers to our exam). So
-to evaluate our model, we’ll also ask our <code>sent_classifier</code>
-what labels it would give these tweets. We can then calculate how often
-our model was correct.</p>
-<p>When we ask a model to label data, we commonly refer to this as
-<code>predicting</code>. That is, based on what the model learned from
-the training data, we ask it to <code>predict</code> the label of texts
-that it has not seen before. Notice that this is quite literally what
-the following code says: we use the <code>predict</code> function, with
-as arguments our <code>sent_classifier</code> and the
-<code>test_dtm</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>predicted_sentiment <span class="ot">=</span> <span class="fu">predict</span>(sent_classifier, <span class="at">newdata =</span> test_dtm)</span></code></pre></div>
-<p>So now we have both the predicted sentiment labels and the
-<strong>real</strong> sentiment labels. Just like for
-<code>train_dtm</code>, we can get the <strong>real</strong> labels with
-<code>test_dtm$label</code>. Let’s grab these labels and give them the
-name <code>real_sentiment</code>, just for sake of clarity.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>real_sentiment <span class="ot">=</span> test_dtm<span class="sc">$</span>label</span></code></pre></div>
-<p>Now that we have both the <code>real_sentiment</code> and the
-<code>predicted_sentiment</code>, we can create a <strong>confusion
-matrix</strong>. You have already seen this matrix when we calculated
-the <code>Cohen&#39;s Kappa</code> and the <code>Precision and Recall</code>
-scores in the previous practicals.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cm <span class="ot">=</span> <span class="fu">table</span>(<span class="at">predicted =</span> predicted_sentiment,</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">gold_standard =</span> real_sentiment)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>cm</span></code></pre></div>
-<p>Just like in those practicals, we called our <strong>real</strong>
-values the <strong>gold standard</strong>. Based on this matrix, we can
-now see how often the predictions are correct (true positive or true
-negative) versus how often they were wrong (false positive or false
-negative).</p>
-<p>Till now you’ve always calculated precision and recall by hand, but
-off course we can also just do this in R. Here we use the
-<code>confusionMatrix</code> function from the <code>caret</code>
-package.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(cm, <span class="at">mode =</span> <span class="st">&#39;prec_recall&#39;</span>)</span></code></pre></div>
-<p>So how well did we do? Remember the interpretation of precision and
-recall. In our results (which can be different from yours), the
-<code>positive</code> label had a precision of 62%, which means that
-when our model predicted <code>positive</code> it was correct 62% of the
-times. The recall of 71% tells us that of all tweets that were actually
-<code>positive</code> or model correctly measured 71% as positive.</p>
-<p>This is not <em>great</em>, but for a complicated task like sentiment
-analysis it’s not terrible either. If you look at table 2 in <a href="https://www.tandfonline.com/doi/full/10.1080/19312458.2020.1869198">Van
-Atteveldt et al, 2021</a> you’ll also see precision, recall and F1
-scores of around 0.60 for the <strong>Machine Learning</strong>
-approaches. Also, note that this is much higher compared to the
-<strong>dictionary</strong> (i.e. rule-based) approaches!!.</p>
-<p>Furthermore, note that on the <a href="https://github.com/cardiffnlp/tweeteval/tree/main">TweetEval</a>
-page where we got our data, they also report the performance of other
-models. At the bottom we see the SVM (support vector machine) model,
-which is the least accurate model in this case. For the Sentiment task
-this model reports a 62.9, which is their average F1 score across the
-three labels. So (in our sample) our good old Naive Bayes model did not
-do much worse!<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
-<div id="testing-the-model-on-individual-texts" class="section level3">
-<h3>Testing the model on individual texts</h3>
-<p>You can also use your classifier to predict the sentiment for any
-individual texts that you throw at it. This is useful for trying out the
-model and finding out for what types of texts it cannot properly
-identify the sentiment.</p>
-<p>What’s a bit annoying about this though, is that you would have to
-preprocess every individual text. Whenever you have code that would have
-to be repeated often, it is often convenient to create your own
-function. Don’t worry, you won’t have to learn how to create your own
-functions for this course. But it is good to know that it is possible,
-and how you could use a function created by someone else.</p>
-<p>To create the following function, select the entire piece of code
-starting at <code>predict_text &lt;- ...</code> and ending after the
-<code>}</code> and execute it.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>predict_text <span class="ot">&lt;-</span> <span class="cf">function</span>(classifier, text) {</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  single_row_dtm <span class="ot">=</span> <span class="fu">tokens</span>(text) <span class="sc">%&gt;%</span> <span class="fu">dfm</span>() <span class="sc">%&gt;%</span> <span class="fu">dfm_wordstem</span>() <span class="sc">%&gt;%</span> <span class="fu">dfm_match</span>(<span class="fu">colnames</span>(classifier<span class="sc">$</span>x))</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(classifier, single_row_dtm) <span class="sc">%&gt;%</span> <span class="fu">as.character</span>()</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>In the upper right corner in RStudio, in the Environment tab, there
-should now be a <code>Functions</code> section that lists the
-<code>predict_text</code> function. You can see that the input for this
-function is a <code>classifier</code> and <code>text</code>. We can use
-it as follows to use our <code>sent_classifier</code></p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict_text</span>(sent_classifier, <span class="st">&quot;Very sad. Much anger #negativetweet&quot;</span>)</span></code></pre></div>
-<p>Try plugging in different texts to see if your classifier can
-correctly predict the sentiment label!</p>
-</div>
-</div>
-</div>
-<div id="assignment-1-my-first-classifier" class="section level1">
-<h1>Assignment 1: My first classifier</h1>
-<p>The first assignment is to perform the steps that we discussed above
-to train and evaluate your own sentiment classifier.</p>
-<blockquote>
-<p><strong>Question 1.a</strong>. Train your own classifier using the
-code above. Report the code that you used, and include the results of
-the <code>summary(sent_classifier)</code> code.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 1.b</strong>. Use the test data to create the
-confusion matrix and calculate the precision, recall and F1 scores.
-Report the code, the matrix, and the scores.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 1.c</strong>. Interpret the precision and recall for
-all three labels (positive, negative and neutral).</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 1.d</strong>. Using the predict_text function,
-create a text that according to you has a ‘positive’ sentiment, but that
-your classifier incorrectly classifies as ‘negative’. Explain why you
-think the model makes this mistake.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 1.e</strong>. Do the same as 1.d, but this time
-create a text that you think is ‘positive’, but your model thinks is
-‘negative’.</p>
-</blockquote>
-</div>
-<div id="using-the-classifier-on-other-data" class="section level1">
-<h1>Using the classifier on other data</h1>
-<p>Till now we haven’t yet done any real content analysis. We have only
-used our classifier to evaluate it, using data for which we already knew
-the sentiment. But now that we have trained and validated our model, we
-can use it on other data as well!</p>
-<p>Let’s again load the <code>tweets_rstats.csv</code> data that we used
-in the fifth practical (I’ve included this file in
-<strong>practical_6.zip</strong>). We can then see whether we can
-measure the sentiment of tweets about <code>rstats</code>, and whether
-this tells us anything interesting.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tweets <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;~/projects/R_for_SMA/tutorials/data/tweets_rstats.csv&#39;</span>)</span></code></pre></div>
-<div id="preparing-the-data-to-apply-an-existing-classifier" class="section level2">
-<h2>Preparing the data to apply an existing classifier</h2>
-<p>Our first step will be to create the DTM for our <code>tweets</code>
-data. Now, a <strong>very important thing</strong> to remember, is that
-our classifier was trained on a particular DTM. We will need to make
-sure that our new DTM has the same columns as the DTM on which the model
-was trained. Luckily, the classifier also includes a copy of the DTM on
-which it was trained, which we can access with
-<code>sent_classifier$x</code>. We can extract the column names from
-this copy.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>classifier_terms <span class="ot">=</span> <span class="fu">colnames</span>(sent_classifier<span class="sc">$</span>x)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="do">## look at the first 10 values</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>classifier_terms <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">10</span>) </span></code></pre></div>
-<p>To prepare our DTM, we now need to do two things:</p>
+<div id="simple-script-for-moderate-amount-of-data" class="section level1">
+<h1>Simple script for moderate amount of data</h1>
+<p>In the fifth practical we showed you how to look for threads based on
+a query, and then collect the comments for a single thread. Getting the
+comments from all threads is even easier. Here is an example using
+(again) the <code>rstats</code> query.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)  </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(<span class="st">&quot;rstats&quot;</span>, <span class="at">period=</span><span class="st">&#39;week&#39;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">get_thread_content</span>(threads<span class="sc">$</span>url)</span></code></pre></div>
+<p>In the second line we get all threads for a query in a given time
+period. Here we looked for one week, but depending on how many results
+you get for your query (and whether your RQ requires a specific time
+period) you could change <code>period=&#39;week&#39;</code> to
+<code>period=&#39;year&#39;</code>, or even <code>period=&#39;all&#39;</code>.</p>
+<p>In the third line we take all the URLs from the threads that we
+gathered (<code>threads$url</code>), and plug them all into the
+<code>get_thread_content</code> function. Depending on how much data you
+have (i.e. how many threads, and how many comments per thread) this
+process can take quite a while. <code>RedditExtractoR</code> scrapes the
+data directly from the Reddit website without requiring you to register
+(or pay) for using their API. The trade-off is that the process is quite
+slow, because it waits every now and then to prevent making Reddit angry
+(and blocking your IP).</p>
+<div id="cleaning-up-the-data" class="section level2">
+<h2>Cleaning up the data</h2>
+<p>Once you have the data, we can clean it up a bit. In particular, the
+data is now still split into threads (the name of the thread and first
+post) and comments. We’ll put these together in a single data.frame, so
+that it’s easy to later on make a DTM.</p>
+<p>You do not need to understand the following code, because we didn’t
+yet get into data mangling. But I would invite you to see if you follow
+in broad strokes what’s going on. We’ll take the following steps:</p>
 <ul>
-<li>First, since we used <code>dfm_wordstem</code> above, we need to use
-it again here. Think about it: if we trained our model to learn which
-<em>stemmed</em> words are positive, negative or neutral, then it won’t
-know what to do with words that have not been stemmed.</li>
-<li>Second, we’ll <strong>match</strong> the columns of our DTM to the
-<code>classifier_terms</code> that we extracted above. We can do this
-witm <code>dfm_match(classifier_terms)</code>.</li>
+<li>For the thread data, we’ll combine the <code>title</code> of the
+thread and the first post (in the <code>text</code> column) to create
+the <code>text</code>. Then, we select the columns we want to use (and
+immediately rename <code>url</code> to <code>thread_url</code> for
+clarity)</li>
+<li>For the comment data, we can simply rename the <code>comment</code>
+column into text. Then, we select the same columns as we did for the
+thread data.</li>
+<li>Now that we have two data tables (<code>tibbles</code>) with the
+same columns, we can <code>bind the rows</code> together.</li>
+<li>Next, we convert the timestamp into a proper date. (from the Reddit
+documentation we found that it uses the common Unix timestamp, which is
+the number of seconds since 1970-01-01)</li>
+<li>Finally, just to make things a bit nicer, we re-order our columns
+and sort the data by thread_url and timestamp</li>
 </ul>
-<p>This looks as follows:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>tweets_dtm <span class="ot">=</span> tweets <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">corpus</span>(<span class="at">text_field =</span> <span class="st">&#39;text&#39;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tokens</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_wordstem</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_match</span>(classifier_terms)</span></code></pre></div>
-<p>Note that we do not need to <code>remove stopwords</code> or
-<code>trim</code> the data, because by matching the columns to the
-classifier terms we have already ensured that we have exactly the terms
-that we need.</p>
-</div>
-<div id="using-the-classifier-to-predict-sentiment" class="section level2">
-<h2>Using the classifier to predict sentiment</h2>
-<p>Now we can apply our classifier on the <code>tweets_dtm</code> using
-the same <code>predict</code> function that we used above. This will
-return the predicted sentiment labels. Since the rows of the
-<code>tweets_dtm</code> match the rows of the <code>tweets</code>
-data.frame, we can directly add these labels to the tweets data.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>tweets<span class="sc">$</span>sentiment <span class="ot">=</span> <span class="fu">predict</span>(sent_classifier, tweets_dtm)</span></code></pre></div>
-<p>That’s already nice, but let’s do a bit more processing. In
-particular, it would be nice to also have the sentiment as a number,
-because then we can do things like calculate the average sentiment per
-day. A simple way to achieve this is to say that a negative sentiment
-equals <code>-1</code>, a positive sentiment equals <code>1</code>, and
-neutral sentiment equals <code>0</code>.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>tweets<span class="sc">$</span>sentiment_score <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>tweets<span class="sc">$</span>sentiment_score[tweets<span class="sc">$</span>sentiment <span class="sc">==</span> <span class="st">&#39;positive&#39;</span>] <span class="ot">=</span> <span class="dv">1</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>tweets<span class="sc">$</span>sentiment_score[tweets<span class="sc">$</span>sentiment <span class="sc">==</span> <span class="st">&#39;negative&#39;</span>] <span class="ot">=</span> <span class="sc">-</span><span class="dv">1</span></span></code></pre></div>
-<p>Now let’s check out the data:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(tweets)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>thread_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>threads) <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">paste</span>(title, text, <span class="at">sep=</span><span class="st">&#39;</span><span class="sc">\n\n</span><span class="st">&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, text, score, upvotes, downvotes)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>comment_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>comments) <span class="sc">%&gt;%</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, <span class="at">text=</span>comment, score, upvotes, downvotes)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(thread_data, comment_data) <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">&#39;1970-01-01&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thread_url, date, author, text, score, upvotes, downvotes) <span class="sc">%&gt;%</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(thread_url, date)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(data)</span></code></pre></div>
+<p>If you did things correctly, you should now have a single
+tibble/data.frame (<code>data</code>) with all the comments. Let’s now
+write this data to a csv file.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data, <span class="st">&quot;reddit_comments_rstats.csv&quot;</span>)</span></code></pre></div>
+<p>This has two main benefits. Firstly, it serves as a back-up. If you
+somehow kill your R session or overwrite your data, you won’t have to
+download it again. Secondly, you can now also split your data gathering
+and analyses into separate R scripts. For example, store your data
+gathering code in a file called <code>gather_data.r</code> and your
+analysis code in a file called <code>analysis.r</code>.</p>
 </div>
 </div>
-<div id="analyzing-sentiment" class="section level1">
-<h1>Analyzing sentiment</h1>
-<p>If you performed the steps from the previous sections, you should now
-have a data.frame called <code>tweets</code> that has the
-<code>tweets_rstats.csv</code> data, but with the additional
-<code>sentiment</code> and <code>sentiment_score</code> columns. So what
-could you do with this data?</p>
-<p>First of all, let’s store the data as a CSV file. This is not only
-nice as a back-up, but it would also enable you to analyse the data in
-other software (like Excel, Google Sheets or SPSS) if you so prefer.
-This will also be allowed for your research project in P6.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(tweets, <span class="st">&#39;rstats_tweets_with_sentiment.csv&#39;</span>)</span></code></pre></div>
-<p>For the analysis in R we’ll keep things simple, because most students
-will have learned to perform their analyses using other software. As
-such, doing the analysis in R for the project in period 6 is optional,
-and for this assignment you will only need to run the following code. We
-will provide additional explanation and code examples for students that
-do want to use R for the analyses.</p>
-<p>We’ll be using the <code>tidyverse</code> package to summarize
-(i.e. aggregate) and visualize the data. The following code summarizes
-the data <code>grouped</code> by the sentiment score. This allows us to
-calculate summarizing statistics (like the <code>mean</code> or
-<code>standard deviation</code>) for every sentiment label. Here we’ll
-calculate the average number of retweets and likes per sentiment label,
-to see if there is maybe a relation between the sentiment of a tweet and
-these engagement metrics.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>tweets <span class="sc">%&gt;%</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sentiment) <span class="sc">%&gt;%</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">avg_retweets=</span><span class="fu">mean</span>(retweets), <span class="at">avg_likes =</span> <span class="fu">mean</span>(likes))</span></code></pre></div>
-<p>Another useful analysis is often to analyze sentiment over time. This
-could for instance show you if there is a sudden fall in sentiment as
-result of some scandal, or if there is maybe a positive trend over time
-following the launch of a new marketing campaign. In the following code
-we’ll first convert the <code>created_at</code> string to a
-<code>Date</code>. By default this will give the day (and ignore the
-time). We’ll then group by this date, and calculate the average
-sentiment for every day.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sentiment_per_day <span class="ot">=</span> tweets <span class="sc">%&gt;%</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(created_at)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">sentiment =</span> <span class="fu">mean</span>(sentiment_score))</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>sentiment_per_day</span></code></pre></div>
-<p>That sort of data is easier to inspect as a line graph</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sentiment_per_day) <span class="sc">+</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>sentiment))</span></code></pre></div>
-</div>
-<div id="assignment-2" class="section level1">
-<h1>Assignment 2</h1>
-<p>For this assignment you will perform all the steps in the “Using the
-classifier on other data” section.</p>
-<blockquote>
-<p><strong>Question 2.a</strong>. Report the analysis that shows the
-average number of retweets and likes per sentiment label. Include the
-code and the table.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 2.b</strong>. Interpret the results from 1.a. Does
-there appear to be a relation between sentiment and engagement
-metrics?</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 2.c</strong>. Also calculate the average number of
-replies and impressions. Report the code and results.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 2.d</strong>. Interpret the results from 1.c.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 2.e</strong>. Perform the analysis of the sentiment
-score over time. Report the code and the line graph.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 2.f</strong>. Interpret the results from 1.e. What
-are the notable changes in sentiment over time?</p>
-</blockquote>
-</div>
-<div id="validating-your-machine-learning-model-again" class="section level1">
-<h1>Validating your machine learning model (again?!)</h1>
-<p>Above we skipped straight to the analysis. But by doing so we have
-actually been a bit naive about the validity of our machine learning
-model. Sure, we did analyze the validity of the model earlier, when we
-predicted the sentiment score for the test data, and then calculated the
-precision and recall. However, can we safely assume that the model is
-just as good on the data that we now used it on?</p>
-<p>Indeed, this is not always a safe assumption! For example, imagine
-that the model was trained and tested on sentiment analysis in newspaper
-articles from the 1950’s. Even if the model would have very high
-precision and recall scores on this task, it could still be very bad at
-predicting the sentiment of tweets about rstats. The question we should
-ask ourselves is: <strong>how similar is the data on which the model was
-evaluated compared to the data on which we use the model</strong>?</p>
-<p>In our case, the model was trained on tweets, so in that case it’s
-similar to our rstats tweets data. But it’s not far fetched to assume
-that tweets about the R statistical language are not the most typical
-tweets. Sentiment in the context of rstats might be expresses quite
-differently from sentiment on Twitter in general. Furthermore, the
-TweetsEval Sentiment analysis data is from 2017, and zeitgeist is
-important to communication. Most people would agree that a tweet like “R
-is as nice as Covid” is negative, but our 2017-based model wouldn’t get
-that.</p>
-<p>Long story short, it’s important to always evaluate your machine
-learning model on a sample of the texts that you use it for. So while
-it’s great that you can depend on existing open datasets like TweetEval
-to get data to train your model on, you will still have to do some
-manual coding on your own data to evaluate the model.</p>
-<p>Don’t worry, for the current assignment we won’t ask you to some
-manual coding (because we have much more interesting questions to ask
-you). But we will show here how you would normally approach this,
-because you will need to do it if you use machine learning in the
-research project in period 6.</p>
-<div id="validating-a-machine-learning-model-on-a-sample-of-your-own-data" class="section level2">
-<h2>Validating a machine learning model on a sample of your own
-data</h2>
-<p>The process is really quite simple. We already have the tweets and
-the predicted sentiment scores in the <code>tweets</code> data. We only
-have to draw a sample from this data, manually code the sentiment of
-this sample, and then calculate the precision and recall. The following
-code draws a random sample of 200 tweets, and only keeps the id, text
-and sentiment columns. We’ll also add a new, empty column for the
-manually coded sentiment.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>validation_sample <span class="ot">=</span> tweets[<span class="fu">sample</span>(<span class="fu">nrow</span>(tweets), <span class="dv">200</span>), <span class="fu">c</span>(<span class="st">&#39;id&#39;</span>,<span class="st">&#39;text&#39;</span>,<span class="st">&#39;sentiment&#39;</span>)] </span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>validation_sample<span class="sc">$</span>manual_sentiment <span class="ot">=</span> <span class="st">&#39;&#39;</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>validation_sample</span></code></pre></div>
-<p>Now we can write this data to a CSV file. You could then import this
-data into a spreadsheet program like Google Sheets and manually code the
-sentiment.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(validation_sample, <span class="st">&quot;validation_sample.csv&quot;</span>)</span></code></pre></div>
-<p>Then, when you’ve added the manually coded sentiment, you could read
-the CSV into R again, create the confusion matrix, and calculate the
-precision and recall.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>coded_validation_sample <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;validation_sample.csv&#39;</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">table</span>(<span class="at">predicted =</span> coded_validation_sample<span class="sc">$</span>sentiment,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">gold_standard =</span> coded_validation_sample<span class="sc">$</span>manual_sentiment)</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>m</span></code></pre></div>
-<p>There is <strong>one major flaw</strong> with this approach. Namely,
-it is very bad practice if the human coder can already see the sentiment
-label that the machine learning algorithm predicted. A simple solution
-is to make the sentiment label invisible when you’re coding it (by
-making the column really small or the text white) Normally, you would
-not include the sentiment label in the validation sample at all. Here we
-only recommend it because it makes the code easier.</p>
-</div>
-</div>
-<div id="assignment-3" class="section level1">
-<h1>Assignment 3</h1>
-<blockquote>
-<p><strong>Question 3.a</strong>. A researcher wants to measure the
-subjectivity of 1,000,000 Dutch newspaper articles using machine
-learning. They already looked around for existing training data, but
-could not find anything that would work for what they’re trying to
-measure. Describe in detail the steps that the researcher should take to
-train and validate the machine learning model.</p>
-</blockquote>
-<blockquote>
-<p><strong>Question 3.b</strong>. A polling company wants to be able to
-measure whether people on social media are taking a stance in favor or
-against certain issues. They have collected various stance detection
-datasets that they can use as a starting point to train a machine
-learning model. Describe in detail how should they train and validate
-their model?</p>
-</blockquote>
-</div>
-<div class="footnotes footnotes-end-of-document">
-<hr />
-<ol>
-<li id="fn1"><p>It should be mentioned that at this point the definition
-of a rule becomes a bit fuzzy. In simple machine learning algorithms,
-the computer will come up with simple rules. The Naive Bayes algorithm
-that you’ll also see in this practical basically creates something very
-similar to a dictionary. But there are also much more complex algorithms
-such as neural networks and transformers (this is also the technology
-behind chatGPT). In these algorithms the model stores what it has
-learned in billions of numbers that cannot really be interpreted as
-‘rules’. So technically, we really shouldn’t say that a machine learning
-model learns <em>rules</em> or creates its own <em>codebook</em>. But
-this is a good way to think about it for developing a non-technical
-intuition for what machine learning can do.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>It should be noted that it’s not a completely fair
-comparison. For the TweetEval leaderboard they had to use stricter rules
-for how to split the train and test data. Still, it’s a good indication
-for what level of accuracy we can expect here.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-</ol>
+<div id="gathering-lots-of-reddit-data" class="section level1">
+<h1>Gathering lots of Reddit data</h1>
+<p>This is a bit more complicated, and you definitely don’t need to
+understand the following code. In short, it loops over the threads
+one-by-one, retrieves the comments for that thread, and stores them in a
+<code>reddit_data</code> folder. If you run the code a second time, it
+will skip any threads that it already finished.</p>
+<p>We’ve made a function out of it so you can use it more easily. Simply
+execute the code in the following code block (from
+<code>scrape_redit &lt;- function ...</code> until the final
+<code>}</code> at the bottom). This will give you the
+<code>scrape_reddit</code> function (you can see this in the top-right
+panel in RStudio in the Environment tab).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)  </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>scrape_reddit <span class="ot">&lt;-</span> <span class="cf">function</span>(query, period) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="do">## get threads</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(query, <span class="at">period=</span>period)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## create folder for storing comments</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  query_folder <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">&#39;reddit_data&#39;</span>, query)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(query_folder)) <span class="fu">dir.create</span>(query_folder, <span class="at">recursive =</span> T)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## gather comments and save to file (it not done before). </span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  thread_data <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  comments_data <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (thread_url <span class="cf">in</span> threads<span class="sc">$</span>url) {</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    fname <span class="ot">=</span> <span class="fu">URLencode</span>(thread_url, <span class="at">reserved=</span>T)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    fpath <span class="ot">=</span> <span class="fu">file.path</span>(query_folder, fname)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(fpath)) {</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">message</span>(<span class="st">&quot;Gathering comments from &quot;</span>, thread_url)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      tc <span class="ot">=</span> <span class="fu">get_thread_content</span>(thread_url)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">saveRDS</span>(tc, fpath)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      tc <span class="ot">=</span> <span class="fu">readRDS</span>(fpath)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    } </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    tc<span class="sc">$</span>comments<span class="sc">$</span>comment_id <span class="ot">=</span> <span class="fu">as.character</span>(tc<span class="sc">$</span>comments<span class="sc">$</span>comment_id)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    thread_data[[thread_url]] <span class="ot">=</span> tc<span class="sc">$</span>threads</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    comments_data[[thread_url]] <span class="ot">=</span> tc<span class="sc">$</span>comments</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threads=</span><span class="fu">bind_rows</span>(thread_data), <span class="at">comments=</span><span class="fu">bind_rows</span>(comments_data))</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Now we can use the function as follows.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">scrape_reddit</span>(<span class="st">&#39;rstats&#39;</span>, <span class="st">&#39;week&#39;</span>)</span></code></pre></div>
+<p>And here we can use the same cleanup script as we used above.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>thread_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>threads) <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">paste</span>(title, text, <span class="at">sep=</span><span class="st">&#39;</span><span class="sc">\n\n</span><span class="st">&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, text, score, upvotes, downvotes)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>comment_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>comments) <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, <span class="at">text=</span>comment, score, upvotes, downvotes)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(thread_data, comment_data) <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">&#39;1970-01-01&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thread_url, date, author, text, score, upvotes, downvotes) <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(thread_url, date)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data, <span class="st">&quot;reddit_comments_rstats.csv&quot;</span>)</span></code></pre></div>
 </div>
 
 

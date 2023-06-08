@@ -132,6 +132,8 @@ library(RedditExtractoR)
 library(tidyverse)
 
 scrape_reddit <- function(query, period, sort_by = 'top', from_date=NULL, to_date=NULL) {
+  if (!is.null(from_date)) period = 'all'
+
   ## get threads
   threads = find_thread_urls(query, period=period, sort_by=sort_by)
   threads$date = as.Date(threads$date_utc)

@@ -36,13 +36,52 @@ In the fifth practical we showed you how to look for threads based on a query, a
 
 ```{r, eval=F}
 library(RedditExtractoR)  
-threads = find_thread_urls("rstats", period='week')
+threads = find_thread_urls("rstats", period='week', sort_by='top')
 content = get_thread_content(threads$url)
 ```
 
 In the second line we get all threads for a query in a given time period. Here we looked for one week, but depending on how many results you get for your query (and whether your RQ requires a specific time period) you could change `period='week'` to `period='year'`, or even `period='all'`.  
 
-In the third line we take all the URLs from the threads that we gathered (`threads$url`), and plug them all into the `get_thread_content` function. Depending on how much data you have (i.e. how many threads, and how many comments per thread) this process can take quite a while. `RedditExtractoR` scrapes the data directly from the Reddit website without requiring you to register (or pay) for using their API. The trade-off is that the process is quite slow, because it waits every now and then to prevent making Reddit angry (and blocking your IP).
+In the third line we take all the URLs from the threads that we gathered (`threads$url`), and plug them all into the `get_thread_content` function. Depending on how much data you have (i.e. how many threads, and how many comments per thread) this process can take quite a while. `RedditExtractoR` uses the free Reddit API without requiring you to register (or pay) for using their API. The trade-off is that the process is quite slow, because it waits every now and then to prevent making Reddit angry (and blocking your IP).
+
+> !! Due to a recent change in the Reddit API, gathering data from Reddit has become more restricted. You can only gather three pages of threads, which is about 230 threads. So if you search for data over a long period of time, you will not get all of the threads. Which threads you get is determined by sort_by. Here we sorted by "top" results, but you can also search for "hot", "new", "relevance" or (most) "comments".
+
+## Selecting a specific period
+
+Note that RedditExtractor does not let you specify a specific time period. Instead, what you can do is get all the data until the starting point of the period you need, and then filter the data yourself.
+
+For example, here we would get 'all' threads about 'rstats'. Then we filter to only get the threads between 2020 and 2021. 
+
+```{r, eval=F}
+library(tidyverse)
+
+threads = find_thread_urls("rstats", period='all', sort_by='top')
+
+threads$date_utc
+
+## filter on date
+threads = threads %>%
+  mutate(date = as.Date(date_utc)) %>%
+  filter(date >= '2020-01-01' & date <= '2021-01-01')
+
+## count how many threads we have within this period
+nrow(threads)
+
+## get the comments for the filtered selection
+content = get_thread_content(threads$url)
+```
+
+It's also useful to visualize this data to see how spread out the threads are.
+
+```{r, eval=F}
+threads %>%
+  mutate(date = as.Date(date_utc)) %>%
+  mutate(month = as.Date(cut(date, 'month'))) %>%
+  group_by(month) %>%
+  summarize(n = n()) %>%
+  ggplot() + geom_line(aes(x=month, y=n))
+```
+
 
 ## Cleaning up the data
 
@@ -92,9 +131,15 @@ We've made a function out of it so you can use it more easily. Simply execute th
 library(RedditExtractoR)  
 library(tidyverse)
 
-scrape_reddit <- function(query, period) {
+scrape_reddit <- function(query, period, sort_by = 'top', from_date=NULL, to_date=NULL) {
   ## get threads
-  threads = find_thread_urls(query, period=period)
+  threads = find_thread_urls(query, period=period, sort_by=sort_by)
+  threads$date = as.Date(threads$date_utc)
+  
+  if (!is.null(from_date)) threads = threads[threads$date >= from_date,]
+  if (!is.null(to_date)) threads = threads[threads$date <= to_date,]
+  
+  message(sprintf("Found %s threads. Will now proceed to download the comments\n", nrow(threads)))
   
   ## create folder for storing comments
   query_folder = file.path('reddit_data', query)
@@ -124,7 +169,14 @@ scrape_reddit <- function(query, period) {
 Now we can use the function as follows.
 
 ```{r, eval=F}
-content = scrape_reddit('rstats', 'week')
+content = scrape_reddit('rstats', period = 'week', sort_by = 'top')
+```
+
+You can also use the from_date and to_date arguments to filter on time period. (but remember that this is limited since Reddit restricted the API)
+
+```{r, eval=F}
+content = scrape_reddit('rstats', period = 'all', sort_by = 'top', 
+                        from_date = '2020-01-01', to_date = '2021-01-01')
 ```
 
 And here we can use the same cleanup script as we used above.

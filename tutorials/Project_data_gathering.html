@@ -476,7 +476,7 @@ a query, and then collect the comments for a single thread. Getting the
 comments from all threads is even easier. Here is an example using
 (again) the <code>rstats</code> query.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)  </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(<span class="st">&quot;rstats&quot;</span>, <span class="at">period=</span><span class="st">&#39;week&#39;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(<span class="st">&quot;rstats&quot;</span>, <span class="at">period=</span><span class="st">&#39;week&#39;</span>, <span class="at">sort_by=</span><span class="st">&#39;top&#39;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">get_thread_content</span>(threads<span class="sc">$</span>url)</span></code></pre></div>
 <p>In the second line we get all threads for a query in a given time
 period. Here we looked for one week, but depending on how many results
@@ -487,11 +487,52 @@ period) you could change <code>period=&#39;week&#39;</code> to
 gathered (<code>threads$url</code>), and plug them all into the
 <code>get_thread_content</code> function. Depending on how much data you
 have (i.e. how many threads, and how many comments per thread) this
-process can take quite a while. <code>RedditExtractoR</code> scrapes the
-data directly from the Reddit website without requiring you to register
-(or pay) for using their API. The trade-off is that the process is quite
-slow, because it waits every now and then to prevent making Reddit angry
-(and blocking your IP).</p>
+process can take quite a while. <code>RedditExtractoR</code> uses the
+free Reddit API without requiring you to register (or pay) for using
+their API. The trade-off is that the process is quite slow, because it
+waits every now and then to prevent making Reddit angry (and blocking
+your IP).</p>
+<blockquote>
+<p>!! Due to a recent change in the Reddit API, gathering data from
+Reddit has become more restricted. You can only gather three pages of
+threads, which is about 230 threads. So if you search for data over a
+long period of time, you will not get all of the threads. Which threads
+you get is determined by sort_by. Here we sorted by “top” results, but
+you can also search for “hot”, “new”, “relevance” or (most)
+“comments”.</p>
+</blockquote>
+<div id="selecting-a-specific-period" class="section level2">
+<h2>Selecting a specific period</h2>
+<p>Note that RedditExtractor does not let you specify a specific time
+period. Instead, what you can do is get all the data until the starting
+point of the period you need, and then filter the data yourself.</p>
+<p>For example, here we would get ‘all’ threads about ‘rstats’. Then we
+filter to only get the threads between 2020 and 2021.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(<span class="st">&quot;rstats&quot;</span>, <span class="at">period=</span><span class="st">&#39;all&#39;</span>, <span class="at">sort_by=</span><span class="st">&#39;top&#39;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>threads<span class="sc">$</span>date_utc</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="do">## filter on date</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>threads <span class="ot">=</span> threads <span class="sc">%&gt;%</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(date_utc)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="st">&#39;2020-01-01&#39;</span> <span class="sc">&amp;</span> date <span class="sc">&lt;=</span> <span class="st">&#39;2021-01-01&#39;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="do">## count how many threads we have within this period</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(threads)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="do">## get the comments for the filtered selection</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">get_thread_content</span>(threads<span class="sc">$</span>url)</span></code></pre></div>
+<p>It’s also useful to visualize this data to see how spread out the
+threads are.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>threads <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(date_utc)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month =</span> <span class="fu">as.Date</span>(<span class="fu">cut</span>(date, <span class="st">&#39;month&#39;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month) <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>month, <span class="at">y=</span>n))</span></code></pre></div>
+</div>
 <div id="cleaning-up-the-data" class="section level2">
 <h2>Cleaning up the data</h2>
 <p>Once you have the data, we can clean it up a bit. In particular, the
@@ -518,25 +559,25 @@ the number of seconds since 1970-01-01)</li>
 <li>Finally, just to make things a bit nicer, we re-order our columns
 and sort the data by thread_url and timestamp</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>thread_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>threads) <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">paste</span>(title, text, <span class="at">sep=</span><span class="st">&#39;</span><span class="sc">\n\n</span><span class="st">&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, text, score, upvotes, downvotes)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>comment_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>comments) <span class="sc">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, <span class="at">text=</span>comment, score, upvotes, downvotes)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(thread_data, comment_data) <span class="sc">%&gt;%</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">&#39;1970-01-01&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thread_url, date, author, text, score, upvotes, downvotes) <span class="sc">%&gt;%</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(thread_url, date)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(data)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>thread_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>threads) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">paste</span>(title, text, <span class="at">sep=</span><span class="st">&#39;</span><span class="sc">\n\n</span><span class="st">&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, text, score, upvotes, downvotes)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>comment_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>comments) <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, <span class="at">text=</span>comment, score, upvotes, downvotes)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(thread_data, comment_data) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">&#39;1970-01-01&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thread_url, date, author, text, score, upvotes, downvotes) <span class="sc">%&gt;%</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(thread_url, date)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(data)</span></code></pre></div>
 <p>If you did things correctly, you should now have a single
 tibble/data.frame (<code>data</code>) with all the comments. Let’s now
 write this data to a csv file.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data, <span class="st">&quot;reddit_comments_rstats.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data, <span class="st">&quot;reddit_comments_rstats.csv&quot;</span>)</span></code></pre></div>
 <p>This has two main benefits. Firstly, it serves as a back-up. If you
 somehow kill your R session or overwrite your data, you won’t have to
 download it again. Secondly, you can now also split your data gathering
@@ -558,52 +599,63 @@ execute the code in the following code block (from
 <code>}</code> at the bottom). This will give you the
 <code>scrape_reddit</code> function (you can see this in the top-right
 panel in RStudio in the Environment tab).</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)  </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>scrape_reddit <span class="ot">&lt;-</span> <span class="cf">function</span>(query, period) {</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="do">## get threads</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(query, <span class="at">period=</span>period)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## create folder for storing comments</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  query_folder <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">&#39;reddit_data&#39;</span>, query)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(query_folder)) <span class="fu">dir.create</span>(query_folder, <span class="at">recursive =</span> T)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## gather comments and save to file (it not done before). </span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  thread_data <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  comments_data <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (thread_url <span class="cf">in</span> threads<span class="sc">$</span>url) {</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    fname <span class="ot">=</span> <span class="fu">URLencode</span>(thread_url, <span class="at">reserved=</span>T)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    fpath <span class="ot">=</span> <span class="fu">file.path</span>(query_folder, fname)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(fpath)) {</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">message</span>(<span class="st">&quot;Gathering comments from &quot;</span>, thread_url)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      tc <span class="ot">=</span> <span class="fu">get_thread_content</span>(thread_url)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">saveRDS</span>(tc, fpath)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      tc <span class="ot">=</span> <span class="fu">readRDS</span>(fpath)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    } </span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    tc<span class="sc">$</span>comments<span class="sc">$</span>comment_id <span class="ot">=</span> <span class="fu">as.character</span>(tc<span class="sc">$</span>comments<span class="sc">$</span>comment_id)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    thread_data[[thread_url]] <span class="ot">=</span> tc<span class="sc">$</span>threads</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    comments_data[[thread_url]] <span class="ot">=</span> tc<span class="sc">$</span>comments</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threads=</span><span class="fu">bind_rows</span>(thread_data), <span class="at">comments=</span><span class="fu">bind_rows</span>(comments_data))</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)  </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>scrape_reddit <span class="ot">&lt;-</span> <span class="cf">function</span>(query, period, <span class="at">sort_by =</span> <span class="st">&#39;top&#39;</span>, <span class="at">from_date=</span><span class="cn">NULL</span>, <span class="at">to_date=</span><span class="cn">NULL</span>) {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="do">## get threads</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  threads <span class="ot">=</span> <span class="fu">find_thread_urls</span>(query, <span class="at">period=</span>period, <span class="at">sort_by=</span>sort_by)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  threads<span class="sc">$</span>date <span class="ot">=</span> <span class="fu">as.Date</span>(threads<span class="sc">$</span>date_utc)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(from_date)) threads <span class="ot">=</span> threads[threads<span class="sc">$</span>date <span class="sc">&gt;=</span> from_date,]</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(to_date)) threads <span class="ot">=</span> threads[threads<span class="sc">$</span>date <span class="sc">&lt;=</span> to_date,]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Found %s threads. Will now proceed to download the comments</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="fu">nrow</span>(threads)))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="do">## create folder for storing comments</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  query_folder <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">&#39;reddit_data&#39;</span>, query)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(query_folder)) <span class="fu">dir.create</span>(query_folder, <span class="at">recursive =</span> T)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="do">## gather comments and save to file (it not done before). </span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  thread_data <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  comments_data <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (thread_url <span class="cf">in</span> threads<span class="sc">$</span>url) {</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    fname <span class="ot">=</span> <span class="fu">URLencode</span>(thread_url, <span class="at">reserved=</span>T)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    fpath <span class="ot">=</span> <span class="fu">file.path</span>(query_folder, fname)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(fpath)) {</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">message</span>(<span class="st">&quot;Gathering comments from &quot;</span>, thread_url)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>      tc <span class="ot">=</span> <span class="fu">get_thread_content</span>(thread_url)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">saveRDS</span>(tc, fpath)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>      tc <span class="ot">=</span> <span class="fu">readRDS</span>(fpath)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    } </span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    tc<span class="sc">$</span>comments<span class="sc">$</span>comment_id <span class="ot">=</span> <span class="fu">as.character</span>(tc<span class="sc">$</span>comments<span class="sc">$</span>comment_id)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    thread_data[[thread_url]] <span class="ot">=</span> tc<span class="sc">$</span>threads</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    comments_data[[thread_url]] <span class="ot">=</span> tc<span class="sc">$</span>comments</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threads=</span><span class="fu">bind_rows</span>(thread_data), <span class="at">comments=</span><span class="fu">bind_rows</span>(comments_data))</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Now we can use the function as follows.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">scrape_reddit</span>(<span class="st">&#39;rstats&#39;</span>, <span class="st">&#39;week&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">scrape_reddit</span>(<span class="st">&#39;rstats&#39;</span>, <span class="at">period =</span> <span class="st">&#39;week&#39;</span>, <span class="at">sort_by =</span> <span class="st">&#39;top&#39;</span>)</span></code></pre></div>
+<p>You can also use the from_date and to_date arguments to filter on
+time period. (but remember that this is limited since Reddit restricted
+the API)</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>content <span class="ot">=</span> <span class="fu">scrape_reddit</span>(<span class="st">&#39;rstats&#39;</span>, <span class="at">period =</span> <span class="st">&#39;all&#39;</span>, <span class="at">sort_by =</span> <span class="st">&#39;top&#39;</span>, </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">from_date =</span> <span class="st">&#39;2020-01-01&#39;</span>, <span class="at">to_date =</span> <span class="st">&#39;2021-01-01&#39;</span>)</span></code></pre></div>
 <p>And here we can use the same cleanup script as we used above.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>thread_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>threads) <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">paste</span>(title, text, <span class="at">sep=</span><span class="st">&#39;</span><span class="sc">\n\n</span><span class="st">&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, text, score, upvotes, downvotes)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>comment_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>comments) <span class="sc">%&gt;%</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, <span class="at">text=</span>comment, score, upvotes, downvotes)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(thread_data, comment_data) <span class="sc">%&gt;%</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">&#39;1970-01-01&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thread_url, date, author, text, score, upvotes, downvotes) <span class="sc">%&gt;%</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(thread_url, date)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data, <span class="st">&quot;reddit_comments_rstats.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>thread_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>threads) <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">paste</span>(title, text, <span class="at">sep=</span><span class="st">&#39;</span><span class="sc">\n\n</span><span class="st">&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, text, score, upvotes, downvotes)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>comment_data <span class="ot">=</span> <span class="fu">as_tibble</span>(content<span class="sc">$</span>comments) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">thread_url=</span>url, author, timestamp, <span class="at">text=</span>comment, score, upvotes, downvotes)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(thread_data, comment_data) <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.POSIXct</span>(timestamp, <span class="at">origin=</span><span class="st">&#39;1970-01-01&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thread_url, date, author, text, score, upvotes, downvotes) <span class="sc">%&gt;%</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(thread_url, date)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(data, <span class="st">&quot;reddit_comments_rstats.csv&quot;</span>)</span></code></pre></div>
 </div>
 
 

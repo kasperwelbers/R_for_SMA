@@ -183,7 +183,7 @@ If you also want to filter out
 
 ```{r, eval=F}
 content = scrape_reddit('rstats', period = 'all', sort_by = 'top', 
-                        from_date = '2020-01-01', to_date = '2021-01-01')
+                        from_date = '2022-01-01')
 ```
 
 And here we can use the same cleanup script as we used above.

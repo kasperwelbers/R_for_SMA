@@ -111,7 +111,7 @@ The data can be downloaded from the TweetEval page that we linked here, but to m
 
 ```{r}
 library(readr)
-sentiment = read_csv('~/projects/R_for_SMA/tutorials/data/sentiment_tweets.csv')
+sentiment = read_csv('~/projects/r_for_sma/tutorials/data/sentiment_tweets.csv')
 sentiment
 ```
 
@@ -334,7 +334,7 @@ Let's again load the `tweets_rstats.csv` data that we used in the fifth practica
 We can then see whether we can measure the sentiment of tweets about `rstats`, and whether this tells us anything interesting.
 
 ```{r}
-tweets = read_csv('~/projects/R_for_SMA/tutorials/data/tweets_rstats.csv')
+tweets = read_csv('~/projects/r_for_sma/tutorials/data/tweets_rstats.csv')
 ```
 
 
@@ -408,6 +408,16 @@ This will also be allowed for your research project in P6.
 
 ```{r, eval=F}
 write_csv(tweets, 'rstats_tweets_with_sentiment.csv')
+```
+
+> Sometimes SPSS seems to have difficulty importing CSV files, especially if there are long text columns. The following code removes the text column and saves the data directly as an SPSS file (.sav). For this you do first need to install the haven package (with install.packages('haven')).
+
+```{r, eval=F}
+library(haven)
+
+tweets %>%
+  select(-text) %>%
+  write_sav('rstats_tweets_with_sentiment.sav')
 ```
 
 For the analysis in R we'll keep things simple, because most students will have learned to perform their analyses using other software. 

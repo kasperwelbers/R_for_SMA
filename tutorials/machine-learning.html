@@ -575,7 +575,7 @@ the <em>sentiment</em> label data. <strong>Please download the
 practical_6.zip file from Canvas, and unzip it to get the
 sentiment_tweets.csv file</strong>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentiment <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;~/projects/R_for_SMA/tutorials/data/sentiment_tweets.csv&#39;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentiment <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;~/projects/r_for_sma/tutorials/data/sentiment_tweets.csv&#39;</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sentiment</span></code></pre></div>
 <p>Here we have almost 60,000 tweets, and for each tweets we also have a
 <em>label</em>. We can use the <code>table</code> function to count the
@@ -819,7 +819,7 @@ in the fifth practical (I’ve included this file in
 <strong>practical_6.zip</strong>). We can then see whether we can
 measure the sentiment of tweets about <code>rstats</code>, and whether
 this tells us anything interesting.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tweets <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;~/projects/R_for_SMA/tutorials/data/tweets_rstats.csv&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tweets <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;~/projects/r_for_sma/tutorials/data/tweets_rstats.csv&#39;</span>)</span></code></pre></div>
 <div id="preparing-the-data-to-apply-an-existing-classifier" class="section level2">
 <h2>Preparing the data to apply an existing classifier</h2>
 <p>Our first step will be to create the DTM for our <code>tweets</code>
@@ -889,6 +889,18 @@ nice as a back-up, but it would also enable you to analyse the data in
 other software (like Excel, Google Sheets or SPSS) if you so prefer.
 This will also be allowed for your research project in P6.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(tweets, <span class="st">&#39;rstats_tweets_with_sentiment.csv&#39;</span>)</span></code></pre></div>
+<blockquote>
+<p>Sometimes SPSS seems to have difficulty importing CSV files,
+especially if there are long text columns. The following code removes
+the text column and saves the data directly as an SPSS file (.sav). For
+this you do first need to install the haven package (with
+install.packages(‘haven’)).</p>
+</blockquote>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>tweets <span class="sc">%&gt;%</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>text) <span class="sc">%&gt;%</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_sav</span>(<span class="st">&#39;rstats_tweets_with_sentiment.sav&#39;</span>)</span></code></pre></div>
 <p>For the analysis in R we’ll keep things simple, because most students
 will have learned to perform their analyses using other software. As
 such, doing the analysis in R for the project in period 6 is optional,
@@ -903,11 +915,11 @@ calculate summarizing statistics (like the <code>mean</code> or
 calculate the average number of retweets and likes per sentiment label,
 to see if there is maybe a relation between the sentiment of a tweet and
 these engagement metrics.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>tweets <span class="sc">%&gt;%</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sentiment) <span class="sc">%&gt;%</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">avg_retweets=</span><span class="fu">mean</span>(retweets), <span class="at">avg_likes =</span> <span class="fu">mean</span>(likes))</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>tweets <span class="sc">%&gt;%</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sentiment) <span class="sc">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">avg_retweets=</span><span class="fu">mean</span>(retweets), <span class="at">avg_likes =</span> <span class="fu">mean</span>(likes))</span></code></pre></div>
 <p>Another useful analysis is often to analyze sentiment over time. This
 could for instance show you if there is a sudden fall in sentiment as
 result of some scandal, or if there is maybe a positive trend over time
@@ -916,15 +928,15 @@ we’ll first convert the <code>created_at</code> string to a
 <code>Date</code>. By default this will give the day (and ignore the
 time). We’ll then group by this date, and calculate the average
 sentiment for every day.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sentiment_per_day <span class="ot">=</span> tweets <span class="sc">%&gt;%</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(created_at)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">sentiment =</span> <span class="fu">mean</span>(sentiment_score))</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>sentiment_per_day</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>sentiment_per_day <span class="ot">=</span> tweets <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(created_at)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(), <span class="at">sentiment =</span> <span class="fu">mean</span>(sentiment_score))</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>sentiment_per_day</span></code></pre></div>
 <p>That sort of data is easier to inspect as a line graph</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sentiment_per_day) <span class="sc">+</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>sentiment))</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sentiment_per_day) <span class="sc">+</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>sentiment))</span></code></pre></div>
 </div>
 <div id="assignment-2" class="section level1">
 <h1>Assignment 2</h1>
@@ -1000,21 +1012,21 @@ this sample, and then calculate the precision and recall. The following
 code draws a random sample of 200 tweets, and only keeps the id, text
 and sentiment columns. We’ll also add a new, empty column for the
 manually coded sentiment.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>validation_sample <span class="ot">=</span> tweets[<span class="fu">sample</span>(<span class="fu">nrow</span>(tweets), <span class="dv">200</span>), <span class="fu">c</span>(<span class="st">&#39;id&#39;</span>,<span class="st">&#39;text&#39;</span>,<span class="st">&#39;sentiment&#39;</span>)] </span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>validation_sample<span class="sc">$</span>manual_sentiment <span class="ot">=</span> <span class="st">&#39;&#39;</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>validation_sample</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>validation_sample <span class="ot">=</span> tweets[<span class="fu">sample</span>(<span class="fu">nrow</span>(tweets), <span class="dv">200</span>), <span class="fu">c</span>(<span class="st">&#39;id&#39;</span>,<span class="st">&#39;text&#39;</span>,<span class="st">&#39;sentiment&#39;</span>)] </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>validation_sample<span class="sc">$</span>manual_sentiment <span class="ot">=</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>validation_sample</span></code></pre></div>
 <p>Now we can write this data to a CSV file. You could then import this
 data into a spreadsheet program like Google Sheets and manually code the
 sentiment.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(validation_sample, <span class="st">&quot;validation_sample.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(validation_sample, <span class="st">&quot;validation_sample.csv&quot;</span>)</span></code></pre></div>
 <p>Then, when you’ve added the manually coded sentiment, you could read
 the CSV into R again, create the confusion matrix, and calculate the
 precision and recall.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>coded_validation_sample <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;validation_sample.csv&#39;</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">table</span>(<span class="at">predicted =</span> coded_validation_sample<span class="sc">$</span>sentiment,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">gold_standard =</span> coded_validation_sample<span class="sc">$</span>manual_sentiment)</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>m</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>coded_validation_sample <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">&#39;validation_sample.csv&#39;</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">table</span>(<span class="at">predicted =</span> coded_validation_sample<span class="sc">$</span>sentiment,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">gold_standard =</span> coded_validation_sample<span class="sc">$</span>manual_sentiment)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>m</span></code></pre></div>
 <p>There is <strong>one major flaw</strong> with this approach. Namely,
 it is very bad practice if the human coder can already see the sentiment
 label that the machine learning algorithm predicted. A simple solution

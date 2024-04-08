@@ -20,22 +20,15 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE, fig.path = "img/")
 
 VU Amsterdam
 
-# Why are we learning R?
+# Introduction
 
 This week we'll get you started on working with the **R programming language**.
-As promised in the first lecture, we'll take this slow and steady, so don't worry if the prospect of learning a programming language seems daunting to you.
-To successfully finish this course you will not be required to write R code from scratch yourself (but for those who want to, we'll provide optional tutorials).
-You will be able to finish your assignments by just copy/pasting the code that we give you, and tweaking some specific parts of the code as instructed.
-In other words, you will learn how to use the **R software**, but you will only need to have a very basic understanding of the **R language**.
-
-So what is the value of learning how to work *with* R if you're not actually required to learn the language?
-There are two reasons in particular.
-Fist and foremost, this will give you a glimpse **under-the-hood** of common text analysis techniques.
+Working with text analysis in R will give you a glimpse **under-the-hood** of common text analysis techniques.
 In the previous practical about **validity** you saw that it cannot be taken for granted that an automated analysis accurately measures what we actually want to measure.
 In this and the coming lectures, we will deepen this understanding by looking closer at how computers actually perform these measurements.
 This will help you develop a better intuition for what we can and cannot do with automated analyses of texts.
 
-The second reason is that you'll get first-hand experience with the practice of *data science*, which is a [growing specialization among social scientists](https://campus.sagepub.com/blog/data-science-survey) in both academia and business.
+You will also get first-hand experience with the practice of *data science*, which is a [growing specialization among social scientists](https://campus.sagepub.com/blog/data-science-survey) in both academia and business.
 This will help you determine *whether* this is a direction that you'd like to pursue.
 And even if you come to the conclusion that programming is definitely not your cup of tea, it's still valuable to have walked some miles in the shoes of a programmer.
 This course thereby follows the recommendation of [Van Atteveldt & Peng (2018)](https://www.tandfonline.com/doi/full/10.1080/19312458.2018.1458084) to at least "stimulate and facilitate" the learning of computational skills:
@@ -61,10 +54,11 @@ When in class, you can of course consult your teacher, so if you find yourself s
 # What is R?
 
 We keep mentioning this R thing, but chances are you've never heard of it.
-R is an open-source statistical software language, that is currently [among the most popular](https://stackoverflow.blog/2017/10/10/impressive-growth-r/) software packages for data science.
-It's popular for several reasons:
+R is an open-source statistical software language, that is in particular popular among computational social scientists. 
+It increasingly replaces more traditional proprietary statistics software such as SPSS and Stata.
+This has several main reasons:
 
--   R is a programming language, which makes it very versatile. While R focuses on statistical analysis at heart, it facilitates a wide-range of features, ranging from [text analysis]() to advanced [visualizations](https://www.r-graph-gallery.com/).
+-   R is a programming language, which makes it more versatile. While R focuses on statistical analysis at heart, it facilitates a wide-range of features, ranging from [text analysis]() to advanced [visualizations](https://www.r-graph-gallery.com/).
 -   The range of things you can do with R is constantly being updated. R is open-source, meaning that anyone can contribute to its development. In particular, people can develop new *packages*, that can easily and safely be installed from within R with a single command. Since many scholars and industry professionals use R, it is constantly kept up-to-date.
 -   R is free. While for students this is not yet a big deal due to university discounts for various statistics software, this can be a big plus in the commercial sector. Especially for small businesses and free-lancers.
 
@@ -711,10 +705,10 @@ For the final assignment, we ask you to think about how you can use **functions*
 ### What If I want to learn more?
 
 If you want to learn more about R besides what you need for this course, there are various places to start.
-One of them is [a page of tutorials](https://github.com/ccs-amsterdam/r-course-material) maintained by teachers of this course (Wouter van Atteveldt and Kasper Welbers).
-The `Getting started` tutorial on this pages covers the same topics as this tutorial, so you could skip that.
+One of them is [a page of tutorials](https://github.com/ccs-amsterdam/r-course-material) maintained by teachers of this program (Wouter van Atteveldt, Philipp Masur and Kasper Welbers).
+The `Getting started` tutorial on this page covers the same topics as this tutorial, so you could skip that.
 
-A fun place to start is the `Data mangling in the tidyverse` section.
+A good place to start is the `Data mangling in the tidyverse` section.
 The `tidyverse` is a modern, popular and powerful approach to managing and visualizing data.
 If you would rather focus on something that is also relevant to the current course (and that you could use for the project in period 6), the `Text analysis` section will cover many of the same topics, but with a stronger focus on actually learning how to do this yourself in R.
 

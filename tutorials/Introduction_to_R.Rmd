@@ -1,5 +1,5 @@
 ---
-title: 'Social Media Analytics VI'
+title: 'Social Media Analytics IV'
 subtitle: "Introduction to R"
 output:
   html_document:

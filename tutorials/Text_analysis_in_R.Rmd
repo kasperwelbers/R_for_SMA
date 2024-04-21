@@ -1,5 +1,5 @@
 ---
-title: 'Social Media Analytics IV'
+title: 'Social Media Analytics V'
 subtitle: "Text analysis in R"
 output:
   html_document:
@@ -26,69 +26,9 @@ The first part of this practical is mostly a tutorial.
 The second part contains the assignments, but these will be hard to make if you did not complete the tutorial.
 
 
-# Gathering Social Media data
-
-The first step in social media analysis is to collect the data.
-The good news is that you can also use R as a data collection tool!
-The bad news is that data collection can be expensive or impossible for certain platforms.
-An important element of social media analytics is therefore to know what data collection options are available.
-
-There are two common ways to collect social media data:
-
-* using an API
-* using web scraping
-
-### API
-
-**API** stands for Application Programming Interface. Simply put, an API makes it easier for different application to talk to each other. For example, if you have an application on your phone for editing photo's that also allows you to immediately post these photo's on Twitter, this application communicates with Twitter via the Twitter API. 
-
-The reason APIs are relevant for Social Media Analytics is that you can often also use an API to collect data. For example, Twitter has an [Academic Research API](https://developer.twitter.com/en/products/twitter-api/academic-research) that allows researchers to query 10 million tweets per month from the entire Twitter archive. 
-Similar types of API access exist for other social media platforms.
-The limitation is that you can only collect data that the platform gives you access to, and often you need to pay to get access to the API.
-
-Here is an example of how the Twitter API would work. Do not try to run this example yourself, because you would need to register for the Academic Twitter API. This is only possible for Master students or University employees. Sadly, it's also possible that the Twitter Academic API will get closed done soon or at least no longer be free to use, because Twitter is changing a lot now that it's owned by Elon Musk. The following example is just to demonstrate how API's can make data collection easy. One of the reasons R is so popular for data science is that there are often packages for working with these APIs  
-
-```{r, eval=F}
-# don't try to run this code, because it doesn't work if you're not registered for the Academic Twitter API.
-library(academictwitteR)
-
-# This code collects the most recent 50,000 tweets about rstats (a common way to refer to R) in 2023.
-tweets = get_all_tweets(
-  query = "rstats",
-  start_tweets = '2023-01-01T00:00:00Z',
-  end_tweets = '2023-05-05T00:00:00Z',
-  data_path= "data/rstats",
-  lang='en',
-  n=50000,
-  is_retweet = FALSE,
-)
-```
-
-### Web Scraping
-
-Another method for collecting data from the internet is to create a robot that visits websites and collects the data for you. This is a more time consuming method than using an API (and can have some ethical and legal issues), but it allows you to collect data if no API is available. These robots are often called **Web Scrapers**. You can create your own web scraper in R, but this does require a bit more experience in R than we cover in this course (Though if you're interested, we do have an (introduction video)[https://www.youtube.com/watch?v=9GR26Y4z_v4]).
-
-There are also packages in R that can do the web scraping for you. For instance, the RedditExtractoR let's you search for threads and then collect all comments in the thread. You can run the code below yourself. Just remember to run `install.packages("RedditExtractoR")` first.
-
-```{r, eval=F}
-library(RedditExtractoR)  
-
-## search for threads about rstats in the last week (a common way to refer to R)
-threads = find_thread_urls("rstats", period='week')
-View(threads)
-threads$title
-
-## get thread and comments for the first thread that we found
-first_thread = threads$url[1]
-content = get_thread_content(first_thread)
-
-View(content$threads)
-View(content$comments)
-```
-
 # Reading CSV files into R
 
-In this course we will provide the Social Media data using `CSV` files.
+In this tutorial we'll use CSV files to load data into R.
 `CSV` stands for Comma Separated Values, and it's is one of the most common formats for storing data in a `data frame` format. 
 That is, data in which we have rows and columns.
 You are probably most familiar with this type of data representation from Excel or SPSS. 
@@ -98,6 +38,8 @@ In our current case, each row in our data is a tweet, and columns contain inform
 So why do we use `csv` files instead of something like Excel? 
 The main reason is that a `csv` file is plain and simple.
 Excel files have all sorts of bells and whistles, which makes them nice to work with, but also prone to get messy when we just want to store data.
+
+There are two important pitfalls to avoid when working with CSV files:
 
 * When you try to download the file from Canvas, some computers might immediately ask you whether you want to open it in Excel (or a similar program on Mac). Do not do this, but instead download the file directly to your computer. If you open the file in Excel and then save it, it might already have messed up the data.
 * There are different types of CSV files (yes, life is complicated). Most importantly, there are two common versions that you should know about. In this tutorial we'll only use the most common one, and we'll use the other one next time. 
@@ -119,11 +61,10 @@ library(readr)
 ### Importing the tweets_rstats.csv file
 
 We're going to import the CSV file called `tweets_rstats.csv` that you can find on Canvas under this week's assignment.
-This is the data that we collected from Twitter using the Academic API, as shown above.
 
 You can use the `read_csv` function by providing it with a string for the location of the file on your computer.
 This will look something like the following code, but you'll have to replace the string with the location on your own computer.
-If you can't figure out how to do this, keep reading, because we'll provide an alternative solution!
+If you can't figure out how to do this, we provide an alternative solution in the next subsection!
 
 ```{r}
 tweets = read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
@@ -131,7 +72,7 @@ tweets = read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
 
 ### Using RStudio to import the file 
 
-Many of you are probably not familiar with this way of specifying the location of a file.
+Some of you might not be familiar with this way of specifying the location of a file.
 Don't worry though! RStudio can help you with that.
 In the bottom-right window, you can go to the `Files` tab.
 Here you can browse to the file on your computer. 
@@ -353,26 +294,6 @@ In the current data we also have information about the number of likes for each 
 > Re-create the wordcloud from **1.a** that only uses tweets with at least 100 likes. Include the code and the wordcloud in your answer.
 
 
-# Assignment 2: Analyzing Reddit
-
-You work for a big company, and are asked to set up a system for monitoring whether and how your company is discussed on Reddit.
-As a starting point, you decide to scrape any new threads in the past month. *Note: you don't have to get the comments from the threads, just the titles (otherwise it takes quite long to download)*
-
-> **Question 2.a**.
-> Pick a big company or brand (big enough that people would talk about it on Reddit). Collect threads from Reddit in the past month that mention the company, and make a corpus from the titles (`threads$title`).
-
-> **Question 2.b**.
-> Create a Document Term Matrix and perform preprocessing. You can yourself decide what preprocessing steps to perform (e.g., removing punctuation, removing stopwords, stemming, subsetting). In addition to providing the code, justify any decision that you made in the preprocessing.
-
-> **Question 2.c**.
-> Make a wordcloud from this corpus. Include the code and wordcloud in your answer.
-
-> **Question 1.d**.
-> Create key-word-in-context listings for two words from the wordcloud in question **2.c**. Use the `head` function to only show the top 10 results. Include both listings in your answer, and provide your own interpretation of how the words were used.
-
-> **Question 2.d**.
-> The threads also mention the subreddit category. Make a wordcloud again, but this time use the subreddit categories instead of the titles
-
 
 # Writing better code with pipes
 
@@ -435,7 +356,7 @@ it's annoying if you have to learn multiple ways to do the same thing. But pipes
 can really help you write better code, and if you look up code online you will often
 see people using pipes. So it's best to learn it sooner rather than later.
 
-# Assignment 3: Working with pipes
+# Assignment 2: Working with pipes
 
 > **Question 3.a**.
 > Rewrite the code from question **1.a** using the pipe syntax. 

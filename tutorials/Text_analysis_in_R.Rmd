@@ -381,7 +381,7 @@ Here we are again using `read_csv()` to import the data, and we're using the `fi
 in the label column.
 
 ```{r}
-offensive_tweets = read_csv('~/projects/R_for_SMA/data/machine_learning_tweets/offensive_tweets.csv')
+offensive_tweets = read_csv('~/Downloads/machine_learning_tweets/offensive_tweets.csv')
 
 offensive = filter(offensive_tweets, label == "offensive")
 not_offensive = filter(offensive_tweets, label == 'not-offensive')
@@ -400,7 +400,8 @@ Now use this data to answer the following questions.
 > **You are required** to use the pipe syntax for this question. Also make sure to use sensible pre-processing steps.
 
 > **Question 3.b**.
-> Describe in your own words what each step in your code does. Imagine you're explaning it to someone that doesn't know R.
+> Describe in your own words what each step in your code does. Imagine you're explaning it to someone that doesn't know R or text analysis, 
+> so you need to provide some context for each step. (e.g., not just: "this creates a DTM". Say something about a DTM is).
 
 > **Question 3.c**.
 > Now use the exact same code to create a wordcloud for the "not-hate" tweets. i.e. only change the data that you're using.
@@ -410,5 +411,5 @@ Now use this data to answer the following questions.
 
 > **Question 3.e**.
 > A collegue asks you if you can explain to him how Supervised Machine Learning works. Provide an explanation in which you use
-> the two wordclouds from the hate_tweets training data to explain this to him. (+/- 200 words)
+> the two wordclouds from the hate_tweets training data to explain this to him.
 

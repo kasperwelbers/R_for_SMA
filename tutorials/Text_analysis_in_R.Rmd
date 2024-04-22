@@ -46,16 +46,18 @@ There are two important pitfalls to avoid when working with CSV files:
 
 For reading csv files into R, we're going to use the `read_csv` function from the `readr` package.
 R also has a built-in function called `read.csv` (with a dot instead of an underscore), but the `read_csv` function from the `readr` package is faster and overall nicer. 
-We'll first need to install `readr` (remember that you only need to do this once)
+To use the readr package, we're going to install tidyverse. This is a collection of packages that includes `readr`,
+but also many other packages that are useful for data analysis. 
+
 
 ```{r, eval=F}
-install.packages('readr')
+install.packages('tidyverse')
 ```
 
 And now we can use `library` to use the package in our current session.
 
 ```{r}
-library(readr)
+library(tidyverse)
 ```
 
 ### Importing the tweets_rstats.csv file
@@ -67,7 +69,7 @@ This will look something like the following code, but you'll have to replace the
 If you can't figure out how to do this, we provide an alternative solution in the next subsection!
 
 ```{r}
-tweets = read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
+tweets = read_csv('~/projects/R_for_SMA/data/tweets_rstats.csv')
 ```
 
 ### Using RStudio to import the file 
@@ -94,7 +96,7 @@ Now you can copy this code into R, which will look something like this, but the 
 
 ```{r, eval=F}
 library(readr)
-tweets_rstats <-read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
+tweets_rstats <- read_csv('~/projects/r_for_sma/data/tweets_rstats.csv')
 View(tweets_rstats)
 ```
 
@@ -358,9 +360,55 @@ see people using pipes. So it's best to learn it sooner rather than later.
 
 # Assignment 2: Working with pipes
 
-> **Question 3.a**.
+> **Question 2.a**.
 > Rewrite the code from question **1.a** using the pipe syntax. 
 
-> **Question 3.b**.
+> **Question 2.b**.
 > Rewrite the code from question **1.c** using the pipe syntax.
+
+
+# Assignment 3: Putting it all together   
+
+In this final assignment you're going to use the techniques from the previous assignments to analyze a new set of tweets data. The data you will be using is also available on Canvas, and is called `machine_learning_tweets.zip`. This is a zip file, so you'll first need to unzip it. This will give you a folder with four CSV files. 
+
+Each of these CSV files contains tweets for training a machine learning model. There are two columns: "text" and "label". 
+The label is basically how the tweet is 'coded'. For example, in the `offensive_tweets.csv` file, the label is either "offensive" or "not-offensive".
+This `training data` allows us to train a machine learning model to automatically detect whether a tweet is offensive or not.
+In this final assignment we'll take a look at this data to get a better idea of how a computer might learn to do this. (in the next practical we'll actually train the model)
+
+The following code shows you can split the data in two parts: one with offensive tweets and one with non-offensive tweets.
+Here we are again using `read_csv()` to import the data, and we're using the `filter()` function to filter the data based on the value
+in the label column.
+
+```{r}
+offensive_tweets = read_csv('~/projects/R_for_SMA/data/machine_learning_tweets/offensive_tweets.csv')
+
+offensive = filter(offensive_tweets, label == "offensive")
+not_offensive = filter(offensive_tweets, label == 'not-offensive')
+```
+
+For the assignment you need to do the same, but this time for the `hate_tweets.csv` data. 
+So you will read the data into R and create two dataframes: 
+
+* **hate** contains the tweets that are labeled as "hate"
+* **not_hate** contains the tweets that are labeled as "not-hate"
+
+Now use this data to answer the following questions.
+
+> **Question 3.a**.
+> Create a wordcloud for **only the "hate" tweets**. Provide the code for creating the wordcloud. 
+> **You are required** to use the pipe syntax for this question. Also make sure to use sensible pre-processing steps.
+
+> **Question 3.b**.
+> Describe in your own words what each step in your code does. Imagine you're explaning it to someone that doesn't know R.
+
+> **Question 3.c**.
+> Now use the exact same code to create a wordcloud for the "not-hate" tweets. i.e. only change the data that you're using.
+
+> **Question 3.d**.
+> Compare the wordclouds from **3.a** and **3.c**. What do you notice? 
+
+> **Question 3.e**.
+> A collegue asks you if you can explain to him how Supervised Machine Learning works. Provide an explanation in which you use
+> the two wordclouds from the hate_tweets training data to explain this to him. (+/- 200 words)
 

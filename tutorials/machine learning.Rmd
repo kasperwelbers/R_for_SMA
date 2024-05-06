@@ -111,7 +111,7 @@ The data can be downloaded from the TweetEval page that we linked here, but to m
 
 ```{r}
 library(readr)
-sentiment = read_csv('~/projects/r_for_sma/tutorials/data/sentiment_tweets.csv')
+sentiment = read_csv('~/projects/R_for_SMA/tutorials/data/sentiment_tweets.csv')
 sentiment
 ```
 
@@ -334,7 +334,7 @@ Let's again load the `tweets_rstats.csv` data that we used in the fifth practica
 We can then see whether we can measure the sentiment of tweets about `rstats`, and whether this tells us anything interesting.
 
 ```{r}
-tweets = read_csv('~/projects/r_for_sma/tutorials/data/tweets_rstats.csv')
+tweets = read_csv('~/projects/R_for_SMA/tutorials/data/tweets_rstats.csv')
 ```
 
 

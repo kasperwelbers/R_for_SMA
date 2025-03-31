@@ -129,9 +129,11 @@ Although R works on all operating systems (Windows, macOS, Linux), there are rar
 Whenever you run into such installation problems, please notify your teacher, and we'll try to make it work.
 Although R works on almost every system, in the current circumstances it might be difficult to solve everyone's problems remotely.
 But even in the unlikely case that we can't get R to work on your computer, you don't have to worry.
-You can also [run R from the cloud](https://rstudio.cloud/plans/free), which is free for up to 25-hours per month.
-This should mainly be used for practice, as we recommend doing the assignments on a personal (teammate's) computer.
-If there are many people in the team who can't get R to work, you can contact the course coordinator (Kasper Welbers) for an alternative solution.
+You can also use VU [JupyterHub](https://hub4.compute.vu.nl) together with this [tutorial](https://societal-analytics.nl/blogs/20250201_computing-power/). This JupyterHub can also be used if your computer has a RAM smaller than 16GB.
+
+<!-- [run R from the cloud](https://rstudio.cloud/plans/free), which is free for up to 25-hours per month. -->
+<!-- This should mainly be used for practice, as we recommend doing the assignments on a personal (teammate's) computer. -->
+<!-- If there are many people in the team who can't get R to work, you can contact the course coordinator (Kasper Welbers) for an alternative solution. -->
 
 ## Using R and RStudio
 
@@ -163,7 +165,7 @@ In particular, we will discuss 3 things:
 
 We communicate with R by giving it code.
 There are two steps here.
-First, we paste (or type) our code into our R script (the text editor that we openened in the top-left corner).
+First, we paste (or type) our code into our R script (the text editor that we opened in the top-left corner).
 Second, we **run** (or execute) this code, or pieces of this code.
 
 So let's first practice this a bit.

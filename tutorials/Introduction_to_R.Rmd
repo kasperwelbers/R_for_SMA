@@ -40,7 +40,10 @@ This course thereby follows the recommendation of [Van Atteveldt & Peng (2018)](
 ### How to work with the R tutorial documents
 
 As you probably noticed, the format of this tutorial is somewhat different from previous weeks.
-Before the tutorials were PDF files, but now it's this HTML document. Long story short, these tutorial documents are themselves generated in R (using RMarkdown). This guarantees that any code shown here does actually work. So, as long as you copy/paste all the code from this tutorial, and execute it in the same order as we showed it in the tutorial, everything *should* work.
+Before the tutorials were PDF files, but now it's this HTML document.
+Long story short, these tutorial documents are themselves generated in R (using RMarkdown).
+This guarantees that any code shown here does actually work.
+So, as long as you copy/paste all the code from this tutorial, and execute it in the same order as we showed it in the tutorial, everything *should* work.
 
 We say *should*, because you will most likely run into *some* errors.
 Even if the code itself is correct, things can still go wrong due to different (versions of) software and if the code is not executed in the right order.
@@ -54,7 +57,7 @@ When in class, you can of course consult your teacher, so if you find yourself s
 # What is R?
 
 We keep mentioning this R thing, but chances are you've never heard of it.
-R is an open-source statistical software language, that is in particular popular among computational social scientists. 
+R is an open-source statistical software language, that is in particular popular among computational social scientists.
 It increasingly replaces more traditional proprietary statistics software such as SPSS and Stata.
 This has several main reasons:
 
@@ -109,7 +112,8 @@ To install R, you can download it from the [CRAN (comprehensive R Archive Networ
 **Do not be alarmed** by the website's 90's aesthetics.
 R itself is cold, dry, no-nonsense software, and the website kind of reflects that.
 When you're working with R, you'll actually be using RStudio (as we'll install next), which makes everything much prettier and nicer.
-In previous years we also noticed that some students worry about how safe the website is, since it looks so... old.
+In previous years we also noticed that some students worry about how safe the website is, since it looks so...
+old.
 But yes, this is the official R website, and it can definitely be trusted.
 
 If you have trouble with the download instructions, you can use [this link](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu) for additional instructions with pictures.
@@ -127,12 +131,26 @@ R and RStudio are free to use for both academic and [commercial purposes]((https
 
 Although R works on all operating systems (Windows, macOS, Linux), there are rare cases where it can be difficult to install R, or to install certain packages.
 Whenever you run into such installation problems, please notify your teacher, and we'll try to make it work.
+
 Although R works on almost every system, in the current circumstances it might be difficult to solve everyone's problems remotely.
 But even in the unlikely case that we can't get R to work on your computer, you don't have to worry.
-You can also use the Social Media Analytics [JupyterHub](https://hub.compute.vu.nl/) together with this [tutorial](https://societal-analytics.nl/blogs/20250201_computing-power/). This JupyterHub can also be used if your computer has a RAM smaller than 16GB.
+You can also use the Social Media Analytics [JupyterHub](https://hub.compute.vu.nl/) together with this [tutorial](https://societal-analytics.nl/blogs/20250201_computing-power/).
+This JupyterHub can also be used if your computer has a RAM smaller than 16GB.
+This setup includes the lasts versions of R and RStudio.
+
+The data you will use during Q5 is stored in: `/srv/scistore/data/SMA/data`
+
+The directories where you can store your codes and own generated data are based on your teams’ group and number.
+For example, if your group is 2 and your team 4, then you can access your file as: `/srv/scistor/data/SMA/group204/` Or, if your group is 4 and your team 10, then you can access your file as: `/srv/scistor/data/SMA/group410/`
+
+To acces either the Q5 data or your folder, you can follow the steps in the image beneath:
+
+![](img/AccessGeneralData.png)
 
 <!-- [run R from the cloud](https://rstudio.cloud/plans/free), which is free for up to 25-hours per month. -->
+
 <!-- This should mainly be used for practice, as we recommend doing the assignments on a personal (teammate's) computer. -->
+
 <!-- If there are many people in the team who can't get R to work, you can contact the course coordinator (Kasper Welbers) for an alternative solution. -->
 
 ## Using R and RStudio
@@ -288,7 +306,10 @@ install.packages("tm")
 install.packages("wordcloud")
 ```
 
-> Sometimes R asks you a question when trying to install a package. You should then answer the question by typing the answer in the console (the bottom left window) and pressing enter. Most commonly, if you are a macOS user, you might get the question whether you want to install the package from source. In this case your should enter “n” or “no” in your console (“yes” only works if you have certain software installed).
+> Sometimes R asks you a question when trying to install a package.
+> You should then answer the question by typing the answer in the console (the bottom left window) and pressing enter.
+> Most commonly, if you are a macOS user, you might get the question whether you want to install the package from source.
+> In this case your should enter “n” or “no” in your console (“yes” only works if you have certain software installed).
 
 This should have installed the tm and wordcloud package (if you got an error, consult your teacher).
 It is now stored on your computer in a special `library` for your R packages.
@@ -676,19 +697,23 @@ You'll again have to copy (some) of the code, and change it for your own analysi
 > They already have a wordcloud, but now heard about this `keyness` thing, and are in doubt whether it is something that would be usefull to add to the dashboad.
 > You are asked to look into this, and write a brief (+/- 200 word) recommendation.
 
-
 # Assignment 4: Reflecting on using R for content analysis
 
 You have now seen and worked with some of the general components of the R language.
 Most importantly:
 
--   You can **assign** any data that you have to a name. This data can be anything from single numbers, to a data frame with rows and columns, to a corpus of texts. 
--   You can use **functions** to perform all sorts of operations that take some input and generate some output. 
+-   You can **assign** any data that you have to a name. This data can be anything from single numbers, to a data frame with rows and columns, to a corpus of texts.
+-   You can use **functions** to perform all sorts of operations that take some input and generate some output.
 -   You can install and open **packages** that give you access to many functions.
 
-While there is still much to learn and practice, a conceptual understanding of these components should already enable you to think about how you can use R to perform content analysis. In the lecture we discuses three types of automatic content analysis: **rule-based**, **supervised machine learning**, and **exploratory**. Above you have already seen two examples of using R for exploratory analysis (wordclouds and keyness). 
+While there is still much to learn and practice, a conceptual understanding of these components should already enable you to think about how you can use R to perform content analysis.
+In the lecture we discuses three types of automatic content analysis: **rule-based**, **supervised machine learning**, and **exploratory**.
+Above you have already seen two examples of using R for exploratory analysis (wordclouds and keyness).
 
-For the final assignment, we ask you to think about how you can use **functions** to perform text analysis with **rule-based** and **supervised machine learning** techniques. You do not have to provide code. You only need to explain what these techniques are, and describe what the input and output of a function to perform these techniques could look like. *Note that the **slides for the second lecture are on Canvas**, under the module for P5 week 1. Look for the slides titled "rule-based" and "supervised machine learning"*.
+For the final assignment, we ask you to think about how you can use **functions** to perform text analysis with **rule-based** and **supervised machine learning** techniques.
+You do not have to provide code.
+You only need to explain what these techniques are, and describe what the input and output of a function to perform these techniques could look like.
+*Note that the **slides for the second lecture are on Canvas**, under the module for P5 week 1. Look for the slides titled "rule-based" and "supervised machine learning"*.
 
 > **Question 4.a**.
 > Explain what **rule-based** automatic content analysis is.
@@ -700,7 +725,8 @@ For the final assignment, we ask you to think about how you can use **functions*
 > Explain how **supervised machine-learning** can be used to perform automatic content analysis.
 
 > **Question 4.d**.
-> Using **supervised machine learning** usually involves two functions: one for training the model, and one for using the model on new data. Describe what the input and output of both functions would look like.
+> Using **supervised machine learning** usually involves two functions: one for training the model, and one for using the model on new data.
+> Describe what the input and output of both functions would look like.
 
 # Optional: better understanding R
 

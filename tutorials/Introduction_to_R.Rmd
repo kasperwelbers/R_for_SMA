@@ -138,7 +138,7 @@ You can also use the Social Media Analytics [JupyterHub](https://hub.compute.vu.
 This JupyterHub can also be used if your computer has a RAM smaller than 16GB.
 This setup includes the lasts versions of R and RStudio.
 
-The data you will use during Q5 is stored in: `/srv/scistore/data/SMA/data`
+The data you will use during Q5 is stored in: `/srv/scistor/data/SMA/data`
 
 The directories where you can store your codes and own generated data are based on your teams’ group and number.
 For example, if your group is 2 and your team 4, then you can access your file as: `/srv/scistor/data/SMA/group204/` Or, if your group is 4 and your team 10, then you can access your file as: `/srv/scistor/data/SMA/group410/`

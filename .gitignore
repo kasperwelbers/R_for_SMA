@@ -9,3 +9,5 @@ tutorials/data/*
 
 data/*
 reddit_data/*
+*_answer.Rmd
+*_answers.Rmd

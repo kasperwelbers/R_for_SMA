@@ -1,0 +1,243 @@
+---
+title: 'Social Media Analytics V'
+author: 'Sofia Gil-Clavel & Kasper Welbers'
+subtitle: "Introduction to Automatic Content Analysis and Large Language Models"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, fig.path = "img/")
+```
+
+VU Amsterdam
+
+# Preparing the R-markdown script
+
+For this tutorial, you will continue to use R-markdown to document and write your code. If you have questions regarding how to use R-markdown, we suggest you do one of the following things. 
+
+First option, R developers tend to document their packages very well. So, if you go the the "Packages" panel and you search for a package, in this case `rmarkdown`, you will find some useful documentation. So, go ahead and click on the "Vignettes and other documentation" url. From there, click on `rmarkdown::rmarkdown`. This will display some tutorials on how to efficiently use R-markdown.
+
+The second option is that you look for the package's "Cheatsheet". Nowadays, many R-developers offer infographics with the most useful functions and parameters of their packages. To access these cheatsheets you can go to the RStudio header and then click "Help/Cheat Sheets/R Markdown cheatsheet". Alternatively, you can open your favorite browser (e.g. DuckDuckGo, Chrome, and Mozilla) and search for the package's Cheatsheet.
+
+Now, using any of the resources mentioned above, do the following: 
+
+1. Look for the way you can insert a code chunk.
+2. Inside the code chunk, add the following lines of code `rm(list=ls())` and `gc()`. 
+3. Look for the way you can run the code chunk.
+
+From the second step, `rm(list=ls())` will clean the R environment, so that you do not drag any variables from previous R-sessions. The second line (`gc()`) will make sure that those variables do not remain in your computers' RAM.
+
+**Exercise 1: Chunk to clean the memory**
+
+
+# Introduction to today's practical
+
+In the previous practical, you refreshed your memory regarding how to use R. You also learned how to create your own function, as well as how to access R-packages, specifically the R-package "quanteda" and its function for text analysis and visualization.
+
+The main goal of this practical is for you to learn to use Large Language Models (LLMs) to annotate data. During practical 3, you used rule-based approaches. Back then you learned that a big limitation of rule-based approaches is that we just can’t seem to come up with a sufficiently complex set of rules to systematically annotate the text we want to analyse.
+
+So, how can we use a computer to do something without specifically telling it how to do it? This is where LLMs come in.
+
+For example, consider the case of a spam filter. We want to use a computer to automatically label new emails as spam or not spam. We first need to create our Gold Standard. For this we collect some old emails, and manually label them as either spam or not spam. So now we can give the computer a set of emails that are spam, and a set of emails that are not spam, according to our own interpretation. From this data, we can test and compare different LLMs to see which one performs the best in this task. Then, when it receives new emails, we can continue to use such LLM to decide whether an email is more likely to be spam or not spam.
+
+The cool thing about LLMs, or GenAI, is that they may work for many different types of data. The input can be a set of emails that we want to classify into either spam or not spam, but it can also be a set of animal pictures that we want to classify into which animal is depicted. Generally speaking, GenAI lets you use computers to perform complicated tasks without having to tell them how to perform these tasks. The price is that you need to very carefully test the models and think about the inherent costs of using them. For example, Did you properly test whether the model is the best for the task? Who would be accountable if the model performs poorly? Have consider the risks of using a public model? What are the pros and cons of using an institutional tool instead?
+
+During this tutorial, we will give you the tools to use LLMs in the best possible way, while considering the inherent risks of implementing them. For this, you will use the R-packages: 
+
+* `glue`
+* `tidyverse`
+* `jsonlite`
+* `httr`: Useful tools for working with HTTP organised by HTTP verbs.
+* `purrr`: purrr enhances R’s functional programming (FP) toolkit by providing a complete and consistent set of tools for working with functions and vectors. 
+
+So, go ahead and insert a code chunk to download and load the packages. For this you need to use the function `install.packages()` and `library()`. 
+
+**Hint:** Remember that if you do not know how to use a function, you can either type `? NAME_OF_THE_FUNCTION` or you go to the "Help" panel and search for the function. This will display all the information related with the function, as well as some examples on how to use them.
+
+**Exercise 2: Chunk to install and load the R-packages**
+
+
+**Hint:** Once you have installed the packages, use the character "#" to comment that line of code. Otherwise, any time you Knit your R-markdown file, it will download the packages again.
+
+# Accessing Large Language Models 
+
+In this section, you will interact with two types of LLMs:
+
+* A public LLM: Gemini
+* An institutional server to access LLMs: [Nebula](https://networkinstitute.org/nebula-main/). 
+
+You will learn the pros and cons of each and you will also learn to put them in production and to test their results.
+
+As mentioned before, `httr` is an R package providing Useful tools for working with HTTP organised by HTTP verbs. These are useful to access Application Programming Interfaces (APIs). In general, an API is used for computer programs to communicate with each other (for a more detailed explanation please check the tutorial [Use APIs to source your data in R](https://raw.githack.com/Delft-RCafe/resources/main/themes/apis_in_r/apis-in-r.html)). Yes, this means that, in general, any time you prompt an LLM, you are actually interacting with an API. 
+
+To access APIs, you need to provide a token. For this, your teacher will give you one token to access [Nebula](https://networkinstitute.org/nebula-main/). Go ahead and insert a code chunk to save this token in a variable:
+
+** Exercise 3: Saving your Nebula token **
+
+```{r Exercise 3}
+
+NEBULA_KEY="<TOKEN>"
+headers <- c(`Authorization` = sprintf('Bearer %s', NEBULA_KEY),
+             `Content-Type`= 'application/json')
+
+```
+
+In Nebula, we can access different LLMs, for this tutorial we will focus on the following two:
+
+* deepseek-r1:1.5b
+* deepseek-r1:8b
+
+**Exercise 4**
+
+To access them, you just need to do the following:
+
+```{r Exercise 4}
+
+response <- POST(
+  'https://nebula.cs.vu.nl/api/chat/completions',
+  add_headers(.headers = headers),
+  body = '{
+      "model": "deepseek-r1:1.5b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is the sky blue?"
+        }
+      ]
+    }',
+  encode="raw")%>%
+  content(as = "text")
+
+```
+
+
+**Exercise 5:** Explore the variable "response". How would you extract the text with the message content?
+
+```{r Exercise 5}
+
+
+```
+
+## Creating your own function
+
+To access the LLMs systematically, you will write your own function. This is done by assigning a variable to a `function` object. A function has three important sections: (1) the arguments, (2) the algorithm, and (3) the output. 
+
+**Exercise 6:** Complete the following code, so that the function returns the right output depending on the model.
+
+```{r Exercise 6}
+
+NEBULA_LLM<-function(TEXT="\"Why is the sky blue?\"", MODEL="\"deepseek-r1:8b\"",headers){
+  response <- POST(
+  'https://nebula.cs.vu.nl/api/chat/completions',
+  add_headers(.headers = headers),
+  body = glue('{
+      "model":<MODEL>,
+      "messages": [
+        {
+          "role": "user",
+          "content":<TEXT>
+        }
+      ]
+    }',
+  .open = "<",.close = ">"),
+  encode="raw")%>%
+  content(as = "text",encoding="UTF-8")
+  
+  OUTPUT<-#??
+  
+  if(MODEL=="deepseek-r1:8b"){
+    return(#??)
+  }else{
+    return(#??)
+  }
+}
+
+```
+
+
+**Exercise 7:** Play test your function with at least two different prompts for each model. 
+
+
+
+
+# Using LLMs to annotate data
+
+Now, that you have a function to call two different models, we are going to use it to annotate some data. The data is the "sentiment_tweets.csv". You can find this data both in CANVAS and the SMA JupyterHub environment.
+
+**Hint:** Use the function `read.csv()`.
+
+**Exercise 7:** Open the "sentiment_tweets.csv" data.
+
+```{r Exercise 7}
+DIR="<PATH TO THE FOLDER WITH THE DATA>"
+
+TWEETS<-read.csv(#??)
+
+```
+
+Now, we are going to use `quanteda` to remove any weird characters from the text. For this, you will use the function `tokens()` together with the parameter `remove_twitter=TRUE``.
+
+**Exercise 8:** Clean the text.
+
+```{r Exercise 8}
+TWEETS_CLEAN <- #??
+
+```
+
+This dataset contains around 60,000 tweets each labeled as positive, neutral, or negative. From the data, you will use 1\% to test the two LLMs models. To create that sample, you will use the function `sample_frac()`. To make your code reproducible, you need to call the function `set.seed()`, inside the parentheses, you must write a random number.
+
+**Exercise 9:** Create a reproducible 1\% sample.
+
+
+
+Now, we are going to use a technique called "Zero-Shot Classification". This means that the model will not get any training. We will just rely on how well the prompt is written. 
+
+**Exercise 10:** Use your function to classify the first text of your sample as positive, neutral, or negative. Use the function `cat()` to print both the text and its label.
+
+```{r Exercise 10}
+
+PROMPT=#??
+
+LABEL<-NEBULA_LLM(PROMPT,MODEL,headers)
+
+cat(#??)
+
+```
+
+
+# Labeling the sample using the different models
+
+Now that you have the function to label the text, all you need to do is apply it to all the tweets in your 1\% sample. For this, we will use the function `map_vec()` from the package `purrr`. 
+
+**IMPORTANT:** Be mindful that the models can take up to 2 hours each to label the 1\% data. So, do not leave everything for the last minute!
+
+**Exercise 11:** Using the model deepseek-r1:1.5b
+
+**Exercise 12:** Using the model deepseek-r1:8b
+
+
+
+# Comparing the models
+
+To compare the models, we will use the validation metrics you learned in practical 3: recall, precision, and f-score. For this, we will use the function `confusionMatrix` from the package `caret`with the parameter `mode="prec_recall"`.
+
+**Exercise 13:** Which model performed the best? Why?
+
+
+
+
+
+
+
+
+

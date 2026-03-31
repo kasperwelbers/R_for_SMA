@@ -22,9 +22,16 @@ VU Amsterdam
 
 # Introduction
 
-This week we'll get you started on working with the **R programming language**.
-Working with text analysis in R will give you a glimpse **under-the-hood** of common text analysis techniques.
+This week:
+
+1. We will introduce a R-markdown as a type of R-script.
+2. We will give you a refresher on working with the **R programming language**.
+3. We will get you started working with text analysis in R. 
+
+For the second poiny, we will work with `tidyverse` For the third, we will give you a glimpse **under-the-hood** of common text analysis techniques using `tidytext`.
+
 In the previous practical about **validity** you saw that it cannot be taken for granted that an automated analysis accurately measures what we actually want to measure.
+
 In this and the coming lectures, we will deepen this understanding by looking closer at how computers actually perform these measurements.
 This will help you develop a better intuition for what we can and cannot do with automated analyses of texts.
 
@@ -37,11 +44,9 @@ This course thereby follows the recommendation of [Van Atteveldt & Peng (2018)](
 > We think it is vital that we make computational methods more prominent in our teaching to make sure the new generation of communication scientists and practitioners are stimulated and facilitated to learn computational skills such as data analytics, text processing, or web scraping, as applicable.
 > (p. 87-88)
 
-### How to work with the R tutorial documents
+# 1. R-markdown: How to work with the R tutorial documents
 
-As you probably noticed, the format of this tutorial is somewhat different from previous weeks.
-Before the tutorials were PDF files, but now it's this HTML document.
-Long story short, these tutorial documents are themselves generated in R (using RMarkdown).
+As you probably noticed, the format of this tutorial is somewhat different from previous weeks. Before the tutorials were PDF files, but now it's this HTML document. Long story short, these tutorial documents are themselves generated in R (using [R-Markdown](https://rmarkdown.rstudio.com/)).
 This guarantees that any code shown here does actually work.
 So, as long as you copy/paste all the code from this tutorial, and execute it in the same order as we showed it in the tutorial, everything *should* work.
 
@@ -49,53 +54,64 @@ We say *should*, because you will most likely run into *some* errors.
 Even if the code itself is correct, things can still go wrong due to different (versions of) software and if the code is not executed in the right order.
 Think of it as a recipe: you can still mess it up if you use the wrong equipment or ingredients, or if you perform steps in the wrong order.
 
-When you do run into an error, don't panic!
+
+## 1.A. Preparing the R-markdown script
+
+If you have questions regarding how to use R-markdown, we suggest you do one of the following things. 
+
+First, when you do run into an error, don't panic!
 Nobody writes perfect code, and one of the key skills of a data scientist is to learn how to solve errors.
 In [this Google Doc](https://docs.google.com/document/d/1aPV1LqFoRkQEc5oDsOE2QQSytVO8eEwxV1P0A9oOUqQ/edit?usp=sharing) we provide some general tips.
 When in class, you can of course consult your teacher, so if you find yourself struggling, it is recommended to prepare your assignment well before class, so that you have more time to ask questions
 
-# What is R?
+Second option, R developers tend to document their packages very well. So, if you go the the "Packages" panel and you search for a package, in this case `rmarkdown`, you will find some useful documentation. So, go ahead and click on the "Vignettes and other documentation" url of the `rmarkdown` package panel. From there, click on `rmarkdown::rmarkdown`. This will display some tutorials on how to efficiently use R-markdown.
 
-We keep mentioning this R thing, but chances are you've never heard of it.
-R is an open-source statistical software language, that is in particular popular among computational social scientists.
-It increasingly replaces more traditional proprietary statistics software such as SPSS and Stata.
-This has several main reasons:
+The third option is that you look for the package's "Cheatsheet". Nowadays, many R-developers offer infographics with the most useful functions and parameters of their packages. To access these Cheatsheets you can go to the RStudio header and then click "Help/Cheat Sheets/R Markdown cheatsheet". Alternatively, you can open your favorite browser (e.g. DuckDuckGo, Chrome, and Mozilla) and search for the package's Cheatsheet.
+
+Now, using any of the resources mentioned above, do the following: 
+
+1. Look for the way you can insert a code chunk.
+2. Inside the code chunk, add the following lines of code `rm(list=ls())` and `gc()`. 
+3. Look for the way you can run the code chunk.
+
+From the second step, `rm(list=ls())` will clean the R environment, so that you do not drag any variables from previous R-sessions. The second line (`gc()`) will make sure that those variables do not occupy your computers' RAM anymore.
+
+**Exercise 1.1:** Chunk to clean the memory
+
+```{r Exercise 1.1}
+
+rm(list=ls())
+gc()
+
+```
+
+As you will be working with processes that can take as long as 2 hours, we recommend that you run those scripts and save the results in your computer as a csv or as a table. Once you have done it, you can use the parameter `eval=FALSE` of the chunk to NOT RUN again the code in those particular chunks!
+
+**Exercise 1.2:** Use the parameter `eval=FALSE` to not run the following chunk when you render your R-markdown file.
+
+```{r Exercise 1.2}
+
+cat("This function should NOT RUN when you render your sript, but I should still be able to see this code.")
+
+```
+
+
+**Exercise 1.3:** What other parameters would you use to get a nicer html, pdf, or word after rendering your script? Check the R-markdown documentation and write them down here:
+
+
+# 2. What is R?
+
+As you may remember from previous courses, R is an open-source statistical software language, that is in particular popular among computational social scientists. R is not the same as RStudio. R is the programming language, while RStudio is a software to interact with R in an easier way.
+
+R increasingly replaces more traditional proprietary statistics software such as SPSS and Stata. This has several main reasons:
 
 -   R is a programming language, which makes it more versatile. While R focuses on statistical analysis at heart, it facilitates a wide-range of features, ranging from [text analysis]() to advanced [visualizations](https://www.r-graph-gallery.com/).
 -   The range of things you can do with R is constantly being updated. R is open-source, meaning that anyone can contribute to its development. In particular, people can develop new *packages*, that can easily and safely be installed from within R with a single command. Since many scholars and industry professionals use R, it is constantly kept up-to-date.
 -   R is free. While for students this is not yet a big deal due to university discounts for various statistics software, this can be a big plus in the commercial sector. Especially for small businesses and free-lancers.
 
-The trade-off is that the R language has a relatively steep learning curve compared to software such as Excel or SPSS.
-This is because R primarily works with *syntax*.
-That is, rather than clicking through menus, you'll give comments to R by typing them.
-For example, the following lines of code would create a pretty lame wordcloud.
-*(You cannot yet run this code yourself if you haven't installed the wordcloud package, as explained below)*
+## 2.A. Getting started with R and RStudio
 
-```{r, eval=F}
-library(wordcloud)
-some_text = "This is a super lame wordcloud"
-wordcloud(some_text, colors='blue')
-```
-
-If you have not worked with a programming language before, it might feel weird to give commands via text.
-After all, how would you know what commands the computer will understand?
-That being said, even if this is the first time seeing R syntax, you might already get the basic gist of what's happening here.
-You might have guessed that we create a wordcloud of the text "This is a super lame wordcloud".
-You might also understand, that if you would want to change the color of the wordcloud, you'd need to change `colors = 'blue'` to some other color.
-So while writing R code from scratch takes time to learn, you would be able to copy/paste this code, and make some changes to it.
-
-And that's the level of understanding we're aiming for in this course.
-You'll see various examples of R code, to perform different types of computational (text) analyses.
-In the tutorials, we'll tell you more about how R code works, so that you can change parts of it to create different outcomes.
-But in the assignments, we'll mainly test you on your interpretation of the outcomes, and on your understanding of the analysis.
-So if you find R hard to learn, don't worry!
-Conversely, if you like R and want to learn more, we've got you covered with references to optional material.
-Although this won't be tested in the assignments, you will be able to use this knowledge in the project in period 6, and in the Master program.
-Moreover, if you're aiming for a job that involves quantitative data analysis, learning R early is a definitive advantage.
-
-# Getting started with R and RStudio
-
-> If you already installed and played around with R and RStudio in the homework assignment, you can skip this part and go straight to Assignment 1.
+> If you already installed and played around with R and RStudio in the homework assignment, you can skip this part and go straight to section 2.B.
 
 To get started with R, you will need to install two (free) pieces of software.
 
@@ -106,7 +122,7 @@ You won't need to run these two pieces of software side-by-side.
 When you open RStudio, it will automatically also open R.
 Both programs can be downloaded for free, and are available for all main operating systems (Windows, macOS and Linux).
 
-### Installing R
+### 2.A.1 Installing R
 
 To install R, you can download it from the [CRAN (comprehensive R Archive Network) website](https://cran.r-project.org/).
 **Do not be alarmed** by the website's 90's aesthetics.
@@ -118,7 +134,7 @@ But yes, this is the official R website, and it can definitely be trusted.
 
 If you have trouble with the download instructions, you can use [this link](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu) for additional instructions with pictures.
 
-### Installing RStudio
+### 2.A.2 Installing RStudio
 
 The [RStudio website](https://www.rstudio.com/) contains download links and installing instructions.
 You will need to install the free *RStudio Desktop Open Source License*.
@@ -127,23 +143,20 @@ This website is decidedly more user friendly, but if you have trouble figuring o
 Note that while you can also get paid licenses for RStudio, these are not required for *using* RStudio.
 R and RStudio are free to use for both academic and [commercial purposes]((https://opensource.org/faq#osd)).
 
-### What if I can't install R?
+## 2.B What if I have problems with R?
 
-Although R works on all operating systems (Windows, macOS, Linux), there are rare cases where it can be difficult to install R, or to install certain packages.
-Whenever you run into such installation problems, please notify your teacher, and we'll try to make it work.
+Although R works on all operating systems (Windows, macOS, Linux), there are rare cases where it can be difficult to install R, or to install certain packages. It can also happen that your computer doesn't have enough resources to run certain exercises. 
 
-Although R works on almost every system, in the current circumstances it might be difficult to solve everyone's problems remotely.
-But even in the unlikely case that we can't get R to work on your computer, you don't have to worry.
-You can also use the Social Media Analytics [JupyterHub](https://hub.compute.vu.nl/) together with this [tutorial](https://societal-analytics.nl/blogs/20250201_computing-power/).
+Whenever you run into any of those problems, please notify your teacher, and we'll try to make it work.
+
+Although R works on almost every system, in the unlikely case that we can't get R to work on your computer, you don't have to worry. You can use the Social Media Analytics [JupyterHub](https://hub.compute.vu.nl/) environment. To upload and download files, you can follow this [tutorial](https://societal-analytics.nl/blogs/20250201_computing-power/).
+
 This JupyterHub can also be used if your computer has a RAM smaller than 16GB.
 This setup includes the lasts versions of R and RStudio.
 
 The data you will use during Q5 is stored in: `/srv/scistor/data/SMA/data`
 
-The directories where you can store your codes and own generated data are based on your teams’ group and number.
-For example, if your group is 2 and your team 4, then you can access your file as: `/srv/scistor/data/SMA/group204/` Or, if your group is 4 and your team 10, then you can access your file as: `/srv/scistor/data/SMA/group410/`
-
-To acces either the Q5 data or your folder, you can follow the steps in the image beneath:
+To access the Q5 data, you can follow the steps in the image beneath:
 
 ![](img/AccessGeneralData.png)
 
@@ -153,101 +166,256 @@ To acces either the Q5 data or your folder, you can follow the steps in the imag
 
 <!-- If there are many people in the team who can't get R to work, you can contact the course coordinator (Kasper Welbers) for an alternative solution. -->
 
-## Using R and RStudio
+# 3. Basics of working with `tidyverse`
 
-Once you have installed R and RStudio, you only need to open the RStudio software.
-If everything was installed correctly, RStudio will automatically launch R as well.
+[Tidyverse](https://tidyverse.org/) is a package of packages, where all the packages share an underlying design philosophy, grammar, and data structures. In this tutorial, we will focus on three of them `dplyr`, `ggplot2`, and `stringr`.
 
-The first time you open RStudio, you will likely see three separate windows.
-The first thing you want to do is open an R Script to work in.
-To do so, go to the toolbar and select File -\> New File -\> R Script.
+**Exercise 3.a:** Insert a code chunk to install and load the package `tidyverse`. Hint: Use the functions `install.package()` and `library()`. Remember that you search for the function in the help panel, if you need more information on how to use it. 
 
-You will now see four windows split evenly over the four corners of your screen:
+```{r load tidyverse}
 
--   In the **top-left** you have the text editor for the file that you are working in. This will most of the time be an R script. In this script you type all the code for your analysis. You can then select and execute parts of this code (or execute everything at once). Don't worry if this doesn't make sense right away. You will understand it by the end of this practical.
--   In the **top-right** you can see the data and values that you are currently working with (environment). So if you load data into R, you will see it here.
--   In the **bottom-left** you have the R console, which is where you see the output when you execute lines of code from your script.
--   In the **bottom-right** you can browse through files on your computer, view help for functions, or view visualizations. When we create some wordclouds later on, this is where they'll show up.
+# install.packages(tidyverse)
 
-# Basics of working with R
+library(tidyverse)
 
-As promised, we will not go in-depth in the R language, and you will mainly need to make some minor changes to R code for this course.
-Still, in order to do so, we need to talk a little bit about the very basics of the R language.
-In particular, we will discuss 3 things:
-
--   Running / executing R code
--   Assigning values to names
--   packages and functions
-
-### Running code from the R script
-
-We communicate with R by giving it code.
-There are two steps here.
-First, we paste (or type) our code into our R script (the text editor that we opened in the top-left corner).
-Second, we **run** (or execute) this code, or pieces of this code.
-
-So let's first practice this a bit.
-Copy and paste the following example code into your R Script.
-For now, don't bother understanding the syntax itself.
-We'll just focus on how to run it.
-
-```{r, eval=F}
-3 + 3
-2 * 5
-6 / 2
-"some text"
-"some more text"
-sum(1,2,3,4,5)
 ```
 
-You can **run** (i.e. execute) parts of the code in an R script by pressing Ctrl + Enter (on mac this is command/apple-key + Enter).
-This can be done in two ways:
+## Tibbles
 
--   If you select a piece of text (so that it is highlighted) you can press Ctrl + Enter to run the selection. For example, select the first three lines (the three mathematical operations) and press Ctrl + Enter.
--   If you haven't made a selection, but your text cursor is in the editor, you can press Ctrl + Enter to run the line where the cursor is at. This will also move the cursor to the next line, so you can *walk* through the code from top to bottom, running each line. Try starting on the first line, and pressing Ctrl + Enter six times, to run each line separately.
+According to the `tidyverse` developers:
+> A [tibble](https://tibble.tidyverse.org/), or tbl_df , is a modern re-imagining of the data frame, keeping what time has proven to be effective, and throwing out what is not. Tibbles are data.
 
-### Assigning values to names
+So, we will use `tibbles` as a way to interact with `data.frame()`. For this section of the practical, we will work with the data frame *iris*. The data frame *iris* belongs to the Base R package, you just need to call it to start using it. However, we will save it in a different variable as a `tibble`:
 
-When you ran the code above, you saw that R **evaluates** expressions.
-The calculation 3+3 evaluates to the value 6, and 2\*5 evaluates to the value 10.
-You also saw that the **function** *sum(1,2,3,4,5)* evaluates to the value 15 (the sum of the numbers).
-In this example, R printed the results to our console (the bottom-left window).
-This is nice if we would just want to do a simple calculation, but often instead of printing values, we often want to **store values** so that we can use them later on in our analysis.
+```{r Loading iris}
 
-To **store** values, we **assign** them to **names**.
-In plain terms, **assignment** is how you make R remember things by assigning them to a name.
-We basically say: "this name shall from now on refer to this value".
-There are two ways to say this: using the equal sign `=` or an arrow `<-`.
-In our tutorials we'll use the `equal` sign, but just remember that they are identical.
+IRIS<-tibble(iris)
 
-```{r}
-x = 2
-y <- "some text"
 ```
 
-Here we have **assigned** the **value** `2` to the **name** `x` and the value `"some text"` to the name `y`.
-If you are working in RStudio (which you should), you can now also see these names and values in the top-right window, under the "Environment" tab.
-Whenever we now use these names in our code, they will represent the values that we assigned to them.
-In the following line of code, we ask R to show us the value that `x` refers to.
+To check what is in the data frame *IRIS*, we can now just call it:
 
-```{r}
-x
+```{r Checking iris}
+
+IRIS
+
 ```
 
-We can also immediately use `x` to do calculations.
+As you can see in the console, `tibble` reports back the most important elements of your data frame. 
 
-```{r}
-x * 10
+**Exercise 3.b:** Answer the following questions by checking the elements of your tibble:
+
+1. How many rows and columns does your data frame have?
+2. What are the names of your columns?
+3. What type of data is stored in each column?
+
+Remember that R is case sensitive, so if you need to double check the names of the variables/ columns, you can use the function `names()`:
+
+```{r Checking the variables}
+
+names(IRIS)
+
 ```
 
-Now, an important thing to remember, is that R can assign basically any type of data to a name.
-In this case we assigned single numbers (`2`), or single pieces of text (`"some text"`).
-But we can also assign an entire dataset to a name.
-Later on in this practical, you'll see that a name can refer to an entire corpus (i.e. collection of texts).
-But whatever data we assign, it all works in the same way.
-We **assign** it to a **name**, and from that point on we can refer to the entire dataset by just that name.
+## Pipe `%>%` or `%|>%`
 
-### Functions and packages
+An important function from  `tidyverse` is the pipe `%>%`, also called `|>`. This function takes the output from the previous function and uses it as input for the next one. Let's show an example of its usage:
+
+```{r Pipe}
+
+IRIS%>%
+  names()
+
+```
+
+In the previous code, we are simply passing the tibble IRIS as the main parameter to the function `names()`.
+
+From here onward, we will continue using the pipe to pass outputs to the functions.
+
+# 4 Data handling with `dplyr`
+
+[Dplyr](https://dplyr.tidyverse.org/) is a powerful, fast, and user-friendly R package designed for data manipulation and wrangling, often described as a "grammar of data manipulation". 
+
+Dplyr provides a consistent set of "verbs" (functions) to solve common data challenges. You can check all of them in their webpage, but you can also check its [Cheat Sheet](https://rstudio.github.io/cheatsheets/data-transformation.pdf). 
+
+For this practical, we will focus on `Dplyr`'s main functions:
+* `filter()`: Keep or drop *rows* that match a condition.
+* `select()`: Keep or drop *columns* using their names and types.
+* `arrange()`: Order rows using column values.
+* `mutate()`: Create, modify, and delete columns.
+* `summarise()`: Summarise each group down to one row.
+* `group_by()`: Take an existing data frame and converts it into a grouped data frame where operations are performed "by group".
+
+
+## 4.1 Using `filter()`
+
+This function is used to subset a data frame, applying the expressions in "..." to determine which rows should be kept.
+
+In its core, this function creates a logical vector. So, if you want to keep the opposite, then you can use the operator “!”.
+
+Let’s say that you want to keep only the elements in the column `Species` that are equal to “setosa”:
+
+```{r Filter example}
+
+filter(IRIS,Species=="setosa")
+
+## This is equivalent to:
+
+IRIS%>%
+  filter(Species=="setosa")
+
+```
+
+To write logical expressions, you can use the special functions:
+
+* `==`: Is the element on the left equal to the element on the right?
+* `>=`: Is the element on the left bigger or equal than the element on the right?
+* `<=`: Is the element on the left smaller or equal than the element on the right?
+* `!=`: Is the element on the left different than the element on the right?
+* `>`: Is the element on the left bigger than the element on the right?
+* `<`: Is the element on the left smaller than the element on the right?
+
+**Exercise 4.1.a:** From the IRIS data frame keep only those rows where `Petal.Width` is smaller or equal than its mean. For this, pass IRIS to `filter()` using the pipe `%>%`. Hint: Use `mean(Petal.Width)` to get the mean of `Petal.Width`. 
+
+
+## 4.2 Using `arrange()`
+
+This functions orders the rows of a data frame by the values of selected columns.
+
+As an example, we will order the data frame by the `Petal.Width` values. At the end, we pass the resulting data frame to the function `View()` so that you can see the changes.
+
+First, we do so in ascending order. This is how the code would look, if we do not use the pipe function:
+
+```{r arrange ascending}
+
+View(arrange(IRIS, Petal.Width))
+
+```
+
+If we use the pipe then the code would be:
+
+```{r arrange ascending W pipe}
+
+IRIS%>% 
+  # 1. We pass the IRIS data to the function arrange
+  arrange(Petal.Width)%>% 
+  # 2. We pass the result from using arrange to the function View
+  View()
+
+```
+
+As you see, using the pipe allows for an easier reading of the code. 
+
+Second, we do so in descending order:
+```{r arrange descending}
+
+IRIS%>%
+  arrange(desc(Petal.Width))%>%
+  View()
+
+```
+
+**Exercise 4.2.a:** Arrange the IRIS data frame in descending order by `Petal.Length`.
+
+
+
+## 4.3 Using `mutate()`
+
+`mutate()` creates new columns that are functions of existing variables. It can also modify (if the name is the same as an existing column) and delete columns (by setting their value to NULL).
+
+As example, let’s say that you want to add 2 to the column `Sepal.Width`:
+
+```{r mutate}
+
+IRIS%>%
+  mutate(Sepal.Width2= Sepal.Width+2)%>%
+  View()
+
+```
+
+In the example, `mutate()` does the following:
+
+1. Creates the new column.
+2. Then it stores in each element the result of performing the operation.
+
+**Exercise 4.3.a:** Create a new columns called `MEAN_Petal.Length` where you store the mean of the variable `Petal.Length`. Hint: Apply the function `mean()` to the variable `Petal.Length`.
+
+
+## 4.4 Using `summarise()`
+
+`summarise()` or `summarize()`: creates a new data frame. It returns one row for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarizing all observations in the input. It will contain one column for each grouping variable and one column for each of the summary statistics that you have specified.
+
+As example, let’s say that you want to get the minimum of the columns `Sepal.Length` and `Sepal.Width`:
+
+```{r summarise}
+
+IRIS%>%
+  summarise(min(Sepal.Length),min(Sepal.Width))
+
+```
+
+As you can see in the result, `summarise()` returned one single row with the minimum of each column/ variable. This is different from using `mutate()`, where you would have gotten a new column/ variable where the minimum repeats in each element:
+
+```{r summarise vs mutate}
+
+IRIS%>%
+  mutate(min(Sepal.Length),min(Sepal.Width))%>%
+  View()
+
+```
+
+**Exercise 4.4.a:** Obtain the maximum of all the numerical columns. Hint: Use the function `max()`.
+
+
+
+## 4.5 Using`group_by()`
+
+Most data operations are done on groups defined by variables. `group_by()` takes an existing tibble and converts it into a grouped tibble where operations are performed "by group".
+
+As example, let’s say that you want to get the minimum of the columns `Sepal.Length` and `Sepal.Width` by Species:
+
+```{r summarise by group}
+
+IRIS%>%
+  # 1. We tell R that the following transformations should be done by group:
+  group_by(Species)%>%
+  # 2. We perform the transformations:
+  summarise(min(Sepal.Length),min(Sepal.Width))
+
+```
+
+As you can see, now you got one row per `Specie`'s category ("setosa", "versicolor", and "virginica"). Each row represents the minimum value of `Sepal.Length` and `Sepal.Width` per category, i.e. per group.
+
+**Exercise 4.5.a:** Obtain the maximum of all the numerical columns per `Specie`'s category.
+
+
+
+## 5.Data visualization with `ggplot2`
+
+`ggplot2` is a package for creating graphs, which follows the grammar of graphs.
+
+**What is the grammar of graphs?** The grammar of graphs tells us that:
+> "... Every statistical graph is a mapping of data to a set of geometric objects (points, lines, bars) that contain aesthetic attributes (color, shape, size). The graph can even have statistical transformations of the data, and these are drawn on a specific Cartesian plane." [link](https://doi.org/10.1007/978-3-319-24277-4)
+
+Based on the grammar of graphs, the Components of a graph are:
+
+1. Data is the foundation of every graphic. The system works best if the data is provided in a tidy format, which briefly means a rectangular data frame structure where rows are observations and columns are variables.
+2. The mapping of a plot is a set of instructions on how parts of the data are mapped onto aesthetic attributes of geometric objects. It is the ‘dictionary’ to translate tidy data to the graphics system.
+3. Layers made of geometric objects (which we'll call geoms) and statistical transformations (which we'll call stats). Geoms represent what you see on the graph: points, lines, polygons, etc. Stats are a summary of the data being observed.
+4. Scales maps the values of the data to values in an aesthetic space, such as color, size, or shape. Scales draws the legends or axes, which provides reverse mapping that makes it possible to read the original data from the graph.
+5. The facet specification describes how to divide data into subsets and how to display it in subgraphs within the same graph. This is also called a conditioner.
+6. A theme controls the points that are displayed, such as font size and color.
+
+
+Let's us briefly explore each element.
+
+
+
+## 6.Text handling with `stringr`
+
+
+
+# 4. Text analysis in R
 
 Earlier we showed that we can make wordclouds in R.
 To do so, we used the following syntax:

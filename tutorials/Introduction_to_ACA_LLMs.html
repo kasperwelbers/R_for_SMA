@@ -466,8 +466,9 @@ R-sessions. The second line (<code>gc()</code>) makes sure that those
 variables do not occupy your computers’ RAM anymore.</p>
 <p><strong>Exercise 1.a:</strong> Clean the R-environment.</p>
 <p>As you will be working with processes that can take as long as 2
-hours, we recommend that you run those scripts and save the results in
-your computer as a csv or as a table.</p>
+hours, we recommend that you run those scripts and save the results
+either in your computer or in your JupyterHub folder as a csv or as a
+table.</p>
 <p><strong>Remember that if you need more resources, you can always use
 the course environment in <a href="https://hub.compute.vu.nl/">JupyterHub</a>.</strong></p>
 <p><strong>Also, you can check this <a href="https://societal-analytics.nl/blogs/20250201_computing-power/">blog
@@ -512,7 +513,7 @@ inherent costs of using them. For example, did you properly test whether
 the model is the best for the task? Who would be accountable if the
 model performs poorly? Have you considered the risks of using a public
 model? What are the pros and cons of using the models locally in your
-computer?</p>
+computer or from a server, e.g. JupyterHub?</p>
 <p>During this tutorial, we will give you the tools to use LLMs in the
 best possible way, while considering the inherent costs and risks of
 implementing them. For this, you will use the R-packages:</p>
@@ -552,9 +553,9 @@ API.</p>
 For example, Gemini is developed by Google DeepMind; Chat-GPT is
 developed by OpenAI; Llama is developed by Meta Platforms, Inc; and so
 far, and so on. Each company has their own parameters to access their
-LLMs. So, you would need to look for each in order to access their APIs.
-To avoid the hassle, we will use the package <code>tidyllm</code> which
-already has those parameters loaded.</p>
+LLMs via thier APIs. So, you would need to look for each in order to
+access them. To avoid the hassle, we will use the package
+<code>tidyllm</code> which already has those parameters loaded.</p>
 <p>In this tutorial, we will demonstrate how to access Gemini from
 Google DeepMind. This is because Google Gemini has a free tier. The
 steps to get your API key are simple:</p>
@@ -581,10 +582,10 @@ function:</p>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="fu">gemini_chat</span>(<span class="at">.model=</span><span class="st">&#39;gemini-2.5-flash-lite&#39;</span>)<span class="sc">%&gt;%</span></span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span></code></pre></div>
 <p>As, we will apply the same code to different prompts, it makes sense
-to save the code in a function that we can call multiple times. The
-basic elements of a function are input (also called parameters or
-arguments), algorithm, and output. In its basic form, this is how a
-function looks:</p>
+to save the code as a function. So that we can call call multiple times
+varying the parameters. The basic elements of a function are input (also
+called parameters or arguments), algorithm, and output. In its basic
+form, this is how a function looks:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>FUNCTION_NAME<span class="ot">&lt;-</span><span class="cf">function</span>(parameter1, parameter2, ...){</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="co"># Algorithm</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">return</span>(<span class="st">&quot;Variables to return&quot;</span>)</span>
@@ -603,6 +604,10 @@ model, and returns the output of the LLM.</p>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>}</span></code></pre></div>
 <p><strong>Exercise 3.1:</strong> Test the function
 <code>GOOGLE_GEMINI()</code> with two different prompts.</p>
+<p><strong>Exercise 3.2:</strong> Based on the second lecture, what are
+the risks of calling an LLM from a public big LLM provider?</p>
+<p><strong>Exercise 3.3:</strong> Can you think of an scenario where it
+would make sense to do so?</p>
 </div>
 <div id="an-llm-on-your-computer" class="section level2">
 <h2>3.2 An LLM on your computer</h2>
@@ -618,7 +623,7 @@ download button, choose the right operating system. Install the software
 after it has downloaded. Once you have installed it, open it, for the
 <code>tidyllm</code> package to call it, the software has to be
 running.</p>
-<p>By defaults, Ollama comes with the <code>llama3.2:1b</code> model
+<p>By default, Ollama comes with the <code>llama3.2:1b</code> model
 installed. Now, let’s download another model, so that we can compare
 them. You can find a list of available models here: <a href="https://ollama.com/search">https://ollama.com/search</a>.</p>
 <p>Keep in mind that models require both RAM and hard drive. So, we
@@ -632,6 +637,10 @@ which should perform better.</p>
 download something bigger, but you must still take the time to double
 check whether your computer has enough RAM and hard drive to allocate
 them.</p>
+<p><strong>IMPORTANT:</strong> If you decide to use JupyterHub for this
+practical, then it is not necessary to neither download Ollama nor to
+download the models. They both are already loaded in the JupyterHub
+course environment.</p>
 <p>To download models, you can use the function
 <code>ollama_download_model()</code>. Go ahead and run the following
 line of code.</p>
@@ -639,6 +648,9 @@ line of code.</p>
 <p>To interact with the software, we will continue to use
 <code>tidyllm</code>. The following code shows you how to interact with
 the LLMs installed in your computer:</p>
+<p><strong>IMPORTANT:</strong> In the JupyterHub course environment, for
+the <code>chat()</code> function, you need to add the parameter
+<code>.ollama_server = &quot;http://ollama.local:11434&quot;</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">llm_message</span>(<span class="st">&quot;Hi, how are you?&quot;</span>)<span class="sc">%&gt;%</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>))<span class="sc">%&gt;%</span></span>
@@ -652,88 +664,159 @@ answer.</p>
 different prompts each with <code>llama3.2:1b</code> and
 <code>deepseek-r1:1.5b</code>. Use the function <code>cat()</code> to
 print the answers. Keep the temperature parameter in 0.</p>
-<p><strong>Exercise 3.2.c:</strong> Now, use the model
+</div>
+<div id="using-map_vec-from-the-package-purrr" class="section level2">
+<h2>3.3 Using <code>map_vec()</code> from the package
+<code>purrr</code></h2>
+<p>Now that you have a function to call the LLM, we can use it to test
+what the temperature does. For this, we will use the function
+<code>map_vec()</code> from the package <code>purrr</code>. Here is an
+example on how to use it:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Create a vector with the prompt repeated 20 times.</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>PROMPTS<span class="ot">&lt;-</span><span class="fu">rep</span>(<span class="st">&quot;Return one number between 0 and 1. Just return the number.&quot;</span>,<span class="dv">10</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>LLM_ANSWER<span class="ot">&lt;-</span><span class="fu">map_vec</span>(PROMPTS, <span class="co"># Pass the vector</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                    OLLAMA_LOCAL, <span class="co"># Pass the name of the function</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                    <span class="at">MODEL=</span><span class="st">&quot;llama3.2:1b&quot;</span>, <span class="co"># Pass the 2nd parameter of the function</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                    <span class="at">TEMP=</span><span class="fl">0.5</span>, <span class="co"># Pass the 3rd parameter of the function</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>                    <span class="at">.progress =</span> T) <span class="co"># map_vec() allows to track progress</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># Now we can use tibble to create a dataframe from both vectors</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>RESULTS<span class="ot">&lt;-</span><span class="fu">tibble</span>(<span class="at">prompts=</span>PROMPTS,<span class="at">llm_0.5=</span>LLM_ANSWER)</span></code></pre></div>
+<p><strong>Exercise 3.3.a:</strong> Now, use the model
 <code>llama3.2:1b</code> and the the same prompt, but vary the
-temperature. What does the <code>temperature</code> parameter do? What
-would happen as you increase its value? What are the minimum and maximum
-values it can get?</p>
+temperature to be 0, 0.5, and 1. Save the results in a tibble.</p>
+<p><strong>Exercise 3.3.b:</strong> What does the
+<code>temperature</code> parameter do? What happens as you increase its
+value?</p>
+<p><strong>Exercise 3.3.c:</strong> Is the LLM always returning just the
+number? Is the LLM always doing what you asked?</p>
 </div>
 </div>
 <div id="using-llms-to-annotate-data" class="section level1">
 <h1>4. Using LLMs to annotate data</h1>
-<p>Now, that you have a function to call different models, we are going
-to use it to annotate some data. The data is the “sentiment_tweets.csv”.
-You can find this data both in CANVAS and the SMA JupyterHub
-environment.</p>
+<p>Now, that you have a function to call different models and a way to
+pass different prompts, we are going to annotate some data. The data is
+the “sentiment_tweets.csv”. You can find this data both in CANVAS and
+the SMA JupyterHub environment
+(<code>/srv/scistor/data/SMA/data/machine_learning_tweets/sentiment_tweets.csv</code>)</p>
 <p><strong>Hint:</strong> Use the function <code>read.csv()</code>.</p>
 <p><strong>Exercise 4.a:</strong> Open the “sentiment_tweets.csv” data
 and save it in the variable TWEETS.</p>
-<p><strong>Exercise 4.b:</strong> Open the “sentiment_tweets.csv” data.
-Now, clean the text using the functions you learned in practical 4.
-Remember to the save the new data in itself, so that changes are
-stored.</p>
+<p><strong>Exercise 4.b:</strong> Clean the text using the functions you
+learned in practical 4. Remember to the save the new data in itself, so
+that changes are saved.</p>
 <p>For this practical, we will only work with two categories: negative
 and non-negative. So, we are going to use the function
 <code>ifelse()</code> to relabel the data.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>TWEETS<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label2=</span><span class="fu">ifelse</span>(label<span class="sc">!=</span><span class="st">&quot;negative&quot;</span>,<span class="st">&quot;0&quot;</span>,<span class="st">&quot;1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>TWEETS<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label2=</span><span class="fu">ifelse</span>(label<span class="sc">==</span><span class="st">&quot;negative&quot;</span>,<span class="st">&quot;negative&quot;</span>,<span class="st">&quot;non-negative&quot;</span>))</span></code></pre></div>
 <p>This dataset contains around 60,000 tweets. From the data, you will
 only use 100 to test the different LLMs. To create the sample, you will
 use the function <code>sample_n()</code>. To make your code
 reproducible, you need to call the function <code>set.seed(123)</code>
 before calling the function <code>sample_n()</code>.</p>
 <p>Creating a reproducible sample of 100 elements.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>SAMPLE<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>SAMPLE<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)</span></code></pre></div>
 <div id="zero-shot-classification" class="section level2">
 <h2>4.1 Zero-Shot Classification</h2>
 <p>Now, we are going to use a technique called “Zero-Shot
 Classification”. This means that the model will not get any training. We
-will just rely on how well the prompt is written.</p>
-<p><strong>Exercise 4.1.a:</strong> Use your function to classify the
-first text of your sample as negative or non-negative. For this, try the
-models <code>llama3.2:1b</code> and <code>deepseek-r1:1.5b</code>
-locally through Ollama (use your function <code>OLLAMA_LOCAL()</code>).
-Also try different prompts, remember to be as precise and concise as
-possible. It is always better to ask LLMs to return numbers, as opposed
-to long answers.</p>
-<p><strong>Exercise 4.1.b</strong>: Describe your strategy to generate a
-good prompt.</p>
-<p><strong>Exercise 4.1.c</strong>: Describe what you see. Which model
-would you use and why?</p>
+will just rely on how well the prompt is written. However, as you saw in
+section 3.3, sometimes LLMs are not very good at following instructions.
+So, we need to make sure that they only return what we are asking them
+to return.</p>
+<p>In order to achieve our goal, we need to make sure that the model
+gives us the answers as a <strong>structured output</strong>. For this,
+we need to provide a schema, then when the LLM generates the output
+tokens, it is restricted to producing tokens that match the schema.</p>
+<p>Note that only some LLM providers (currently openai, gemini and
+ollama) support structured output!</p>
+<p><strong>Creating an annotator</strong></p>
+<p>First, we need to create an “annotator”, i.e. an LLM persona. This
+will give the LLM some context as to what we want it to do. As we want
+to be consistent, we also set the temperature to <code>0</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>annotator <span class="ot">=</span> <span class="fu">llm_message</span>(<span class="st">&#39;You are an expert at manual content analysis. I will show you a text, and your task is to annotate three components. First, the topic of the text. Second, you need to list all the named entities. Third, you classify the sentiment of the text as either &quot;positive&quot;, &quot;negative&quot; or &quot;neutral&quot;.&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>))</span></code></pre></div>
+<p>Now, we can ask the LLM to perform a task just by passing the
+variable <code>annotator</code> as input for the function
+<code>chat()</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>response<span class="ot">&lt;-</span>annotator <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">llm_message</span>(<span class="st">&quot;Anna and Bob hate skeeing&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="fu">cat</span>(response)</span></code></pre></div>
+<pre><code>## Here are my annotations:
+## 
+## 1. **Topic**: The topic of the text is &quot;hate&quot; or &quot;dislike&quot;, specifically towards the activity of &quot;skeeking&quot;.
+## 2. **Named Entities**:
+##    - Anna: a person
+##    - Bob: a person
+## 3. **Sentiment Classification**: 
+##    - The sentiment of the text is **negative**, as the words &quot;hate&quot; and &quot;skeeing&quot; convey a strong negative emotion towards the activity.</code></pre>
+<p>Awesome, now we know how to define an “annotator” and how to pass it
+a “task”. All what we are missing is to get the structured output.
+Remember that for this, we to define a schema.</p>
+<p><strong>Defining a schema</strong></p>
+<p>The schemas are often specified in JSON format, but the tidyllm
+package also has a nice function to help us build the JSON. You first
+provide a name for the schema (here we call it
+<code>annotation schema</code>). Then you just provide the names of the
+fields (think ‘variables’) that you want to get in the answer. Per field
+you then specify the ‘type’, like character or numeric. You can request
+for specific classes with factor(class1, class2). And if you add [],
+like in character[], it means give me a list of values of this type.</p>
+<p>Here’s an example of a simple schema where we ask for the sentiment
+with specific values “negative” or “non-negative”.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>json_schema <span class="ot">=</span> <span class="fu">tidyllm_schema</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;annotation schema&quot;</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">sentiment =</span> <span class="st">&quot;factor(negative, non-negative)&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>)</span></code></pre></div>
+<p>Now, when we provide the text, we specify that we want the response
+to be in the format of our JSON schema.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>response <span class="ot">=</span> annotator <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="fu">llm_message</span>(<span class="st">&quot;Anna and Bob hate skeeing&quot;</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>, </span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>              <span class="at">.json_schema =</span> json_schema))<span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="fu">get_reply_data</span>()</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">print</span>(response<span class="sc">$</span>sentiment)</span></code></pre></div>
+<pre><code>## [1] &quot;negative&quot;</code></pre>
+<p><strong>Important:</strong> Notice that to get the reply, we are now
+using the function <code>get_reply_data()</code> and the function
+<code>$</code> to extract the variable <code>sentiment</code>.</p>
+<p><strong>Exercise 4.1.a:</strong> Create a function called
+<code>OLLAMA_STR_OUT</code> that as parameters has the LLM task, the
+annotator, the model, the temperature, and the json schema. As output,
+the function should return just the LLM classification of a text
+sentiment.</p>
+<p><strong>Exercise 4.1.b</strong>: Use your function to classify the
+first three tweets in the TWEETS data frame.</p>
 </div>
 <div id="labeling-the-sample-using-the-different-models" class="section level2">
 <h2>4.2 Labeling the sample using the different models</h2>
-<p>Now that you have the function to label the text and that you have
-chosen a model, all you need to do is to apply it to all the tweets in
-your sample. For this, we will use the function <code>map_vec()</code>
-from the package <code>purrr</code>. Here is an example on how to use
-it:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>PROMPT<span class="ot">=</span><span class="st">&#39;If the following text is a color only return the value &quot;1&quot;: &#39;</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>TEXT<span class="ot">=</span><span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;blue&quot;</span>, <span class="st">&quot;sentiment&quot;</span>, <span class="st">&quot;madrid&quot;</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># First, we are going to concatenate the prompt and the different text:</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>PROMPTS<span class="ot">=</span><span class="fu">paste0</span>(PROMPT,TEXT)</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>MAP_VEC_EXAMPLE<span class="ot">&lt;-</span><span class="fu">map_vec</span>(PROMPTS,OLLAMA_LOCAL,</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>                <span class="at">MODEL =</span> <span class="st">&quot;deepseek-r1:1.5b&quot;</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>                <span class="at">TEMP=</span><span class="dv">0</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>                <span class="at">.progress =</span> T)</span></code></pre></div>
-<p><strong>Exercise 4.2.a:</strong> Now it is your turn. Using the best
-prompt from exercise 4.1, use the function <code>map_vec()</code> to
-label the 100 SAMPLE tweets. Use both of your models
-<code>llama3.2:1b</code> and <code>deepseek-r1:1.5b</code>.</p>
+<p>Now that you have the function to label the text in a structured
+format and that you know how to use the function <code>map_vec()</code>,
+all you need to do is to apply it to all the tweets in your sample.</p>
+<p><strong>Exercise 4.2.a:</strong> Label the 100 SAMPLE tweets. Use
+both of your models <code>llama3.2:1b</code> and
+<code>deepseek-r1:1.5b</code>.</p>
 <p><strong>IMPORTANT:</strong> Be mindful that the models can take up to
-1 hour each to label the sample So, do not leave everything for the last
-minute! To save time, it is a good strategy to split the testing with
-your group. Perhaps, one can run one model, and the other one runs the
-other model.</p>
+1 hour each to label the sample. So, do not leave everything for the
+last minute! To save time, it is a good strategy to split the testing
+with your group. Perhaps, one can run one model, and the other one runs
+the other model.</p>
 <p><strong>Exercise 4.2.b:</strong> Add the results as new columns to
 the sample data (you can use <code>$</code> for this) and save the
-resulting data frame as a csv or table file in your computer.</p>
+resulting data frame as a csv or table file in your computer or in your
+JupyterHub environment.</p>
 </div>
 </div>
 <div id="comparing-the-models" class="section level1">
@@ -741,35 +824,31 @@ resulting data frame as a csv or table file in your computer.</p>
 <p><strong>Exercise 5.a:</strong> First, write the code to open the
 results from Exercise 4.2.b. Save the dataset in the variable
 <code>LABELED_SAMPLE</code>:</p>
-<p><strong>Exercise 5.b:</strong> Now, we need to make sure that we only
-have “0”’s and “1”’s in the data, so we need to do some data handling.
-For this, you can use the functions <code>mutate()</code> and
-<code>ifelse()</code>:</p>
 <p>Now you need to turn both the original label and the LLM label into
 “factors”. A factor is a special data-type that tells R that your
 variables is a category. Here is an example on how to do it:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># The following vector contains strings:</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>ThisIsAString<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;NL&quot;</span>,<span class="st">&quot;DE&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;DE&quot;</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># So, if we call the function levels, then it won&#39;t work. As it only works</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co"># for factors.</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAString)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># The following vector contains strings:</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>ThisIsAString<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;NL&quot;</span>,<span class="st">&quot;DE&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;DE&quot;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co"># So, if we call the function levels, then it won&#39;t work. As it only works</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co"># for factors.</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAString)</span></code></pre></div>
 <pre><code>## NULL</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Now we turn the string vector into factor:</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>ThisIsAFactor<span class="ot">&lt;-</span><span class="fu">as.factor</span>(ThisIsAString)</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># Now the levels functions returns the categories in the factor vector:</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAFactor)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># Now we turn the string vector into factor:</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>ThisIsAFactor<span class="ot">&lt;-</span><span class="fu">as.factor</span>(ThisIsAString)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co"># Now the levels functions returns the categories in the factor vector:</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAFactor)</span></code></pre></div>
 <pre><code>## [1] &quot;DE&quot; &quot;MX&quot; &quot;NL&quot;</code></pre>
-<p><strong>Exercise 5.c:</strong> In your data, turn the original labels
+<p><strong>Exercise 5.b:</strong> In your data, turn the original labels
 and the LLMs labels into factors.</p>
-<p><strong>Exercise 5.d:</strong> To compare the models, we will use the
+<p><strong>Exercise 5.c:</strong> To compare the models, we will use the
 validation metrics you learned in practical 3: recall, precision, and
 f-score. For this, we will use the function <code>confusionMatrix</code>
 from the package <code>caret</code> with the parameter
 <code>mode=&quot;prec_recall&quot;</code>. You can check in the help panel how it
 works.</p>
-<p><strong>Exercise 5.e:</strong> Which model performed the best? Why?
+<p><strong>Exercise 5.d:</strong> Which model performed the best? Why?
 Interpret the validation metrics:</p>
 </div>
 

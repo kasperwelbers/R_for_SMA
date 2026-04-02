@@ -35,7 +35,7 @@ From the second step, `rm(list=ls())` cleans the R environment, so that you do n
 
 
 
-As you will be working with processes that can take as long as 2 hours, we recommend that you run those scripts and save the results in your computer as a csv or as a table. 
+As you will be working with processes that can take as long as 2 hours, we recommend that you run those scripts and save the results either in your computer or in your JupyterHub folder as a csv or as a table. 
 
 **Remember that if you need more resources, you can always use the course environment in [JupyterHub](https://hub.compute.vu.nl/).**
 
@@ -53,7 +53,7 @@ So, how can we use a computer to do something without specifically telling it ho
 
 For example, consider the case of a spam filter. We want to use a computer to automatically label new emails as spam or not spam. We first need to create our Gold Standard. For this we collect some old emails, and manually label them as either spam or not spam. So now we can give the computer a set of emails that are spam, and a set of emails that are not spam, according to our own interpretation. From this data, we can test and compare different LLMs to see which one performs the best in this task. Then, when it receives new emails, we can continue to use such LLM to decide whether an email is more likely to be spam or not spam.
 
-The cool thing about LLMs, or GenAI, is that they may work for many different types of data. The input can be a set of emails that we want to classify into either spam or not spam, but it can also be a set of animal pictures that we want to classify into which animal is depicted. Generally speaking, GenAI lets you use computers to perform complicated tasks without having to tell them how to perform these tasks. The price is that you need to very carefully test the models and think about the inherent costs of using them. For example, did you properly test whether the model is the best for the task? Who would be accountable if the model performs poorly? Have you considered the risks of using a public model? What are the pros and cons of using the models locally in your computer?
+The cool thing about LLMs, or GenAI, is that they may work for many different types of data. The input can be a set of emails that we want to classify into either spam or not spam, but it can also be a set of animal pictures that we want to classify into which animal is depicted. Generally speaking, GenAI lets you use computers to perform complicated tasks without having to tell them how to perform these tasks. The price is that you need to very carefully test the models and think about the inherent costs of using them. For example, did you properly test whether the model is the best for the task? Who would be accountable if the model performs poorly? Have you considered the risks of using a public model? What are the pros and cons of using the models locally in your computer or from a server, e.g. JupyterHub?
 
 During this tutorial, we will give you the tools to use LLMs in the best possible way, while considering the inherent costs and risks of implementing them. For this, you will use the R-packages: 
 
@@ -72,6 +72,7 @@ During this tutorial, we will give you the tools to use LLMs in the best possibl
 
 library(tidyverse)
 library(tidyllm)
+library(caret)
 
 ```
 
@@ -89,7 +90,7 @@ To access LLMs, we need to access their Application Programming Interfaces (APIs
 
 ## 3.1 A public big LLM provider
 
-As you know there are several companies that provide different LLMs. For example, Gemini is developed by Google DeepMind; Chat-GPT is developed by OpenAI; Llama is developed by Meta Platforms, Inc; and so far, and so on. Each company has their own parameters to access their LLMs. So, you would need to look for each in order to access their APIs. To avoid the hassle, we will use the package `tidyllm` which already has those parameters loaded.
+As you know there are several companies that provide different LLMs. For example, Gemini is developed by Google DeepMind; Chat-GPT is developed by OpenAI; Llama is developed by Meta Platforms, Inc; and so far, and so on. Each company has their own parameters to access their LLMs via thier APIs. So, you would need to look for each in order to access them. To avoid the hassle, we will use the package `tidyllm` which already has those parameters loaded.
 
 In this tutorial, we will demonstrate how to access Gemini from Google DeepMind. This is because Google Gemini has a free tier. The steps to get your API key are simple:
 
@@ -115,7 +116,7 @@ llm_message("Hi, how are you?") |>
 
 ```
 
-As, we will apply the same code to different prompts, it makes sense to save the code in a function that we can call multiple times. The basic elements of a function are input (also called parameters or arguments), algorithm, and output. In its basic form, this is how a function looks:
+As, we will apply the same code to different prompts, it makes sense to save the code as a function. So that we can call call multiple times varying the parameters. The basic elements of a function are input (also called parameters or arguments), algorithm, and output. In its basic form, this is how a function looks:
 
 ```{r first function, eval=FALSE}
 
@@ -148,19 +149,28 @@ GOOGLE_GEMINI<-function(PROMPT, MODEL){
 
 
 
+**Exercise 3.2:** Based on the second lecture, what are the risks of calling an LLM from a public big LLM provider?
+
+
+**Exercise 3.3:** Can you think of an scenario where it would make sense to do so?
+
+
+
 ## 3.2 An LLM on your computer
 
 To work with LLMs locally on our own computers, we need to install "Ollama", which is a local AI model management software. Ollama grants you full control to download, update, and delete models easily on your system. This prioritize strict data security, as we do not pass data to companies like OpenAI. In addition to basic management, Ollama lets you track and control different model versions. So we can switch between different models. 
 
 You can download Ollama here: [https://ollama.com/](https://ollama.com/). Click on the download button, choose the right operating system. Install the software after it has downloaded. Once you have installed it, open it, for the `tidyllm` package to call it, the software has to be running. 
 
-By defaults, Ollama comes with the `llama3.2:1b` model installed. Now, let's download another model, so that we can compare them. You can find a list of available models here: [https://ollama.com/search](https://ollama.com/search). 
+By default, Ollama comes with the `llama3.2:1b` model installed. Now, let's download another model, so that we can compare them. You can find a list of available models here: [https://ollama.com/search](https://ollama.com/search). 
 
 Keep in mind that models require both RAM and hard drive. So, we suggest that, if your computer has 8Gb of RAM, then you should only work with the 1b to 1.5b version of the models. As they take about 1GB on your computer and should run with most hardware. 
 
 If you have enough space on your hardware and your computer has at least 12GB RAM, you can consider larger models, between 2b and 3b (~2GB) which should perform better. 
 
 Only if you have a really strong computer, we would suggest to download something bigger, but you must still take the time to double check whether your computer has enough RAM and hard drive to allocate them. 
+
+**IMPORTANT:** If you decide to use JupyterHub for this practical, then it is not necessary to neither download Ollama nor to download the models. They both are already loaded in the JupyterHub course environment. 
 
 To download models, you can use the function `ollama_download_model()`. Go ahead and run the following line of code. 
 
@@ -172,6 +182,8 @@ ollama_download_model("deepseek-r1:1.5b")
 
 
 To interact with the software, we will continue to use `tidyllm`. The following code shows you how to interact with the LLMs installed in your computer:
+
+**IMPORTANT:** In the JupyterHub course environment, for the `chat()` function, you need to add the parameter `.ollama_server = "http://ollama.local:11434"`.
 
 
 ```{r ollama prompt}
@@ -189,21 +201,51 @@ llm_message("Hi, how are you?")%>%
 
 **Exercise 3.2.b:** Test your function with two different prompts each with `llama3.2:1b` and `deepseek-r1:1.5b`. Use the function `cat()` to print the answers. Keep the temperature parameter in 0.
 
+## 3.3 Using `map_vec()` from the package `purrr` 
 
-**Exercise 3.2.c:** Now, use the model `llama3.2:1b` and the the same prompt, but vary the temperature. What does the `temperature` parameter do? What would happen as you increase its value? What are the minimum and maximum values it can get?
+Now that you have a function to call the LLM, we can use it to test what the temperature does. For this, we will use the function `map_vec()` from the package `purrr`. Here is an example on how to use it:
+
+```{r map_vec, eval=FALSE}
+
+# Create a vector with the prompt repeated 20 times.
+PROMPTS<-rep("Return one number between 0 and 1. Just return the number.",10)
+
+LLM_ANSWER<-map_vec(PROMPTS, # Pass the vector
+                    OLLAMA_LOCAL, # Pass the name of the function
+                    MODEL="llama3.2:1b", # Pass the 2nd parameter of the function
+                    TEMP=0.5, # Pass the 3rd parameter of the function
+                    .progress = T) # map_vec() allows to track progress
+
+# Now we can use tibble to create a dataframe from both vectors
+RESULTS<-tibble(prompts=PROMPTS,llm_0.5=LLM_ANSWER)
+
+```
+
+
+
+**Exercise 3.3.a:** Now, use the model `llama3.2:1b` and the the same prompt, but vary the temperature to be 0, 0.5, and 1. Save the results in a tibble. 
+
+
+
+**Exercise 3.3.b:** What does the `temperature` parameter do? What happens as you increase its value? 
+
+
+
+**Exercise 3.3.c:** Is the LLM always returning just the number? Is the LLM always doing what you asked? 
+
 
 
 
 # 4. Using LLMs to annotate data
 
-Now, that you have a function to call different models, we are going to use it to annotate some data. The data is the "sentiment_tweets.csv". You can find this data both in CANVAS and the SMA JupyterHub environment.
+Now, that you have a function to call different models and a way to pass different prompts, we are going to annotate some data. The data is the "sentiment_tweets.csv". You can find this data both in CANVAS and the SMA JupyterHub environment (`/srv/scistor/data/SMA/data/machine_learning_tweets/sentiment_tweets.csv`)
 
 **Hint:** Use the function `read.csv()`.
 
 **Exercise 4.a:** Open the "sentiment_tweets.csv" data and save it in the variable TWEETS.
 
 
-**Exercise 4.b:** Open the "sentiment_tweets.csv" data. Now, clean the text using the functions you learned in practical 4. Remember to the save the new data in itself, so that changes are stored.
+**Exercise 4.b:** Clean the text using the functions you learned in practical 4. Remember to the save the new data in itself, so that changes are saved.
 
 
 
@@ -212,7 +254,7 @@ For this practical, we will only work with two categories: negative and non-nega
 ```{r Grouping, eval=FALSE}
 
 TWEETS<-TWEETS%>%
-  mutate(label2=ifelse(label!="negative","0","1"))
+  mutate(label2=ifelse(label=="negative","negative","non-negative"))
 
 ```
 
@@ -231,54 +273,97 @@ SAMPLE<-TWEETS%>%
 
 ## 4.1 Zero-Shot Classification
 
-Now, we are going to use a technique called "Zero-Shot Classification". This means that the model will not get any training. We will just rely on how well the prompt is written. 
+Now, we are going to use a technique called "Zero-Shot Classification". This means that the model will not get any training. We will just rely on how well the prompt is written. However, as you saw in section 3.3, sometimes LLMs are not very good at following instructions. So, we need to make sure that they only return what we are asking them to return. 
 
-**Exercise 4.1.a:** Use your function to classify the first text of your sample as negative or non-negative. For this, try the models `llama3.2:1b` and `deepseek-r1:1.5b` locally through Ollama (use your function `OLLAMA_LOCAL()`). Also try different prompts, remember to be as precise and concise as possible. It is always better to ask LLMs to return numbers, as opposed to long answers.
+In order to achieve our goal, we need to make sure that the model gives us the answers as a **structured output**. For this, we need to provide a schema, then when the LLM generates the output tokens, it is restricted to producing tokens that match the schema.
+
+Note that only some LLM providers (currently openai, gemini and ollama) support structured output!
+
+**Creating an annotator**
+
+First, we need to create an "annotator", i.e. an LLM persona. This will give the LLM some context as to what we want it to do. As we want to be consistent, we also set the temperature to `0`.
+
+```{r the annotator}
+
+annotator = llm_message('You are an expert at manual content analysis. I will show you a text, and your task is to annotate three components. First, the topic of the text. Second, you need to list all the named entities. Third, you classify the sentiment of the text as either "positive", "negative" or "neutral".') %>%
+  chat(ollama(.model = "llama3.2:1b",
+              .temperature = .0))
+
+```
+
+Now, we can ask the LLM to perform a task just by passing the variable `annotator` as input for the function `chat()`:
+
+```{r the task}
+
+response<-annotator |>
+  llm_message("Anna and Bob hate skeeing") %>%
+  chat(ollama(.model = "llama3.2:1b",
+              .temperature = .0)) %>% 
+  get_reply()
+
+cat(response)
+
+```
+
+Awesome, now we know how to define an "annotator" and how to pass it a "task". All what we are missing is to get the structured output. Remember that for this, we to define a schema.
+
+**Defining a schema**
+
+The schemas are often specified in JSON format, but the tidyllm package also has a nice function to help us build the JSON. You first provide a name for the schema (here we call it `annotation schema`). Then you just provide the names of the fields (think ‘variables’) that you want to get in the answer. Per field you then specify the ‘type’, like character or numeric. You can request for specific classes with factor(class1, class2). And if you add [], like in character[], it means give me a list of values of this type.
+
+Here’s an example of a simple schema where we ask for the sentiment with specific values "negative" or "non-negative".
+
+```{r json_schema}
+
+json_schema = tidyllm_schema(
+  name = "annotation schema",
+  sentiment = "factor(negative, non-negative)"
+)
+
+```
+
+Now, when we provide the text, we specify that we want the response to be in the format of our JSON schema.
+
+```{r json_schema2}
+
+response = annotator |>
+  llm_message("Anna and Bob hate skeeing")%>%
+  chat(ollama(.model = "llama3.2:1b",
+              .temperature = .0, 
+              .json_schema = json_schema))%>%
+  get_reply_data()
+
+print(response$sentiment)
+
+```
+
+**Important:** Notice that to get the reply, we are now using the function `get_reply_data()` and the function `$` to extract the variable `sentiment`.
 
 
-**Exercise 4.1.b**: Describe your strategy to generate a good prompt. 
+**Exercise 4.1.a:** Create a function called `OLLAMA_STR_OUT` that as parameters has the LLM task, the annotator, the model, the temperature, and the json schema. As output, the function should return just the LLM classification of a text sentiment.
 
-**Exercise 4.1.c**: Describe what you see. Which model would you use and why?
+
+
+**Exercise 4.1.b**: Use your function to classify the first three tweets in the TWEETS data frame.
 
 
 
 ## 4.2 Labeling the sample using the different models
 
-Now that you have the function to label the text and that you have chosen a model, all you need to do is to apply it to all the tweets in your sample. For this, we will use the function `map_vec()` from the package `purrr`. Here is an example on how to use it:
+Now that you have the function to label the text in a structured format and that you know how to use the function `map_vec()`, all you need to do is to apply it to all the tweets in your sample. 
 
-```{r map_vec, eval=FALSE}
+**Exercise 4.2.a:** Label the 100 SAMPLE tweets. Use both of your models `llama3.2:1b` and `deepseek-r1:1.5b`.
 
-PROMPT='If the following text is a color only return the value "1": '
-TEXT=c("apple", "blue", "sentiment", "madrid")
-
-# First, we are going to concatenate the prompt and the different text:
-PROMPTS=paste0(PROMPT,TEXT)
-
-#
-MAP_VEC_EXAMPLE<-map_vec(PROMPTS,OLLAMA_LOCAL,
-                MODEL = "deepseek-r1:1.5b",
-                TEMP=0,
-                .progress = T)
-
-```
+**IMPORTANT:** Be mindful that the models can take up to 1 hour each to label the sample. So, do not leave everything for the last minute! To save time, it is a good strategy to split the testing with your group. Perhaps, one can run one model, and the other one runs the other model.
 
 
-**Exercise 4.2.a:** Now it is your turn. Using the best prompt from exercise 4.1, use the function `map_vec()` to label the 100 SAMPLE tweets. Use both of your models `llama3.2:1b` and `deepseek-r1:1.5b`.
-
-**IMPORTANT:** Be mindful that the models can take up to 1 hour each to label the sample So, do not leave everything for the last minute! To save time, it is a good strategy to split the testing with your group. Perhaps, one can run one model, and the other one runs the other model.
-
-
-**Exercise 4.2.b:** Add the results as new columns to the sample data (you can use `$` for this) and save the resulting data frame as a csv or table file in your computer.
+**Exercise 4.2.b:** Add the results as new columns to the sample data (you can use `$` for this) and save the resulting data frame as a csv or table file in your computer or in your JupyterHub environment.
 
 
 
 # 5. Comparing the models
 
 **Exercise 5.a:** First, write the code to open the results from Exercise 4.2.b. Save the dataset in the variable `LABELED_SAMPLE`:
-
-
-
-**Exercise 5.b:** Now, we need to make sure that we only have "0"'s and "1"'s in the data, so we need to do some data handling. For this, you can use the functions `mutate()` and `ifelse()`:
 
 
 
@@ -301,14 +386,14 @@ levels(ThisIsAFactor)
 
 ```
 
-**Exercise 5.c:** In your data, turn the original labels and the LLMs labels into factors.
+**Exercise 5.b:** In your data, turn the original labels and the LLMs labels into factors.
 
 
-**Exercise 5.d:** To compare the models, we will use the validation metrics you learned in practical 3: recall, precision, and f-score. For this, we will use the function `confusionMatrix` from the package `caret` with the parameter `mode="prec_recall"`. You can check in the help panel how it works.
+**Exercise 5.c:** To compare the models, we will use the validation metrics you learned in practical 3: recall, precision, and f-score. For this, we will use the function `confusionMatrix` from the package `caret` with the parameter `mode="prec_recall"`. You can check in the help panel how it works.
 
 
 
-**Exercise 5.e:** Which model performed the best? Why? Interpret the validation metrics:
+**Exercise 5.d:** Which model performed the best? Why? Interpret the validation metrics:
 
 
 

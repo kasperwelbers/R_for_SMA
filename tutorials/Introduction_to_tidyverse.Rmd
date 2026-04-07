@@ -57,6 +57,12 @@ We say *should*, because you will most likely run into *some* errors.
 Even if the code itself is correct, things can still go wrong due to different (versions of) software and if the code is not executed in the right order.
 Think of it as a recipe: you can still mess it up if you use the wrong equipment or ingredients, or if you perform steps in the wrong order.
 
+## Submitting your assignment 
+
+To submit your assignment, simply enter your answers in your text editor and submit the assignment as a PDF file, the same as you did in previous weeks. 
+
+Always include the code you used in your answers. Some questions only ask you to do something in R, so the code shows us how you did it.
+
 # 2. What is R?
 
 As you may remember from previous courses, R is an open-source statistical software language R is in particular popular among computational social scientists. R is not the same as RStudio. R is the programming language, while RStudio is a software to interact with R in an easier way.
@@ -127,7 +133,8 @@ To access the Q5 data, you can follow the steps in the image beneath:
 
 [Tidyverse](https://tidyverse.org/) is a package of packages, where all the packages share an underlying design philosophy, grammar, and data structures. In this tutorial, we will focus on three of them `dplyr`, `ggplot2`, and `stringr`.
 
-**Exercise 3.a:** In your R-script install and load the package `tidyverse`. Hint: Use the functions `install.package()` and `library()`. Remember that you search for the function in the help panel, if you need more information on how to use it. 
+## Exercise 3.a 
+In your R-script install and load the package `tidyverse`. Hint: Use the functions `install.package()` and `library()`. Remember that you search for the function in the help panel, if you need more information on how to use it. 
 
 
 
@@ -465,7 +472,16 @@ In this part of the tutorial, we will use the `sentiment_tweets.csv` dataset. Yo
 
 In your R-script save the path to the folder where you stored the data and then open the data in R:
 
-```{r Opening the data}
+```{r , echo=F}
+## This invisibly runs on render. The next block is only shown but not evaluated
+
+DIR="~/Downloads/machine_learning_tweets/"
+
+TWEETS<-read.csv(paste0(DIR,"sentiment_tweets.csv"), skipNul = TRUE)
+
+```
+
+```{r Opening the data, eval=F}
 
 # DIR="PATH TO FOLDER"
 

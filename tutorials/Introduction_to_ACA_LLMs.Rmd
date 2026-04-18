@@ -16,7 +16,7 @@ editor_options:
 ---
 
 ```{r opts, echo = FALSE}
-knitr::opts_chunk$set(message=FALSE, warning=FALSE, fig.path = "img/")
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, fig.path = "img/",eval = FALSE)
 ```
 
 VU Amsterdam
@@ -32,6 +32,7 @@ It is recommended that you clean your R-environment before you start coding. So,
 From the second step, `rm(list=ls())` cleans the R environment, so that you do not drag any variables from previous R-sessions. The second line (`gc()`) makes sure that those variables do not occupy your computers' RAM anymore.
 
 **Exercise 1.a:** Clean the R-environment.
+
 
 
 
@@ -65,16 +66,6 @@ During this tutorial, we will give you the tools to use LLMs in the best possibl
 
 **Exercise 2.1:** In your R-script download and load the packages. For this you need to use the function `install.packages()` and `library()`.
 
-
-```{r Exercise 2.a, echo=FALSE}
-
-# install.packages(...)
-
-library(tidyverse)
-library(tidyllm)
-library(caret)
-
-```
 
 
 # 3. Accessing Large Language Models (LLMs)
@@ -145,14 +136,14 @@ GOOGLE_GEMINI<-function(PROMPT, MODEL){
 
 
 
-**Exercise 3.1:** Test the function `GOOGLE_GEMINI()` with two different prompts.
+**Exercise 3.a:** Test the function `GOOGLE_GEMINI()` with two different prompts.
+
+
+**Exercise 3.b:** Based on the second lecture, what are the risks of calling an LLM from a public big LLM provider?
 
 
 
-**Exercise 3.2:** Based on the second lecture, what are the risks of calling an LLM from a public big LLM provider?
-
-
-**Exercise 3.3:** Can you think of an scenario where it would make sense to do so?
+**Exercise 3.c:** Can you think of an scenario where it would make sense to do so?
 
 
 
@@ -183,7 +174,7 @@ ollama_download_model("deepseek-r1:1.5b")
 
 To interact with the software, we will continue to use `tidyllm`. The following code shows you how to interact with the LLMs installed in your computer:
 
-**IMPORTANT:** In the JupyterHub course environment, for the `chat()` function, you need to add the parameter `.ollama_server = "http://ollama.local:11434"`.
+**IMPORTANT:** In the JupyterHub course environment, for the `ollama()` function (inside `chat()`), you need to add the parameter `.ollama_server = "http://ollama.local:11434"`.
 
 
 ```{r ollama prompt}
@@ -199,7 +190,10 @@ llm_message("Hi, how are you?")%>%
 **Exercise 3.2.a:** Write the function `OLLAMA_LOCAL` that has as parameter the prompt, the model, and the temperature. Based on these, the function returns the LLM answer. 
 
 
+
 **Exercise 3.2.b:** Test your function with two different prompts each with `llama3.2:1b` and `deepseek-r1:1.5b`. Use the function `cat()` to print the answers. Keep the temperature parameter in 0.
+
+
 
 ## 3.3 Using `map_vec()` from the package `purrr` 
 
@@ -227,12 +221,11 @@ RESULTS<-tibble(prompts=PROMPTS,llm_0.5=LLM_ANSWER)
 
 
 
+
 **Exercise 3.3.b:** What does the `temperature` parameter do? What happens as you increase its value? 
 
 
-
 **Exercise 3.3.c:** Is the LLM always returning just the number? Is the LLM always doing what you asked? 
-
 
 
 
@@ -245,16 +238,17 @@ Now, that you have a function to call different models and a way to pass differe
 **Exercise 4.a:** Open the "sentiment_tweets.csv" data and save it in the variable TWEETS.
 
 
+
 **Exercise 4.b:** Clean the text using the functions you learned in practical 4. Remember to the save the new data in itself, so that changes are saved.
 
 
 
-For this practical, we will only work with two categories: negative and non-negative. So, we are going to use the function `ifelse()` to relabel the data.
+For this practical, we will only work with two categories: negative and positive. So, we are going to use the function `ifelse()` to relabel the data.
 
 ```{r Grouping, eval=FALSE}
 
 TWEETS<-TWEETS%>%
-  mutate(label2=ifelse(label=="negative","negative","non-negative"))
+  mutate(label2=ifelse(label=="negative","negative","positive"))
 
 ```
 
@@ -285,7 +279,7 @@ First, we need to create an "annotator", i.e. an LLM persona. This will give the
 
 ```{r the annotator}
 
-annotator = llm_message('You are an expert at manual content analysis. I will show you a text, and your task is to annotate three components. First, the topic of the text. Second, you need to list all the named entities. Third, you classify the sentiment of the text as either "positive", "negative" or "neutral".') %>%
+annotator = llm_message('You are an expert at manual content analysis. I will show you a text, and your task is to annotate three components. First, the topic of the text. Second, you need to list all the named entities. Third, you classify the sentiment of the text as either "negative" or "positive".') %>%
   chat(ollama(.model = "llama3.2:1b",
               .temperature = .0))
 
@@ -311,13 +305,13 @@ Awesome, now we know how to define an "annotator" and how to pass it a "task". A
 
 The schemas are often specified in JSON format, but the tidyllm package also has a nice function to help us build the JSON. You first provide a name for the schema (here we call it `annotation schema`). Then you just provide the names of the fields (think ‘variables’) that you want to get in the answer. Per field you then specify the ‘type’, like character or numeric. You can request for specific classes with factor(class1, class2). And if you add [], like in character[], it means give me a list of values of this type.
 
-Here’s an example of a simple schema where we ask for the sentiment with specific values "negative" or "non-negative".
+Here’s an example of a simple schema where we ask for the sentiment with specific values "negative" or "positive".
 
 ```{r json_schema}
 
 json_schema = tidyllm_schema(
   name = "annotation schema",
-  sentiment = "factor(negative, non-negative)"
+  sentiment = "factor(negative, positive)"
 )
 
 ```
@@ -354,6 +348,8 @@ Now that you have the function to label the text in a structured format and that
 
 **Exercise 4.2.a:** Label the 100 SAMPLE tweets. Use both of your models `llama3.2:1b` and `deepseek-r1:1.5b`.
 
+
+
 **IMPORTANT:** Be mindful that the models can take up to 1 hour each to label the sample. So, do not leave everything for the last minute! To save time, it is a good strategy to split the testing with your group. Perhaps, one can run one model, and the other one runs the other model.
 
 
@@ -387,6 +383,7 @@ levels(ThisIsAFactor)
 ```
 
 **Exercise 5.b:** In your data, turn the original labels and the LLMs labels into factors.
+
 
 
 **Exercise 5.c:** To compare the models, we will use the validation metrics you learned in practical 3: recall, precision, and f-score. For this, we will use the function `confusionMatrix` from the package `caret` with the parameter `mode="prec_recall"`. You can check in the help panel how it works.

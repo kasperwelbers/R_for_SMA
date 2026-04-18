@@ -602,11 +602,11 @@ model, and returns the output of the LLM.</p>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="fu">return</span>(OUTPUT)</span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  </span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>}</span></code></pre></div>
-<p><strong>Exercise 3.1:</strong> Test the function
+<p><strong>Exercise 3.a:</strong> Test the function
 <code>GOOGLE_GEMINI()</code> with two different prompts.</p>
-<p><strong>Exercise 3.2:</strong> Based on the second lecture, what are
+<p><strong>Exercise 3.b:</strong> Based on the second lecture, what are
 the risks of calling an LLM from a public big LLM provider?</p>
-<p><strong>Exercise 3.3:</strong> Can you think of an scenario where it
+<p><strong>Exercise 3.c:</strong> Can you think of an scenario where it
 would make sense to do so?</p>
 </div>
 <div id="an-llm-on-your-computer" class="section level2">
@@ -649,13 +649,13 @@ line of code.</p>
 <code>tidyllm</code>. The following code shows you how to interact with
 the LLMs installed in your computer:</p>
 <p><strong>IMPORTANT:</strong> In the JupyterHub course environment, for
-the <code>chat()</code> function, you need to add the parameter
+the <code>ollama()</code> function (inside <code>chat()</code>), you
+need to add the parameter
 <code>.ollama_server = &quot;http://ollama.local:11434&quot;</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">llm_message</span>(<span class="st">&quot;Hi, how are you?&quot;</span>)<span class="sc">%&gt;%</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>))<span class="sc">%&gt;%</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span></code></pre></div>
-<pre><code>## [1] &quot;I&#39;m doing well, thank you for asking. Is there something I can help you with or would you like to talk about yourself?&quot;</code></pre>
 <p><strong>Exercise 3.2.a:</strong> Write the function
 <code>OLLAMA_LOCAL</code> that has as parameter the prompt, the model,
 and the temperature. Based on these, the function returns the LLM
@@ -672,17 +672,17 @@ print the answers. Keep the temperature parameter in 0.</p>
 what the temperature does. For this, we will use the function
 <code>map_vec()</code> from the package <code>purrr</code>. Here is an
 example on how to use it:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Create a vector with the prompt repeated 20 times.</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>PROMPTS<span class="ot">&lt;-</span><span class="fu">rep</span>(<span class="st">&quot;Return one number between 0 and 1. Just return the number.&quot;</span>,<span class="dv">10</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>LLM_ANSWER<span class="ot">&lt;-</span><span class="fu">map_vec</span>(PROMPTS, <span class="co"># Pass the vector</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                    OLLAMA_LOCAL, <span class="co"># Pass the name of the function</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                    <span class="at">MODEL=</span><span class="st">&quot;llama3.2:1b&quot;</span>, <span class="co"># Pass the 2nd parameter of the function</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                    <span class="at">TEMP=</span><span class="fl">0.5</span>, <span class="co"># Pass the 3rd parameter of the function</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>                    <span class="at">.progress =</span> T) <span class="co"># map_vec() allows to track progress</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># Now we can use tibble to create a dataframe from both vectors</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>RESULTS<span class="ot">&lt;-</span><span class="fu">tibble</span>(<span class="at">prompts=</span>PROMPTS,<span class="at">llm_0.5=</span>LLM_ANSWER)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Create a vector with the prompt repeated 20 times.</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>PROMPTS<span class="ot">&lt;-</span><span class="fu">rep</span>(<span class="st">&quot;Return one number between 0 and 1. Just return the number.&quot;</span>,<span class="dv">10</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>LLM_ANSWER<span class="ot">&lt;-</span><span class="fu">map_vec</span>(PROMPTS, <span class="co"># Pass the vector</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                    OLLAMA_LOCAL, <span class="co"># Pass the name of the function</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                    <span class="at">MODEL=</span><span class="st">&quot;llama3.2:1b&quot;</span>, <span class="co"># Pass the 2nd parameter of the function</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>                    <span class="at">TEMP=</span><span class="fl">0.5</span>, <span class="co"># Pass the 3rd parameter of the function</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>                    <span class="at">.progress =</span> T) <span class="co"># map_vec() allows to track progress</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co"># Now we can use tibble to create a dataframe from both vectors</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>RESULTS<span class="ot">&lt;-</span><span class="fu">tibble</span>(<span class="at">prompts=</span>PROMPTS,<span class="at">llm_0.5=</span>LLM_ANSWER)</span></code></pre></div>
 <p><strong>Exercise 3.3.a:</strong> Now, use the model
 <code>llama3.2:1b</code> and the the same prompt, but vary the
 temperature to be 0, 0.5, and 1. Save the results in a tibble.</p>
@@ -707,20 +707,20 @@ and save it in the variable TWEETS.</p>
 learned in practical 4. Remember to the save the new data in itself, so
 that changes are saved.</p>
 <p>For this practical, we will only work with two categories: negative
-and non-negative. So, we are going to use the function
-<code>ifelse()</code> to relabel the data.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>TWEETS<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label2=</span><span class="fu">ifelse</span>(label<span class="sc">==</span><span class="st">&quot;negative&quot;</span>,<span class="st">&quot;negative&quot;</span>,<span class="st">&quot;non-negative&quot;</span>))</span></code></pre></div>
+and positive. So, we are going to use the function <code>ifelse()</code>
+to relabel the data.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>TWEETS<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label2=</span><span class="fu">ifelse</span>(label<span class="sc">==</span><span class="st">&quot;negative&quot;</span>,<span class="st">&quot;negative&quot;</span>,<span class="st">&quot;positive&quot;</span>))</span></code></pre></div>
 <p>This dataset contains around 60,000 tweets. From the data, you will
 only use 100 to test the different LLMs. To create the sample, you will
 use the function <code>sample_n()</code>. To make your code
 reproducible, you need to call the function <code>set.seed(123)</code>
 before calling the function <code>sample_n()</code>.</p>
 <p>Creating a reproducible sample of 100 elements.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>SAMPLE<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>SAMPLE<span class="ot">&lt;-</span>TWEETS<span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">100</span>)</span></code></pre></div>
 <div id="zero-shot-classification" class="section level2">
 <h2>4.1 Zero-Shot Classification</h2>
 <p>Now, we are going to use a technique called “Zero-Shot
@@ -739,27 +739,19 @@ ollama) support structured output!</p>
 <p>First, we need to create an “annotator”, i.e. an LLM persona. This
 will give the LLM some context as to what we want it to do. As we want
 to be consistent, we also set the temperature to <code>0</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>annotator <span class="ot">=</span> <span class="fu">llm_message</span>(<span class="st">&#39;You are an expert at manual content analysis. I will show you a text, and your task is to annotate three components. First, the topic of the text. Second, you need to list all the named entities. Third, you classify the sentiment of the text as either &quot;positive&quot;, &quot;negative&quot; or &quot;neutral&quot;.&#39;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>annotator <span class="ot">=</span> <span class="fu">llm_message</span>(<span class="st">&#39;You are an expert at manual content analysis. I will show you a text, and your task is to annotate three components. First, the topic of the text. Second, you need to list all the named entities. Third, you classify the sentiment of the text as either &quot;negative&quot; or &quot;positive&quot;.&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>))</span></code></pre></div>
 <p>Now, we can ask the LLM to perform a task just by passing the
 variable <code>annotator</code> as input for the function
 <code>chat()</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>response<span class="ot">&lt;-</span>annotator <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">llm_message</span>(<span class="st">&quot;Anna and Bob hate skeeing&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="fu">cat</span>(response)</span></code></pre></div>
-<pre><code>## Here are my annotations:
-## 
-## 1. **Topic**: The topic of the text is &quot;hate&quot; or &quot;dislike&quot;, specifically towards the activity of &quot;skeeking&quot;.
-## 2. **Named Entities**:
-##    - Anna: a person
-##    - Bob: a person
-## 3. **Sentiment Classification**: 
-##    - The sentiment of the text is **negative**, as the words &quot;hate&quot; and &quot;skeeing&quot; convey a strong negative emotion towards the activity.</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>response<span class="ot">&lt;-</span>annotator <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">llm_message</span>(<span class="st">&quot;Anna and Bob hate skeeing&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="fu">cat</span>(response)</span></code></pre></div>
 <p>Awesome, now we know how to define an “annotator” and how to pass it
 a “task”. All what we are missing is to get the structured output.
 Remember that for this, we to define a schema.</p>
@@ -773,22 +765,21 @@ you then specify the ‘type’, like character or numeric. You can request
 for specific classes with factor(class1, class2). And if you add [],
 like in character[], it means give me a list of values of this type.</p>
 <p>Here’s an example of a simple schema where we ask for the sentiment
-with specific values “negative” or “non-negative”.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>json_schema <span class="ot">=</span> <span class="fu">tidyllm_schema</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;annotation schema&quot;</span>,</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">sentiment =</span> <span class="st">&quot;factor(negative, non-negative)&quot;</span></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>)</span></code></pre></div>
+with specific values “negative” or “positive”.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>json_schema <span class="ot">=</span> <span class="fu">tidyllm_schema</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;annotation schema&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">sentiment =</span> <span class="st">&quot;factor(negative, positive)&quot;</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>)</span></code></pre></div>
 <p>Now, when we provide the text, we specify that we want the response
 to be in the format of our JSON schema.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>response <span class="ot">=</span> annotator <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="fu">llm_message</span>(<span class="st">&quot;Anna and Bob hate skeeing&quot;</span>)<span class="sc">%&gt;%</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>, </span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>              <span class="at">.json_schema =</span> json_schema))<span class="sc">%&gt;%</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="fu">get_reply_data</span>()</span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">print</span>(response<span class="sc">$</span>sentiment)</span></code></pre></div>
-<pre><code>## [1] &quot;negative&quot;</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>response <span class="ot">=</span> annotator <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="fu">llm_message</span>(<span class="st">&quot;Anna and Bob hate skeeing&quot;</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">chat</span>(<span class="fu">ollama</span>(<span class="at">.model =</span> <span class="st">&quot;llama3.2:1b&quot;</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>              <span class="at">.temperature =</span> .<span class="dv">0</span>, </span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>              <span class="at">.json_schema =</span> json_schema))<span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fu">get_reply_data</span>()</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">print</span>(response<span class="sc">$</span>sentiment)</span></code></pre></div>
 <p><strong>Important:</strong> Notice that to get the reply, we are now
 using the function <code>get_reply_data()</code> and the function
 <code>$</code> to extract the variable <code>sentiment</code>.</p>
@@ -827,19 +818,18 @@ results from Exercise 4.2.b. Save the dataset in the variable
 <p>Now you need to turn both the original label and the LLM label into
 “factors”. A factor is a special data-type that tells R that your
 variables is a category. Here is an example on how to do it:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># The following vector contains strings:</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>ThisIsAString<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;NL&quot;</span>,<span class="st">&quot;DE&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;DE&quot;</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co"># So, if we call the function levels, then it won&#39;t work. As it only works</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co"># for factors.</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAString)</span></code></pre></div>
-<pre><code>## NULL</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># Now we turn the string vector into factor:</span></span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>ThisIsAFactor<span class="ot">&lt;-</span><span class="fu">as.factor</span>(ThisIsAString)</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co"># Now the levels functions returns the categories in the factor vector:</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAFactor)</span></code></pre></div>
-<pre><code>## [1] &quot;DE&quot; &quot;MX&quot; &quot;NL&quot;</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># The following vector contains strings:</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>ThisIsAString<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;NL&quot;</span>,<span class="st">&quot;DE&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;MX&quot;</span>,<span class="st">&quot;DE&quot;</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># So, if we call the function levels, then it won&#39;t work. As it only works</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co"># for factors.</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAString)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co"># Now we turn the string vector into factor:</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>ThisIsAFactor<span class="ot">&lt;-</span><span class="fu">as.factor</span>(ThisIsAString)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co"># Now the levels functions returns the categories in the factor vector:</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="fu">levels</span>(ThisIsAFactor)</span></code></pre></div>
 <p><strong>Exercise 5.b:</strong> In your data, turn the original labels
 and the LLMs labels into factors.</p>
 <p><strong>Exercise 5.c:</strong> To compare the models, we will use the

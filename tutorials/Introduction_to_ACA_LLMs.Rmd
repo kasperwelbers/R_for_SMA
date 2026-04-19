@@ -362,12 +362,12 @@ Here is an example for how to use the `confusionMatrix` function from the `caret
 library(caret)
 
 example <- tibble(
-   = c('positive','positive','negative','neutral','positive'),
-  real_sentiment = c('positive','neutral','negative','neutral','negative')
+  classifier = c('positive','positive','negative','neutral','positive'),
+  gold_standard = c('positive','neutral','negative','neutral','negative')
 )
 
-actual = as.factor(example$sentiment)
-predicted = as.factor(example$real_sentiment)
+actual = as.factor(example$gold_standard)
+predicted = as.factor(example$classifier)
 confusionMatrix(predicted, actual, mode = 'prec_recall')
 ```
 

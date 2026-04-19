@@ -910,12 +910,12 @@ standard) and the predicted values.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>example <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>   <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&#39;positive&#39;</span>,<span class="st">&#39;positive&#39;</span>,<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;positive&#39;</span>),</span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">real_sentiment =</span> <span class="fu">c</span>(<span class="st">&#39;positive&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;negative&#39;</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">classifier =</span> <span class="fu">c</span>(<span class="st">&#39;positive&#39;</span>,<span class="st">&#39;positive&#39;</span>,<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;positive&#39;</span>),</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">gold_standard =</span> <span class="fu">c</span>(<span class="st">&#39;positive&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;negative&#39;</span>)</span>
 <span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>)</span>
 <span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">as.factor</span>(example<span class="sc">$</span>sentiment)</span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>predicted <span class="ot">=</span> <span class="fu">as.factor</span>(example<span class="sc">$</span>real_sentiment)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">as.factor</span>(example<span class="sc">$</span>gold_standard)</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>predicted <span class="ot">=</span> <span class="fu">as.factor</span>(example<span class="sc">$</span>classifier)</span>
 <span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="fu">confusionMatrix</span>(predicted, actual, <span class="at">mode =</span> <span class="st">&#39;prec_recall&#39;</span>)</span></code></pre></div>
 <p><strong>Exercise 5:</strong> Use the confusionMatrix function to
 calculate the precision, recall and F1 values. Then reflect on how well

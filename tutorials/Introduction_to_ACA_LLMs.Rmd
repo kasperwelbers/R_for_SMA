@@ -168,16 +168,17 @@ my_first_robot("Say hi, robot!!", model = 'gemini-2.5-flash-lite')
 **Exercise 3.a:** Test the function `my_first_robot()` with two different prompts and two different models. Report the code, prompts and responses. 
 
 
-**Exercise 3.b:** Based on the second lecture, what are the risks of calling an LLM from a public big LLM provider?
+**Exercise 3.b:** In the second lecture we talked about the pros and cons of using professional LLM providers (from big tech companies). Reflect on the risks and limitations of using a professional LLM provider for content analysis.
 
-
-**Exercise 3.c:** Describe a research scenario where it would be OK to use an LLM from a public big LLM provider.
+**Exercise 3.c:** Describe a research scenario where it would be OK to use an LLM from a professional LLM provider.
 
 
 
 ## 3.2 An LLM on your computer
 
-To work with LLMs locally on our own computers, we need to install "Ollama", which is a local AI model management software. Ollama grants you full control to download, update, and delete models easily on your system. This prioritize strict data security, as we do not pass data to companies like OpenAI. In addition to basic management, Ollama lets you track and control different model versions. So we can switch between different models. 
+Sometimes, it is not possible (for legal, ethical or technical reasons) to use a professional LLM provider. Luckily, it is easy nowadays to run an LLM on your own computer!! For this tutorial we'll work with lightweight LLMs, so they're not as good as the big ones. But once you know how to do it, the only thing you need to perform a professional level analysis is a bigger computer.
+
+To work with LLMs locally on our own computers, we will install "Ollama", which is a local AI model management software. Ollama grants you full control to download, update, and delete models easily on your system. This prioritize strict data security, as we do not pass data to companies like OpenAI. In addition to basic management, Ollama lets you track and control different model versions. So we can switch between different models. 
 
 You can download Ollama here: [https://ollama.com/](https://ollama.com/). Click on the download button, choose the right operating system. Install the software after it has downloaded. Once you have installed it, open it, for the `tidyllm` package to call it, the software has to be running.
 
@@ -215,9 +216,11 @@ llm_message("Hi, how are you?")%>%
 
 ## 3.3 Using `map_vec()` from the package `purrr` 
 
-Now that you have a function to call the LLM, we can use it to test what the temperature does. For this, we will use the function `map_vec()` from the package `purrr`. `map_vec()` allows you to perform the same function multiple times given a vector (i.e. variable) of inputs. 
+Now that you have a function to call the LLM, we can use it to send multiple requests. This is an important step towards building our coder robot. What we're aiming for, is to have a script that can send thousands of texts to our robot to code for us. 
 
-Here we use it to request six different prompts at once to the `ollama_local` model that you created in 3.2.1. The 
+For this, we will use the function `map_vec()` from the package `purrr`. `map_vec()` allows you to perform the same function multiple times given a vector (i.e. variable) of inputs. 
+
+As an example, here we use it to send six different prompts sequentially to the `ollama_local` function that you created in 3.2.1. 
 
 ```{r map_vec, eval=FALSE}
 # Create a vector with multiple prompts
@@ -240,8 +243,7 @@ replies <- map_vec(prompts,             # Pass the vector of prompts
 tibble(prompts, replies)
 ```
 
-
-Ok, so now let's look into what the temperature parameter does. To investigate this, we're going to ask the model to randomly say either "positive" or "negative" multiple times.
+Now that we can make multiple requests at once, let's also use this to explore what that **temperature** argument does. To investigate this, we're going to ask the model to randomly say either "positive" or "negative" multiple times.
 
 ```{r}
 prompt <- 'Respond with the word "positive" or "negative". respond only with one word'
@@ -256,7 +258,6 @@ replies <- map_vec(prompts,
 # Now we can use tibble to create a dataframe/tibble from both vectors
 tibble(prompts, replies)
 ```
-
 
 
 **Exercise 3.3.a:** Now, use the model `llama3.2:1b` and the same prompt, but set the temperature to 0. Save the results in a tibble. 
@@ -295,7 +296,7 @@ tweets_sample <- TWEETS %>%
 
 ## 4.1 Zero-Shot Classification
 
-Now, we are going to use a technique called "Zero-Shot Classification". This means that the model will not need any training (Zero means that the model has not seen any example of what we want it to classify). We'll simply ask the model to 'code' a text and provide instructions, just like we would ask a person to do this in manual content analysis.
+Now, we are going to use a technique called "Zero-Shot Classification". This means that the model will not need any training (i.e. it has seen zero training examples). We'll simply ask the model to 'code' a text and provide instructions, just like we would ask a person to do this in manual content analysis.
 
 To create our zero-shot classifier (i.e. our imitation of a human coder) we'll take the following steps:
 
@@ -334,7 +335,7 @@ result
 result$sentiment
 ```
 
-Your exercise is now to put all these parts together in a custom zero-shot classification function.
+Your exercise is now to put all these parts together in a custom zero-shot classification function. This function just needs to have 1 parameter: `tweet`. All the other components (selecting the model, creating the instruction, specifying the structured output) can happen inside the function body (the part between the { } brackets).
 
 **Exercise 4.1.a:** Create a function (like you did in 3.3) that takes a `tweet` as input, and returns the sentiment as output. Use the `llama3.2:1b` model. You can give the function any name you like (e.g. `sentiment_classifier`). So you should be able to call `sentiment_classifier("Bob hates skeeing")`, and this should return the sentiment ("negative").
 
@@ -343,10 +344,14 @@ Your exercise is now to put all these parts together in a custom zero-shot class
 
 ## 4.2 Labeling the sample using the different models
 
-Now that you have the function to label the text in a structured format and that you know how to use the function `map_vec()`, all you need to do is to apply it to all the tweets in your sample. 
+Now we have all the building blocks for our coder robot:
 
+* you have a function (4.1.a) to label the sentiment of a text
+* you know how to use the function `map_vec()`
 
-**Exercise 4.2.a:** Label the 30 tweets in the `tweets_sample` data using map_vec. Create a tibble that has the columns `tweet` and `sentiment`. 
+Now you'll use `map_vec()` with this function, similar to 3.3. Instead of sending the prompts, you now send the tweets (`tweets_sample$text`) as the first argument 
+
+**Exercise 4.2.a:** Label the 30 tweets in the `tweets_sample` data using map_vec. From the result, create a tibble that has the columns `tweet` and `sentiment`. 
 
 **Exercise 4.2.b:** Now add the `tweets_sample$label` column to the tibble, and name it `real_sentiment`. If you did everything correctly, you should now have a tibble with 3 columns: the `tweet`, the `real_sentiment` from the data, and the `sentiment` as coded by your zero-shot classifier. report this tibble. 
 

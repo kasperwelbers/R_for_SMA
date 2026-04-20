@@ -663,15 +663,23 @@ as input, and returns the response from Gemini.</p>
 <p><strong>Exercise 3.a:</strong> Test the function
 <code>my_first_robot()</code> with two different prompts and two
 different models. Report the code, prompts and responses.</p>
-<p><strong>Exercise 3.b:</strong> Based on the second lecture, what are
-the risks of calling an LLM from a public big LLM provider?</p>
+<p><strong>Exercise 3.b:</strong> In the second lecture we talked about
+the pros and cons of using professional LLM providers (from big tech
+companies). Reflect on the risks and limitations of using a professional
+LLM provider for content analysis.</p>
 <p><strong>Exercise 3.c:</strong> Describe a research scenario where it
-would be OK to use an LLM from a public big LLM provider.</p>
+would be OK to use an LLM from a professional LLM provider.</p>
 </div>
 </div>
 <div id="an-llm-on-your-computer" class="section level2">
 <h2>3.2 An LLM on your computer</h2>
-<p>To work with LLMs locally on our own computers, we need to install
+<p>Sometimes, it is not possible (for legal, ethical or technical
+reasons) to use a professional LLM provider. Luckily, it is easy
+nowadays to run an LLM on your own computer!! For this tutorial we’ll
+work with lightweight LLMs, so they’re not as good as the big ones. But
+once you know how to do it, the only thing you need to perform a
+professional level analysis is a bigger computer.</p>
+<p>To work with LLMs locally on our own computers, we will install
 “Ollama”, which is a local AI model management software. Ollama grants
 you full control to download, update, and delete models easily on your
 system. This prioritize strict data security, as we do not pass data to
@@ -734,13 +742,17 @@ and <code>deepseek-r1:1.5b</code>. Keep the temperature set at 0.</p>
 <div id="using-map_vec-from-the-package-purrr" class="section level2">
 <h2>3.3 Using <code>map_vec()</code> from the package
 <code>purrr</code></h2>
-<p>Now that you have a function to call the LLM, we can use it to test
-what the temperature does. For this, we will use the function
-<code>map_vec()</code> from the package <code>purrr</code>.
-<code>map_vec()</code> allows you to perform the same function multiple
-times given a vector (i.e. variable) of inputs.</p>
-<p>Here we use it to request six different prompts at once to the
-<code>ollama_local</code> model that you created in 3.2.1. The</p>
+<p>Now that you have a function to call the LLM, we can use it to send
+multiple requests. This is an important step towards building our coder
+robot. What we’re aiming for, is to have a script that can send
+thousands of texts to our robot to code for us.</p>
+<p>For this, we will use the function <code>map_vec()</code> from the
+package <code>purrr</code>. <code>map_vec()</code> allows you to perform
+the same function multiple times given a vector (i.e. variable) of
+inputs.</p>
+<p>As an example, here we use it to send six different prompts
+sequentially to the <code>ollama_local</code> function that you created
+in 3.2.1.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Create a vector with multiple prompts</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>prompts <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="st">&quot;say hi&quot;</span>,</span>
@@ -759,7 +771,8 @@ times given a vector (i.e. variable) of inputs.</p>
 <span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a></span>
 <span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co"># Now we can use tibble to create a dataframe/tibble from both vectors</span></span>
 <span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="fu">tibble</span>(prompts, replies)</span></code></pre></div>
-<p>Ok, so now let’s look into what the temperature parameter does. To
+<p>Now that we can make multiple requests at once, let’s also use this
+to explore what that <strong>temperature</strong> argument does. To
 investigate this, we’re going to ask the model to randomly say either
 “positive” or “negative” multiple times.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>prompt <span class="ot">&lt;-</span> <span class="st">&#39;Respond with the word &quot;positive&quot; or &quot;negative&quot;. respond only with one word&#39;</span></span>
@@ -819,10 +832,9 @@ random sample, you will always get the same sample.</p>
 <h2>4.1 Zero-Shot Classification</h2>
 <p>Now, we are going to use a technique called “Zero-Shot
 Classification”. This means that the model will not need any training
-(Zero means that the model has not seen any example of what we want it
-to classify). We’ll simply ask the model to ‘code’ a text and provide
-instructions, just like we would ask a person to do this in manual
-content analysis.</p>
+(i.e. it has seen zero training examples). We’ll simply ask the model to
+‘code’ a text and provide instructions, just like we would ask a person
+to do this in manual content analysis.</p>
 <p>To create our zero-shot classifier (i.e. our imitation of a human
 coder) we’ll take the following steps:</p>
 <p><strong>First</strong>, we create a general instruction that
@@ -869,7 +881,10 @@ code</p>
 <span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>result</span>
 <span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>result<span class="sc">$</span>sentiment</span></code></pre></div>
 <p>Your exercise is now to put all these parts together in a custom
-zero-shot classification function.</p>
+zero-shot classification function. This function just needs to have 1
+parameter: <code>tweet</code>. All the other components (selecting the
+model, creating the instruction, specifying the structured output) can
+happen inside the function body (the part between the { } brackets).</p>
 <p><strong>Exercise 4.1.a:</strong> Create a function (like you did in
 3.3) that takes a <code>tweet</code> as input, and returns the sentiment
 as output. Use the <code>llama3.2:1b</code> model. You can give the
@@ -882,12 +897,18 @@ first three tweets in the TWEETS data frame.</p>
 </div>
 <div id="labeling-the-sample-using-the-different-models" class="section level2">
 <h2>4.2 Labeling the sample using the different models</h2>
-<p>Now that you have the function to label the text in a structured
-format and that you know how to use the function <code>map_vec()</code>,
-all you need to do is to apply it to all the tweets in your sample.</p>
+<p>Now we have all the building blocks for our coder robot:</p>
+<ul>
+<li>you have a function (4.1.a) to label the sentiment of a text</li>
+<li>you know how to use the function <code>map_vec()</code></li>
+</ul>
+<p>Now you’ll use <code>map_vec()</code> with this function, similar to
+3.3. Instead of sending the prompts, you now send the tweets
+(<code>tweets_sample$text</code>) as the first argument</p>
 <p><strong>Exercise 4.2.a:</strong> Label the 30 tweets in the
-<code>tweets_sample</code> data using map_vec. Create a tibble that has
-the columns <code>tweet</code> and <code>sentiment</code>.</p>
+<code>tweets_sample</code> data using map_vec. From the result, create a
+tibble that has the columns <code>tweet</code> and
+<code>sentiment</code>.</p>
 <p><strong>Exercise 4.2.b:</strong> Now add the
 <code>tweets_sample$label</code> column to the tibble, and name it
 <code>real_sentiment</code>. If you did everything correctly, you should

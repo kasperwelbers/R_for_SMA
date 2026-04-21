@@ -21,25 +21,34 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE, fig.path = "img/",eval = FAL
 
 VU Amsterdam
 
+# About this assignment
+
+This assignment is going to be a bit more complicated that previous assignments, but for good reasons. You are going to learn how to create your own AI assistant! Being able to build and customize this type of assistant is a very powerful skill. It allows you to automate all sorts of mundane tasks. To get there, this tutorial will cover the following steps: 
+
+* How to interact with an LLM via R
+* How to create a function that let's an LLM perform a specific task 
+* How to use this function for multiple inputs (e.g., prompts, tweets) at once
+
+## Consider using JupyterHub
+
+For this assignment you will be running a Large Language Model (LLM) on your own laptop. Since we'll be using a small LLM, most modern laptops will work. But if you have an older laptop, and especially if you have less than 8Gb memory, we recommend using **[JupyterHub](https://hub.compute.vu.nl/).** for this assignment. This works exactly like RStudio, but you'll be using it via your browser, and the code will run on a powerfull VU server.
+
+**For more information, check this [blog post](https://societal-analytics.nl/blogs/20250201_computing-power/) to learn how to upload data to and download data from JupyterHub.**
+
+
 # 1. Preparing the R-script
 
-It is recommended that you clean your R-environment before you start coding. So, let's do that.
+When you start a new assignment, it's always good to start with a clean R environment.
+This way, you won't accidentally use data from previous assignment, or have conflicts between packages (i.e. two packages might have functions with the same names).
 
-1. Open a new R-script.
-2. In the first lines, add the following code `rm(list=ls())` and `gc()`. 
-3. Run the code
+To clean your environment, you can click the broom icon in the Environment tab. This is the tab that also shows all the objects and functions in your current environment, which by default is in the top-right panel in RStudio.
 
-From the second step, `rm(list=ls())` cleans the R environment, so that you do not drag any variables from previous R-sessions. The second line (`gc()`) makes sure that those variables do not occupy your computers' RAM anymore.
+Alternatively, you can also run the code `rm(list=ls())`.
 
-**Exercise 1.a:** Clean the R-environment.
+**Exercise 1.a:** Clean the R-environment. Show a screenshot of your empty environment tab in RStudio.
 
-As you will be working with processes that can take some time to run, we recommend that you run those scripts and save the results either in your computer or in your JupyterHub folder as a csv or as a table. 
 
-**Remember that if you need more resources, you can always use the course environment in [JupyterHub](https://hub.compute.vu.nl/).**
-
-**Also, you can check this [blog post](https://societal-analytics.nl/blogs/20250201_computing-power/) to learn how to upload data to and download data from JupyterHub.**
-
-# 2. Introduction to today's practical
+# 2. Using an LLM for content analysis
 
 In the previous practical, you used the set of packages offered by `tidyverse`. In specific, you used `dplyr` for data handling. `ggplot2` for data visualization. `stringr` for text handling. 
 
@@ -61,7 +70,7 @@ During this tutorial, we will give you the tools to use LLMs in the best possibl
 
 **Hint:** Remember that if you do not know how to use a function, you can either type `? NAME_OF_THE_FUNCTION` or you go to the "Help" panel and search for the function. This will display all the information related with the function, as well as some examples on how to use it. You can also check the package's [Cheat Sheet](https://posit.co/resources/cheatsheets/).
 
-**Exercise 2.1:** In your R-script download and load the packages. For this you need to use the function `install.packages()` and `library()`.
+**Exercise 2.1:** In your R-script download and load the packages. For this you need to use the function `install.packages()` and `library()`. 
 
 
 
@@ -69,14 +78,14 @@ During this tutorial, we will give you the tools to use LLMs in the best possibl
 
 In this section, you will interact with LLMs in two ways:
 
-* A public big LLM provider: [Gemini](https://ai.google.dev/gemini-api/docs/api-key).
+* A professional LLM provider: [Gemini](https://ai.google.dev/gemini-api/docs/api-key).
 * An LLM on your computer: [Ollama](https://ollama.com/).
 
 You will reflect on the pros and cons of each and you will also learn to put them in production and to test their results.
 
-To access LLMs, we need to access their Application Programming Interfaces (APIs). In general, an API is used for computer programs to communicate with each other (for a more detailed explanation please check the tutorial [Use APIs to source your data in R](https://raw.githack.com/Delft-RCafe/resources/main/themes/apis_in_r/apis-in-r.html)). Yes, this means that, in general, any time you prompt an LLM, you are actually interacting with an API. 
+To access LLMs, we need to access their Application Programming Interfaces (APIs). In general, an API is used for computer programs to communicate with each other (for a more detailed explanation please check the tutorial [Use APIs to source your data in R](https://raw.githack.com/Delft-RCafe/resources/main/themes/apis_in_r/apis-in-r.html)). In short, any time you prompt an LLM, you are actually interacting with an API. So the LLM is not run by R itself. R sends a request to an API (which can be in the cloud hosted by a company like OpenAI, but also on your own computer) 
 
-## 3.1 A public big LLM provider
+## 3.1 A professional LLM provider
 
 As you know there are several companies that provide different LLMs. For example, Gemini is developed by Google DeepMind; Chat-GPT is developed by OpenAI; Llama is developed by Meta Platforms, Inc; and so far, and so on. Each company has their own parameters to access their LLMs via thier APIs. So, you would need to look for each in order to access them. To avoid the hassle, we will use the package `tidyllm` which already has those parameters loaded.
 
@@ -90,14 +99,11 @@ In this tutorial, we will demonstrate how to access Gemini from Google DeepMind.
 The following chunk shows you the way you would access Google Gemini using `tidyllm` and its `gemini_chat()` function:
 
 ```{r Using tidyllm, eval=FALSE}
-Sys.setenv(GOOGLE_API_KEY = "YOUR API KEYo")
+Sys.setenv(GOOGLE_API_KEY = "YOUR API KEY")
 
 llm_message("Hi, how are you?") |>
   gemini_chat()%>%
   get_reply()
-
-
-
 ```
 
 You can also select a specific model to use. Models are different in terms of speed, costs and performance, so you often want to pick the best model for your job. When using LLMs for simple content analysis tasks of many documents, it is often good to pick a model that is relatively fast and cheap. You can find an overview of the available models [here](https://ai.google.dev/gemini-api/docs/models)
@@ -112,13 +118,13 @@ The number of times you can use a model, and the number of 'tokens' you use, is 
 
 The reason we're showing you this is that it's important that you understand a bit about the current economy and infrastructure for using LLMs. Even though you can use websites like ChatGPT and Gemini for free, when you use LLMs at scale for analyzing data, you will typically pay on a usage basis, and need to respect the rate limits (i.e. how many requests you can make within a given period of time).
 
-### Creating your own 'coder' function
+## Creating your own function for calling an LLM
 
-In this tutorial you will learn how to create your own **coder**. Essentially, we're building a robot to do content analysis for us!
+In this tutorial you will learn how to create your own **coder**. Essentially, we're building a robot to do content analysis for us! 
 
-To make our robot easy to use, you'll learn how to create your own *functions*. You've seen many functions by now, and you've seen how you can add more functions by installing and opening packages. But one of the powerful features of R is that you can also make your own functions quite easily.
+The first thing you'll need to learn for this, is how to **create your own functions**. You've seen many functions by now, and you've seen how you can add more functions by installing and opening packages. But one of the powerful features of R is that you can also make your own functions quite easily.
 
-In its basic form, this is what a function looks like. We basically tell R: Create a function named `my_fun`. This function has two parameters: `parameter1` and `parameter2`. With `parameter2 = 'default value'` we specify a default value (i.e. the value if the users doesn't give a value). In the **function body**, the part between the { } brackets, we put the code that the function will perform using these parameters. And in the `return` function, we specify what the function should output.
+In its basic form, this is what a function looks like. In the code below we tell R: Create a function named `my_fun`. This function has two parameters: `parameter1` and `parameter2`. With `parameter2 = 'default value'` we specify a default value (i.e. the value if the users doesn't give a value). In the **function body**, the part between the { } brackets, we put the code that the function will perform using these parameters. And in the `return` function, we specify what the function should output.
 
 ```{r first function, eval=FALSE}
 ## Create a function with two parameters

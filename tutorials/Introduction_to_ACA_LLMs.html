@@ -443,10 +443,11 @@ for Labelling</h3>
 
 <div id="TOC">
 <ul>
+<li><a href="#about-this-assignment" id="toc-about-this-assignment">About this assignment</a></li>
 <li><a href="#preparing-the-r-script" id="toc-preparing-the-r-script">1.
 Preparing the R-script</a></li>
-<li><a href="#introduction-to-todays-practical" id="toc-introduction-to-todays-practical">2. Introduction to today’s
-practical</a></li>
+<li><a href="#using-an-llm-for-content-analysis" id="toc-using-an-llm-for-content-analysis">2. Using an LLM for content
+analysis</a></li>
 <li><a href="#accessing-large-language-models-llms" id="toc-accessing-large-language-models-llms">3. Accessing Large
 Language Models (LLMs)</a></li>
 <li><a href="#using-llms-to-annotate-data" id="toc-using-llms-to-annotate-data">4. Using LLMs to annotate
@@ -457,32 +458,51 @@ Evaluating the model</a></li>
 </div>
 
 <p>VU Amsterdam</p>
-<div id="preparing-the-r-script" class="section level1">
-<h1>1. Preparing the R-script</h1>
-<p>It is recommended that you clean your R-environment before you start
-coding. So, let’s do that.</p>
-<ol style="list-style-type: decimal">
-<li>Open a new R-script.</li>
-<li>In the first lines, add the following code
-<code>rm(list=ls())</code> and <code>gc()</code>.</li>
-<li>Run the code</li>
-</ol>
-<p>From the second step, <code>rm(list=ls())</code> cleans the R
-environment, so that you do not drag any variables from previous
-R-sessions. The second line (<code>gc()</code>) makes sure that those
-variables do not occupy your computers’ RAM anymore.</p>
-<p><strong>Exercise 1.a:</strong> Clean the R-environment.</p>
-<p>As you will be working with processes that can take some time to run,
-we recommend that you run those scripts and save the results either in
-your computer or in your JupyterHub folder as a csv or as a table.</p>
-<p><strong>Remember that if you need more resources, you can always use
-the course environment in <a href="https://hub.compute.vu.nl/">JupyterHub</a>.</strong></p>
-<p><strong>Also, you can check this <a href="https://societal-analytics.nl/blogs/20250201_computing-power/">blog
+<div id="about-this-assignment" class="section level1">
+<h1>About this assignment</h1>
+<p>This assignment is going to be a bit more complicated that previous
+assignments, but for good reasons. You are going to learn how to create
+your own AI assistant! Being able to build and customize this type of
+assistant is a very powerful skill. It allows you to automate all sorts
+of mundane tasks. To get there, this tutorial will cover the following
+steps:</p>
+<ul>
+<li>How to interact with an LLM via R</li>
+<li>How to create a function that let’s an LLM perform a specific
+task</li>
+<li>How to use this function for multiple inputs (e.g., prompts, tweets)
+at once</li>
+</ul>
+<div id="consider-using-jupyterhub" class="section level2">
+<h2>Consider using JupyterHub</h2>
+<p>For this assignment you will be running a Large Language Model (LLM)
+on your own laptop. Since we’ll be using a small LLM, most modern
+laptops will work. But if you have an older laptop, and especially if
+you have less than 8Gb memory, we recommend using <strong><a href="https://hub.compute.vu.nl/">JupyterHub</a>.</strong> for this
+assignment. This works exactly like RStudio, but you’ll be using it via
+your browser, and the code will run on a powerfull VU server.</p>
+<p><strong>For more information, check this <a href="https://societal-analytics.nl/blogs/20250201_computing-power/">blog
 post</a> to learn how to upload data to and download data from
 JupyterHub.</strong></p>
 </div>
-<div id="introduction-to-todays-practical" class="section level1">
-<h1>2. Introduction to today’s practical</h1>
+</div>
+<div id="preparing-the-r-script" class="section level1">
+<h1>1. Preparing the R-script</h1>
+<p>When you start a new assignment, it’s always good to start with a
+clean R environment. This way, you won’t accidentally use data from
+previous assignment, or have conflicts between packages (i.e. two
+packages might have functions with the same names).</p>
+<p>To clean your environment, you can click the broom icon in the
+Environment tab. This is the tab that also shows all the objects and
+functions in your current environment, which by default is in the
+top-right panel in RStudio.</p>
+<p>Alternatively, you can also run the code
+<code>rm(list=ls())</code>.</p>
+<p><strong>Exercise 1.a:</strong> Clean the R-environment. Show a
+screenshot of your empty environment tab in RStudio.</p>
+</div>
+<div id="using-an-llm-for-content-analysis" class="section level1">
+<h1>2. Using an LLM for content analysis</h1>
 <p>In the previous practical, you used the set of packages offered by
 <code>tidyverse</code>. In specific, you used <code>dplyr</code> for
 data handling. <code>ggplot2</code> for data visualization.
@@ -542,7 +562,7 @@ packages. For this you need to use the function
 <h1>3. Accessing Large Language Models (LLMs)</h1>
 <p>In this section, you will interact with LLMs in two ways:</p>
 <ul>
-<li>A public big LLM provider: <a href="https://ai.google.dev/gemini-api/docs/api-key">Gemini</a>.</li>
+<li>A professional LLM provider: <a href="https://ai.google.dev/gemini-api/docs/api-key">Gemini</a>.</li>
 <li>An LLM on your computer: <a href="https://ollama.com/">Ollama</a>.</li>
 </ul>
 <p>You will reflect on the pros and cons of each and you will also learn
@@ -551,11 +571,12 @@ to put them in production and to test their results.</p>
 Interfaces (APIs). In general, an API is used for computer programs to
 communicate with each other (for a more detailed explanation please
 check the tutorial <a href="https://raw.githack.com/Delft-RCafe/resources/main/themes/apis_in_r/apis-in-r.html">Use
-APIs to source your data in R</a>). Yes, this means that, in general,
-any time you prompt an LLM, you are actually interacting with an
-API.</p>
-<div id="a-public-big-llm-provider" class="section level2">
-<h2>3.1 A public big LLM provider</h2>
+APIs to source your data in R</a>). In short, any time you prompt an
+LLM, you are actually interacting with an API. So the LLM is not run by
+R itself. R sends a request to an API (which can be in the cloud hosted
+by a company like OpenAI, but also on your own computer)</p>
+<div id="a-professional-llm-provider" class="section level2">
+<h2>3.1 A professional LLM provider</h2>
 <p>As you know there are several companies that provide different LLMs.
 For example, Gemini is developed by Google DeepMind; Chat-GPT is
 developed by OpenAI; Llama is developed by Meta Platforms, Inc; and so
@@ -579,7 +600,7 @@ tier”, which should say “free tier”.<br />
 <p>The following chunk shows you the way you would access Google Gemini
 using <code>tidyllm</code> and its <code>gemini_chat()</code>
 function:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">GOOGLE_API_KEY =</span> <span class="st">&quot;YOUR API KEYo&quot;</span>)</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">GOOGLE_API_KEY =</span> <span class="st">&quot;YOUR API KEY&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">llm_message</span>(<span class="st">&quot;Hi, how are you?&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">gemini_chat</span>()<span class="sc">%&gt;%</span></span>
@@ -606,25 +627,26 @@ LLMs. Even though you can use websites like ChatGPT and Gemini for free,
 when you use LLMs at scale for analyzing data, you will typically pay on
 a usage basis, and need to respect the rate limits (i.e. how many
 requests you can make within a given period of time).</p>
-<div id="creating-your-own-coder-function" class="section level3">
-<h3>Creating your own ‘coder’ function</h3>
+</div>
+<div id="creating-your-own-function-for-calling-an-llm" class="section level2">
+<h2>Creating your own function for calling an LLM</h2>
 <p>In this tutorial you will learn how to create your own
 <strong>coder</strong>. Essentially, we’re building a robot to do
 content analysis for us!</p>
-<p>To make our robot easy to use, you’ll learn how to create your own
-<em>functions</em>. You’ve seen many functions by now, and you’ve seen
-how you can add more functions by installing and opening packages. But
-one of the powerful features of R is that you can also make your own
-functions quite easily.</p>
-<p>In its basic form, this is what a function looks like. We basically
-tell R: Create a function named <code>my_fun</code>. This function has
-two parameters: <code>parameter1</code> and <code>parameter2</code>.
-With <code>parameter2 = &#39;default value&#39;</code> we specify a default
-value (i.e. the value if the users doesn’t give a value). In the
-<strong>function body</strong>, the part between the { } brackets, we
-put the code that the function will perform using these parameters. And
-in the <code>return</code> function, we specify what the function should
-output.</p>
+<p>The first thing you’ll need to learn for this, is how to
+<strong>create your own functions</strong>. You’ve seen many functions
+by now, and you’ve seen how you can add more functions by installing and
+opening packages. But one of the powerful features of R is that you can
+also make your own functions quite easily.</p>
+<p>In its basic form, this is what a function looks like. In the code
+below we tell R: Create a function named <code>my_fun</code>. This
+function has two parameters: <code>parameter1</code> and
+<code>parameter2</code>. With <code>parameter2 = &#39;default value&#39;</code>
+we specify a default value (i.e. the value if the users doesn’t give a
+value). In the <strong>function body</strong>, the part between the { }
+brackets, we put the code that the function will perform using these
+parameters. And in the <code>return</code> function, we specify what the
+function should output.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="do">## Create a function with two parameters</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>my_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(parameter1, <span class="at">parameter2 =</span> <span class="st">&quot;default value&quot;</span>){</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="do">## Here you put the code that the function performs</span></span>
@@ -669,7 +691,6 @@ companies). Reflect on the risks and limitations of using a professional
 LLM provider for content analysis.</p>
 <p><strong>Exercise 3.c:</strong> Describe a research scenario where it
 would be OK to use an LLM from a professional LLM provider.</p>
-</div>
 </div>
 <div id="an-llm-on-your-computer" class="section level2">
 <h2>3.2 An LLM on your computer</h2>

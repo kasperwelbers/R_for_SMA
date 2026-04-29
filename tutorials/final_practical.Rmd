@@ -1,0 +1,208 @@
+---
+title: 'Social Media Analytics VI'
+subtitle: "Synergie of practical 1-5"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+VU Amsterdam
+
+# This practical
+
+In the past 5 practicals you have learned a range of skills in the area of content analysis.
+However, due to the extended, bi-weekly format of this first part of the course, it might not immediately be obvious to you how all of these skills fit together.
+In this practical we'll look back on what you learned, and show how it all comes together as a skillset for **building and validating an automatic content analysis tool**.
+
+
+## What have you learned?
+
+Here is a quick summary of key takeaways from practical 1 to 5:
+
+1. **Manual Content Analysis** is a technique for making **valid** and **reliable** inferences from texts
+2. How to achieve and measure **intercoder reliability** (Cohen's Kappa, Krippendorfs Alpha)
+3. Performing **Automatic Content Analysis** (using search queries), and how to measure the **validity** (precision and recall)
+4. Working with textual data in R and RStudio
+5. How to perform Automatic Content Analysis using Large Language Models using **Zero-shot classification**
+
+The goal of these practicals was to teach you how to perform **automatic content analysis** at a professional level. **Zero-shot classification** is a powerful technique that empowers you to analyze social media content at scale. But in order to use this technique properly, you also need to know how to create a valid and reliable **gold standard** using **manual content analysis**. 
+
+In this practical we'll be putting all of this together. We'll start with a manual content analysis dataset and assess it's intercoder-reliability. Then we'll create a function for zero-shot classification, and assess its precision and recall based on the manual content analysis data. Finally, we'll attempt to improve the precision and recall by trying different prompts.      
+
+
+## Why is this important for Social Media Analytics?
+
+Social media provide a goldmine of information about society, but **manual content analysis is too slow and expensive** to use this information effectively. Companies want to be able to continuously monitor how people talk about them. Researchers want big data for comparative and longitudinal research. **Automatic content analysis** enables us to perform content analysis at a big scale, but it used to be quite difficult to automate many types of content-analysis with acceptable validity. The state-of-the-art **zero-shot classification** technique that you learn in this course offers a flexibility and performance that researchers and professionals several years ago could only dream of. 
+
+Consider the homework literature of last week, in which Atteveldt et al., analyzed the validity of **sentiment analysis** techniques using dictionaries and machine learning approaches. Dictionaries were relatively easy to use, but they performed very poorly in terms of validity. The best results were achieved using complex Supervised Machine Learning approaches that required you to first train (i.e. supervise) a model using a lot of examples. But this meant that you still needed to perform a lot of manual content analysis in order to train your model, and these models could only be used for the specific task that you trained them on. Furthermore, many of these traditional techniques only worked with textual data, and only for specific languages.  
+
+The **zero-shot** classification technique provides a powerful alternative. You can ask any question without having to first train the model. In this course we only use this for analyzing textual content in English, but the same technique also works for multimedia and multilingual content. This is especially important for social media data, which today is highly diverse and multimodal.  
+
+
+# Today's assignment
+
+In last week's homework literature, you read the article by [Van Atteveldt et al., (2021)](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198)--presumably with great interest and maybe even twice!
+In this article, they analyze the validity of sentiment analysis techniques, comparing manual annotation, crowd-coding, dictionary approaches and machine-learning approaches. 
+
+They draw the following conclusions (abstract):
+
+> The three main conclusions of
+this article are that: (1) The best performance is still
+attained with trained human or crowd coding; (2) None
+of the used dictionaries come close to acceptable levels
+of validity; and (3) machine learning, especially deep
+learning, substantially outperforms dictionary-based
+methods but falls short of human performance. From
+these findings, we stress the importance of always
+validating automatic text analysis methods before
+usage.
+
+This conclusion implies that for automatic content analysis we would need to use machine learning approaches, and meticulously train and validate them using manual content analysis. 
+
+What is fascinating about this paper, is that even though it is fairly recent (2021), it does not mention Large Language Models (LLM) at all. THATS HOW FAST THE FIELD HAS EVOLVED. Zero-shot classification wasn't a thing yet. 
+
+So what we'll do in this tutorial is to see how well we can approach or even exceed the performance of the best machine learning models in the study using zero-shot classification. Even though the analyses in Van Atteveldt et al., were performed by experts with much more time on their hands, we have technological advancement on our side! Can you, having only recently learned about content analysis at all, beat the experts using our state-of-the-art method?
+
+
+
+# Creating a Gold Standard
+
+Van Atteveldt et al., had to create a gold standard to evaluate and compare the different content analysis approaches. For this, they conducted a manual content analysis of 300 units that were coded by 3 expert coders (the authors themselves).
+If they can reliably code the sentiment of economic headlines the same way, it would indicate that their measurement is reliable (and valid).
+
+The authors used Krippendorf's alpha as the reliability metric.
+In **practical 2**, you manually calculed Cohen's Kappa because Krippendorf's alpha is difficult to compute by hand. 
+But this time we're working in R, where we can use the `irr` package to compute Krippendorf's alpha for us (note that you need to install `irr` first).
+
+## Import the Content Analysis data into R
+
+We'll first need to read the manually coded data into R.
+When you'll be doing your own manual content analysis in the project in period 6, we'll recommend you to work in Google Sheets. So to practice importing this type of data, we prepared the manual content analysis data from the study in [this google sheet](https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing).^[The real data used for the intercoder reliability measurement in Van Atteveldt et al., (2021) was not directly available. So for this assignment we simulated similar data based on the gold standard.] 
+
+When you open the Google Sheet link, you'll see that every row represents a headline, and for every headline there are three columns with sentiment coding by different coders (`coder_1_sentiment`, etc).
+Notice that there are 4 sheets (the tabs at the bottom of the page).
+Each coder has independently coded the sentiment in a separate sheet, to avoid being influenced by each others' answers.
+The results where then put together in the **combined** sheet. 
+Because the independently coded the sentiment, we can now use this data to compute the intercoder reliability.
+
+To import the Google Sheet data into R, we'll first export the data from Google Sheets to a CSV file.^[There is also an R package for directly reading data from Google Sheets, but doing it manually is a more useful exercise]. Simply go to `File -> Download -> Comma separated values (.csv)`. Note that you can only export the current sheet to CSV, so **Make sure (!!)** to select the **combined** sheet to download the combined data.
+
+Now that you downloaded the file to your computer (probably your downloads/ folder) you can read it into R.
+
+```{r}
+library(tidyverse)
+
+## Make sure to change the file location if it's different for you
+intercoder <- read_csv("~/Downloads/intercoder_reliability - combined.csv")
+```
+
+## Calculate the Krippendorf's Alpha
+
+Now we can calculate the Krippendorf's Alpha using the `irr` package (which stands for InterRater Reliability, but it's the same thing).
+The `kripp.alpha` function requires us to give it the data as a matrix where the rows are coders and the columns are units. 
+So in order to create this data, we'll 
+
+* first **select** only the coder columns (from `coder_1_sentiment` up to column `coder_3_sentiment`). 
+* then **transpose** (`t()`) the data, which swaps the rows and columns (so that the rows become the coders and the columns the units).
+
+
+```{r, results='hide'}
+library(irr)
+
+intercoder |>
+  select(coder_1_sentiment:coder_3_sentiment) |>
+  t() |>
+  kripp.alpha('interval')
+```
+
+## Assignment 1
+
+> **1.1**. Perform the steps above. In your answer, show the code you used and the output of the kripp.alpha function.
+
+> **1.2**. Interpret what the Krippendorf's Alpha tells us about the relibility of this manual content analysis data
+
+> **1.3**. We called the kripp.alpha function as `kripp.alpha('interval')`. Explain what this does, what the alternatives would have been. Is this the correct choice for this data?
+
+> **1.4**. The `combined` data also has a single `gold` (gold standard) column that represents what was decided to be the correct sentiment. How did Van Atteveldt et al., decide this, and why are there missing values (NAs)?
+
+
+# Building and validating a zero-shot classifier
+
+Let's first clean up the manual content analysis data so that we just have the headlines with the gold value.
+We'll call this data `gold`, because it's our gold standard moving forward.
+
+```{r}
+gold <- intercoder |>
+  select(id, headline, gold) |>
+  filter(!is.na(gold))
+
+gold
+```
+
+The process of building and validating our zero-shot classifier is now quite straighforward:
+
+* We'll create our own sentiment classifier function just like in practical 5.
+* Then we'll use this function to classify the sentiment for all the headlines in the gold standard.
+* We'll use the gold standard to calculate the precision and recall of our classifier
+
+
+## Creating a sentiment classifier function
+
+Last time we used Gemini and Ollama.
+In order to get the best performance, we'll use Gemini again this time.
+But when classifying around 300 headlines you would run into the limits of your free Gemini API key.
+For this assignment, you should therefore use a paid API key.
+No worries though, because you can use ours!
+You can find it on Canvas under this week's module.
+
+
+
+Just like in practical 5, we'll use `tidyllm`, and we'll create a func
+
+
+
+The data for the study is [published by the author on Github](https://github.com/vanatteveldt/ecosent/tree/master).  
+
+Your first exercise is to download the data and import it into R.
+Specifically, you'll need to get the `metadata.csv`, `manual_coding.csv` and `gold.csv` files.
+
+If you open the Github link above and scroll down a bit you see the files.
+When you click on the link of a file, you see the contents, and at the top-right there is a button with a download icon for downloading the raw file.
+Once you downloaded the files, import them using `read_csv` from the tidyverse package.
+
+```{r, eval=F}
+library(tidyverse)
+
+metadata <- read_csv("path to where you downloaded metadata.csv")
+manual_coding <- read_csv("path to where you downloaded manual_coding.csv")
+gold <- read_csv("path to where you downloaded gold.csv")
+```
+
+### Exercise 1
+
+> **1** Download the `metadata.csv` and `manual_coding.csv` files and load them into R. Give the data the names `metadata` and `manual_coding`. For each file, report the number of rows, the column names, and the column types.
+> **2** Describe how the data are related. How is the `gold` data related to the `metadata`? How is the `manual_coding` data related to the `gold` data?
+
+
+```{r, echo=F}
+library(tidyverse)
+
+metadata <- read_csv("https://raw.githubusercontent.com/vanatteveldt/ecosent/refs/heads/master/data/intermediate/metadata.csv")
+manual_coding <- read_csv("https://raw.githubusercontent.com/vanatteveldt/ecosent/refs/heads/master/data/intermediate/manual_coding.csv")
+gold <- read.csv("https://raw.githubusercontent.com/vanatteveldt/ecosent/refs/heads/master/data/intermediate/gold.csv")
+```
+
+
+
+
+

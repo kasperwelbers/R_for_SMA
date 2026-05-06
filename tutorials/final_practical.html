@@ -449,12 +449,20 @@ important for Social Media Analytics?</a></li>
 </ul></li>
 <li><a href="#todays-assignment" id="toc-todays-assignment">Today’s
 assignment</a></li>
-<li><a href="#intercoder-reliability" id="toc-intercoder-reliability">Intercoder reliability</a>
+<li><a href="#creating-a-gold-standard" id="toc-creating-a-gold-standard">Creating a Gold Standard</a>
 <ul>
+<li><a href="#import-the-content-analysis-data-into-r" id="toc-import-the-content-analysis-data-into-r">Import the Content
+Analysis data into R</a></li>
+<li><a href="#calculate-the-krippendorfs-alpha" id="toc-calculate-the-krippendorfs-alpha">Calculate the Krippendorf’s
+Alpha</a></li>
 <li><a href="#assignment-1" id="toc-assignment-1">Assignment 1</a></li>
 </ul></li>
-<li><a href="#importing-the-data" id="toc-importing-the-data">Importing
-the data</a></li>
+<li><a href="#building-and-validating-a-zero-shot-classifier" id="toc-building-and-validating-a-zero-shot-classifier">Building and
+validating a zero-shot classifier</a>
+<ul>
+<li><a href="#creating-a-sentiment-classifier-function" id="toc-creating-a-sentiment-classifier-function">Creating a sentiment
+classifier function</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -557,21 +565,28 @@ all. THATS HOW FAST THE FIELD HAS EVOLVED. Zero-shot classification
 wasn’t a thing yet.</p>
 <p>So what we’ll do in this tutorial is to see how well we can approach
 or even exceed the performance of the best machine learning models in
-the study using zero-shot classification. Note that these were advances
-techniques used by experts, but we have technological advancement on our
-side! Can you, having only recently learned about content analysis at
-all, beat the experts using our state-of-the-art method?</p>
+the study using zero-shot classification. Even though the analyses in
+Van Atteveldt et al., were performed by experts with much more time on
+their hands, we have technological advancement on our side! Can you,
+having only recently learned about content analysis at all, beat the
+experts using our state-of-the-art method?</p>
 </div>
-<div id="intercoder-reliability" class="section level1">
-<h1>Intercoder reliability</h1>
-<p>As described in the article, some coding units were coded by all
-coders, so we can use this to calculate the intercoder reliability. The
-authors used Krippendorf’s alpha as the reliability metric. In practical
-2, you compared Cohen’s Kappa and Krippendorf’s alpha, but we only used
-Cohen’s Kappa because Krippendorf’s alpha is difficult to compute by
-hand. But this time we’re working in R, where we can use the
-<code>irr</code> package to compute Krippendorf’s alpha for us (note
-that you need to install <code>irr</code> first).</p>
+<div id="creating-a-gold-standard" class="section level1">
+<h1>Creating a Gold Standard</h1>
+<p>Van Atteveldt et al., had to create a gold standard to evaluate and
+compare the different content analysis approaches. For this, they
+conducted a manual content analysis of 300 units that were coded by 3
+expert coders (the authors themselves). If they can reliably code the
+sentiment of economic headlines the same way, it would indicate that
+their measurement is reliable (and valid).</p>
+<p>The authors used Krippendorf’s alpha as the reliability metric. In
+<strong>practical 2</strong>, you manually calculed Cohen’s Kappa
+because Krippendorf’s alpha is difficult to compute by hand. But this
+time we’re working in R, where we can use the <code>irr</code> package
+to compute Krippendorf’s alpha for us (note that you need to install
+<code>irr</code> first).</p>
+<div id="import-the-content-analysis-data-into-r" class="section level2">
+<h2>Import the Content Analysis data into R</h2>
 <p>We’ll first need to read the manually coded data into R. When you’ll
 be doing your own manual content analysis in the project in period 6,
 we’ll recommend you to work in Google Sheets. So to practice importing
@@ -581,57 +596,112 @@ google sheet</a>.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a
 <p>When you open the Google Sheet link, you’ll see that every row
 represents a headline, and for every headline there are three columns
 with sentiment coding by different coders
-(<code>coder_1_sentiment</code>, etc). Each coder has independently
-coded the sentiment. They didn’t directly code it in this sheet, because
-then they would have been able to see the answers of the other coders.
-They coded it separately, and then put the results together. Because the
-independently coded the sentiment, we can now use this data to compute
-the intercoder reliability.</p>
+(<code>coder_1_sentiment</code>, etc). Notice that there are 4 sheets
+(the tabs at the bottom of the page). Each coder has independently coded
+the sentiment in a separate sheet, to avoid being influenced by each
+others’ answers. The results where then put together in the
+<strong>combined</strong> sheet. Because the independently coded the
+sentiment, we can now use this data to compute the intercoder
+reliability.</p>
 <p>To import the Google Sheet data into R, we’ll first export the data
 from Google Sheets to a CSV file.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. Simply go to
 <code>File -&gt; Download -&gt; Comma separated values (.csv)</code>.
-Now that you downloaded the file to your computer (probably your
+Note that you can only export the current sheet to CSV, so <strong>Make
+sure (!!)</strong> to select the <strong>combined</strong> sheet to
+download the combined data.</p>
+<p><strong>If you’re working on JupyterHub</strong>, you first need to
+upload the file. You can easily do this with the upload button in the
+Files tab (bottom-right corner of RStudio).</p>
+<p>Now that you downloaded the file to your computer (probably your
 downloads/ folder) you can read it into R.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## Make sure to change the file location if it&#39;s different for you</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>intercoder <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;~/Downloads/intercoder_reliability - data.csv&quot;</span>)</span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>intercoder <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;~/Downloads/intercoder_reliability - combined.csv&quot;</span>)</span></code></pre></div>
+</div>
+<div id="calculate-the-krippendorfs-alpha" class="section level2">
+<h2>Calculate the Krippendorf’s Alpha</h2>
 <p>Now we can calculate the Krippendorf’s Alpha using the
 <code>irr</code> package (which stands for InterRater Reliability, but
 it’s the same thing). The <code>kripp.alpha</code> function requires us
 to give it the data as a matrix where the rows are coders and the
-columns are units. So in order to create this data, we’ll first
-<code>select</code> only the coder columns (from
+columns are units. So in order to create this data, we’ll</p>
+<ul>
+<li>first <strong>select</strong> only the coder columns (from
 <code>coder_1_sentiment</code> up to column
-<code>coder_3_sentiment</code>). And then we transpose
-(<code>t()</code>) the data, which swaps the rows and columns (so that
-the rows become the coders and the columns the units).</p>
+<code>coder_3_sentiment</code>).</li>
+<li>then <strong>transpose</strong> (<code>t()</code>) the data, which
+swaps the rows and columns (so that the rows become the coders and the
+columns the units).</li>
+</ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(irr)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>intercoder <span class="sc">|&gt;</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">select</span>(coder_1_sentiment<span class="sc">:</span>coder_3_sentiment) <span class="sc">|&gt;</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="fu">kripp.alpha</span>(<span class="st">&#39;interval&#39;</span>)</span></code></pre></div>
+</div>
 <div id="assignment-1" class="section level2">
 <h2>Assignment 1</h2>
 <blockquote>
 <p><strong>1.1</strong>. Perform the steps above. In your answer, show
-the code you used and the output of the kripp.alpha function.</p>
-</blockquote>
-<blockquote>
-<p><strong>1.2</strong>. Interpret what the Krippendorf’s Alpha tells us
-about the relibility of this manual content analysis data</p>
-</blockquote>
-<blockquote>
-<p><strong>1.3</strong>. We called the kripp.alpha function as
+the code you used and the output of the kripp.alpha function.
+<strong>1.2</strong>. Interpret what the Krippendorf’s Alpha tells us
+about the relibility of this manual content analysis data
+<strong>1.3</strong>. We called the kripp.alpha function as
 <code>kripp.alpha(&#39;interval&#39;)</code>. Explain what this does, what the
-alternatives would have been. Is this the correct choice for this
-data?</p>
+alternatives would have been. Is this the correct choice for this data?
+<strong>1.4</strong>. The <code>combined</code> data also has a single
+<code>gold</code> (gold standard) column that represents what was
+decided to be the correct sentiment. How did Van Atteveldt et al.,
+decide this, and why are there missing values (NAs)?</p>
 </blockquote>
 </div>
 </div>
-<div id="importing-the-data" class="section level1">
-<h1>Importing the data</h1>
+<div id="building-and-validating-a-zero-shot-classifier" class="section level1">
+<h1>Building and validating a zero-shot classifier</h1>
+<p>Let’s first clean up the manual content analysis data so that we just
+have the headlines with the gold value. We’ll call this data
+<code>gold</code>, because it’s our gold standard moving forward.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>gold <span class="ot">&lt;-</span> intercoder <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">select</span>(id, headline, gold) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(gold))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>gold</span></code></pre></div>
+<pre><code>## # A tibble: 284 × 3
+##           id headline                                                       gold
+##        &lt;dbl&gt; &lt;chr&gt;                                                         &lt;dbl&gt;
+##  1     21653 Dow weer boven 18.000 punten                                      1
+##  2 150285229 Dijsselbloem maakt voortgang met Grieken                          1
+##  3 150290877 Voorstel komt te snel, eerst even uitblazen                       0
+##  4 164107322 V&amp;D : geen loonoffer, wel 400 ontslagen                           0
+##  5 164107572 V&amp;D schrapt 400 banen, lonen hoeven niet omlaag                  -1
+##  6 148571717 Help! De prijzen dalen!; Staat van de Nederlandse economie B…     0
+##  7 150287160 `Britse inflatie zal verder dalen&#39;                                0
+##  8     15261 Inflatie gedaald naar laagste niveau in 27 jaar: nul procent      0
+##  9 150282475 Geld. Goedkope benzine leidt tot extreem lage inflatie begin…     0
+## 10 150287150 Lening tegen laagste rente ooit                                   0
+## # ℹ 274 more rows</code></pre>
+<p>The process of building and validating our zero-shot classifier is
+now quite straighforward:</p>
+<ol style="list-style-type: decimal">
+<li>We’ll create our own sentiment classifier function just like in
+practical 5.</li>
+<li>Then we’ll use this function to classify the sentiment for all the
+headlines in the gold standard.</li>
+<li>We’ll use the gold standard to calculate the precision and recall of
+our classifier</li>
+</ol>
+<div id="creating-a-sentiment-classifier-function" class="section level2">
+<h2>Creating a sentiment classifier function</h2>
+<p>Last time we used Gemini and Ollama. In order to get the best
+performance, we’ll use Gemini again this time. But when classifying
+around 300 headlines you would run into the limits of your free Gemini
+API key. For this assignment, you should therefore use a paid API key.
+No worries though, because you can use ours! You can find it on Canvas
+under this week’s module.</p>
+<p>Just like in practical 5, we’ll use <code>tidyllm</code>, and we’ll
+create a func</p>
 <p>The data for the study is <a href="https://github.com/vanatteveldt/ecosent/tree/master">published by
 the author on Github</a>.</p>
 <p>Your first exercise is to download the data and import it into R.
@@ -642,11 +712,11 @@ files. When you click on the link of a file, you see the contents, and
 at the top-right there is a button with a download icon for downloading
 the raw file. Once you downloaded the files, import them using
 <code>read_csv</code> from the tidyverse package.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded metadata.csv&quot;</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>manual_coding <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded manual_coding.csv&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>gold <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded gold.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded metadata.csv&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>manual_coding <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded manual_coding.csv&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>gold <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded gold.csv&quot;</span>)</span></code></pre></div>
 <div id="exercise-1" class="section level3">
 <h3>Exercise 1</h3>
 <blockquote>
@@ -659,6 +729,7 @@ file, report the number of rows, the column names, and the column types.
 <code>manual_coding</code> data related to the <code>gold</code>
 data?</p>
 </blockquote>
+</div>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">

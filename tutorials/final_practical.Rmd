@@ -49,7 +49,7 @@ Consider the homework literature of last week, in which Atteveldt et al., analyz
 The **zero-shot** classification technique provides a powerful alternative. You can ask any question without having to first train the model. In this course we only use this for analyzing textual content in English, but the same technique also works for multimedia and multilingual content. This is especially important for social media data, which today is highly diverse and multimodal.  
 
 
-# Today's assignment
+## Today's assignment
 
 In last week's homework literature, you read the article by [Van Atteveldt et al., (2021)](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198)--presumably with great interest and maybe even twice!
 In this article, they analyze the validity of sentiment analysis techniques, comparing manual annotation, crowd-coding, dictionary approaches and machine-learning approaches. 
@@ -75,7 +75,7 @@ So what we'll do in this tutorial is to see how well we can approach or even exc
   
 
 
-# Creating a Gold Standard
+# 1. Creating a Gold Standard
 
 Van Atteveldt et al., had to create a gold standard to evaluate and compare the different content analysis approaches. For this, they conducted a manual content analysis of 300 units that were coded by 3 expert coders (the authors themselves).
 If they can reliably code the sentiment of economic headlines the same way, it would indicate that their measurement is reliable (and valid).
@@ -139,7 +139,7 @@ intercoder |>
 > **1.4**. The `combined` data also has a single `gold` (gold standard) column that represents what was decided to be the correct sentiment. How did Van Atteveldt et al., decide this, and why are there missing values (NAs)?
 
 
-# Building and validating a zero-shot classifier
+# 2. Building and validating a zero-shot classifier
 
 Let's first clean up the manual content analysis data so that we just have the headlines with the gold value.
 We'll call this data `gold`, because it's our gold standard moving forward.
@@ -275,7 +275,7 @@ Your goal is to create instructions to code these headlines for event-based and 
 
 
 
-# Coding Economic Sentiment Headlines
+# 3. Coding Economic Sentiment Headlines
 
 Now that we have a gold standard and a classifier, we can test how well our classifier performs! You already saw how to do this last week. Here we show it again with a few extra tricks. Make sure to follow along with the example, because you'll be doing this yourself in Assignment 3.
 

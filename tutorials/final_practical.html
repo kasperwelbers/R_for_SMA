@@ -446,10 +446,10 @@ display: none;
 have you learned?</a></li>
 <li><a href="#why-is-this-important-for-social-media-analytics" id="toc-why-is-this-important-for-social-media-analytics">Why is this
 important for Social Media Analytics?</a></li>
-</ul></li>
 <li><a href="#todays-assignment" id="toc-todays-assignment">Today’s
 assignment</a></li>
-<li><a href="#creating-a-gold-standard" id="toc-creating-a-gold-standard">Creating a Gold Standard</a>
+</ul></li>
+<li><a href="#creating-a-gold-standard" id="toc-creating-a-gold-standard">1. Creating a Gold Standard</a>
 <ul>
 <li><a href="#import-the-content-analysis-data-into-r" id="toc-import-the-content-analysis-data-into-r">Import the Content
 Analysis data into R</a></li>
@@ -457,15 +457,15 @@ Analysis data into R</a></li>
 Alpha</a></li>
 <li><a href="#assignment-1" id="toc-assignment-1">Assignment 1</a></li>
 </ul></li>
-<li><a href="#building-and-validating-a-zero-shot-classifier" id="toc-building-and-validating-a-zero-shot-classifier">Building and
+<li><a href="#building-and-validating-a-zero-shot-classifier" id="toc-building-and-validating-a-zero-shot-classifier">2. Building and
 validating a zero-shot classifier</a>
 <ul>
 <li><a href="#creating-a-sentiment-classifier-function" id="toc-creating-a-sentiment-classifier-function">Creating a sentiment
 classifier function</a></li>
 <li><a href="#assignment-2" id="toc-assignment-2">Assignment 2</a></li>
 </ul></li>
-<li><a href="#coding-economic-sentiment-headlines" id="toc-coding-economic-sentiment-headlines">Coding Economic Sentiment
-Headlines</a>
+<li><a href="#coding-economic-sentiment-headlines" id="toc-coding-economic-sentiment-headlines">3. Coding Economic
+Sentiment Headlines</a>
 <ul>
 <li><a href="#validating-the-sentiment-classifier" id="toc-validating-the-sentiment-classifier">Validating the sentiment
 classifier</a></li>
@@ -546,9 +546,8 @@ content in English, but the same technique also works for multimedia and
 multilingual content. This is especially important for social media
 data, which today is highly diverse and multimodal.</p>
 </div>
-</div>
-<div id="todays-assignment" class="section level1">
-<h1>Today’s assignment</h1>
+<div id="todays-assignment" class="section level2">
+<h2>Today’s assignment</h2>
 <p>In last week’s homework literature, you read the article by <a href="https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198">Van
 Atteveldt et al., (2021)</a>–presumably with great interest and maybe
 even twice! In this article, they analyze the validity of sentiment
@@ -580,8 +579,9 @@ their hands, You have technological advancement on your side!
 all, beat the recent state-of-the-art using this new
 method?</strong></p>
 </div>
+</div>
 <div id="creating-a-gold-standard" class="section level1">
-<h1>Creating a Gold Standard</h1>
+<h1>1. Creating a Gold Standard</h1>
 <p>Van Atteveldt et al., had to create a gold standard to evaluate and
 compare the different content analysis approaches. For this, they
 conducted a manual content analysis of 300 units that were coded by 3
@@ -675,7 +675,7 @@ decide this, and why are there missing values (NAs)?</p>
 </div>
 </div>
 <div id="building-and-validating-a-zero-shot-classifier" class="section level1">
-<h1>Building and validating a zero-shot classifier</h1>
+<h1>2. Building and validating a zero-shot classifier</h1>
 <p>Let’s first clean up the manual content analysis data so that we just
 have the headlines with the gold value. We’ll call this data
 <code>gold</code>, because it’s our gold standard moving forward.</p>
@@ -855,7 +855,7 @@ work)?</p>
 </div>
 </div>
 <div id="coding-economic-sentiment-headlines" class="section level1">
-<h1>Coding Economic Sentiment Headlines</h1>
+<h1>3. Coding Economic Sentiment Headlines</h1>
 <p>Now that we have a gold standard and a classifier, we can test how
 well our classifier performs! You already saw how to do this last week.
 Here we show it again with a few extra tricks. Make sure to follow along

@@ -44,7 +44,7 @@ In this practical we'll be putting all of this together. We'll start with a manu
 
 Social media provide a goldmine of information about society, but **manual content analysis is too slow and expensive** to use this information effectively. Companies want to be able to continuously monitor how people talk about them. Researchers want big data for comparative and longitudinal research. **Automatic content analysis** enables us to perform content analysis at a big scale, but it used to be quite difficult to automate many types of content-analysis with acceptable validity. The state-of-the-art **zero-shot classification** technique that you learn in this course offers a flexibility and performance that researchers and professionals several years ago could only dream of. 
 
-Consider the homework literature of last week, in which Atteveldt et al., analyzed the validity of **sentiment analysis** techniques using dictionaries and machine learning approaches. Dictionaries were relatively easy to use, but they performed very poorly in terms of validity. The best results were achieved using complex Supervised Machine Learning approaches that required you to first train (i.e. supervise) a model using a lot of examples. But this meant that you still needed to perform a lot of manual content analysis in order to train your model, and these models could only be used for the specific task that you trained them on. Furthermore, many of these traditional techniques only worked with textual data, and only for specific languages.  
+Consider the homework literature of last week, in which Atteveldt et al., analyzed the validity of **sentiment analysis** techniques using dictionaries and machine learning approaches. **Dictionaries** were relatively easy to use, but they performed very poorly in terms of validity. The best results were achieved using complex **Supervised Machine Learning** approaches that required you to first train (i.e. supervise) a model using a lot of examples. But this meant that you still needed to perform a lot of manual content analysis in order to train your model, and these models could only be used for the specific task that you trained them on. Furthermore, many of these traditional techniques only worked with textual data, and only for specific languages.  
 
 The **zero-shot** classification technique provides a powerful alternative. You can ask any question without having to first train the model. In this course we only use this for analyzing textual content in English, but the same technique also works for multimedia and multilingual content. This is especially important for social media data, which today is highly diverse and multimodal.  
 
@@ -71,8 +71,8 @@ This conclusion implies that for automatic content analysis we would need to use
 
 What is fascinating about this paper, is that even though it is fairly recent (2021), it does not mention Large Language Models (LLM) at all. THATS HOW FAST THE FIELD HAS EVOLVED. Zero-shot classification wasn't a thing yet. 
 
-So what we'll do in this tutorial is to see how well we can approach or even exceed the performance of the best machine learning models in the study using zero-shot classification. Even though the analyses in Van Atteveldt et al., were performed by experts with much more time on their hands, we have technological advancement on our side! Can you, having only recently learned about content analysis at all, beat the experts using our state-of-the-art method?
-
+So what we'll do in this tutorial is to see how well we can approach or even exceed the performance of the best machine learning models in the study using zero-shot classification. Even though the analyses in Van Atteveldt et al., were performed by experts with much more time on their hands, You have technological advancement on your side! **Can you, having only recently learned about content analysis at all, beat the recent state-of-the-art using this new method?**
+  
 
 
 # Creating a Gold Standard
@@ -125,16 +125,16 @@ library(irr)
 intercoder |>
   select(coder_1_sentiment:coder_3_sentiment) |>
   t() |>
-  kripp.alpha('interval')
+  kripp.alpha(method = 'interval')
 ```
 
 ## Assignment 1
 
 > **1.1**. Perform the steps above. In your answer, show the code you used and the output of the kripp.alpha function.
 
-> **1.2**. Interpret what the Krippendorf's Alpha tells us about the relibility of this manual content analysis data
+> **1.2**. Interpret what the Krippendorf's Alpha tells us about the relibility of this manual content analysis data. Does it match what is reported in the article?
 
-> **1.3**. We called the kripp.alpha function as `kripp.alpha('interval')`. Explain what this does, what the alternatives would have been. Is this the correct choice for this data?
+> **1.3**. We called the kripp.alpha function with `method = 'interval'`. Explain what this does and what the alternatives are. Is this the correct choice for this data?
 
 > **1.4**. The `combined` data also has a single `gold` (gold standard) column that represents what was decided to be the correct sentiment. How did Van Atteveldt et al., decide this, and why are there missing values (NAs)?
 
@@ -172,12 +172,12 @@ You can find it on Canvas under this week's module.
 
 The process is identical to before. Simply set the key once, and then we can use `tidyllm` with gemini_chat. Make sure to use the `gemini-3.1-flash-lite-preview` or `gemini-2.5-flash-lite` model for this assignment to avoid running into rate limits (aka making your own life harder). 
 
-```{r}
+```{r, eval=F}
 library(tidyllm)
 Sys.setenv(GOOGLE_API_KEY = "[ENTER API KEY HERE]")
 
 llm_message("Hi, how are you?") |>
-  gemini_chat(.model = "gemini-3.1-flash-lite-preview")%>%
+  gemini_chat(.model = "gemini-2.5-flash-lite")%>%
   get_reply()
 ```
 
@@ -186,7 +186,7 @@ llm_message("Hi, how are you?") |>
 Now let's build our classifier function, similar to how we did this in practical 5.
 This time, we'll give our model 2 parameters: the text to classify and the prompt for instructing the model how to code sentiment. 
 Our default instruction is just a plain instruction without a clear definition of sentiment.
-By making it a parameter, we can later change the instruction to more clearly instruct the model what we mean by sentiment.
+By making instruction a parameter, we can later change the instruction to more clearly instruct the model what we mean by sentiment.
 
 
 ```{r}
@@ -200,7 +200,8 @@ sentiment_classifier <- function(text, instruction = "Code the sentiment of this
   result <- llm_message(task) |>
     llm_message(paste("This is the instruction:", instruction)) |>
     llm_message(paste("This is the text:", text)) |>
-    gemini_chat(.model = "gemini-3.1-flash-lite-preview", 
+    #gemini_chat(.model = "gemini-3.1-flash-lite-preview", 
+    gemini_chat(.model = "gemini-2.5-flash-lite", 
                 .json_schema = sentiment_schema,
                 .temperature = 0) |>
     get_reply_data() 
@@ -211,120 +212,129 @@ sentiment_classifier <- function(text, instruction = "Code the sentiment of this
 
 Ok, let's see if it works!
 
-```{r}
+```{r, eval=F}
 sentiment_classifier("This is a great example")
 sentiment_classifier("This is a terrible example")
 ```
 
-Let's see if we can change the outcome by changing the instruction
+Let's see if we can change the outcome by changing the instruction.
+Perhaps you recall that in the first lecture we showed you multiple news headlines, and everyone had to say whether they believe the headline was positive, negative or neutral.
+Here you clearly saw that many headlines allowed for different interpretations, depending on how you define sentiment.
+The lessen here was that if we do not properly define sentiment, different coders will have different interpretations, leading to low `intercoder reliability`.
+To make sure every coder interprets sentiment in roughly the same way, we provide a codebook that guides their interpretations.
+For a Large Language Model, we can similarly provide instructions for how to interpret sentiment.
 
-```{r}
+One example that we showed was a variation on the classic philosophical [trolley problem](https://en.wikipedia.org/wiki/Trolley_problem). 
+Here we have another variation. 
+Let's see if we can change the interpretation of the model with a simple instruction.
+
+```{r, eval=F}
 headline = "A surgeon killed one involuntary organ donor to save five people"
 
 sentiment_classifier(headline)
-sentiment_classifier(headline, instruction = "Code the sentiment from the perspective of a die-hard utilitarian that loves maximizing utility")
+
+sentiment_classifier(headline, instruction = "Your task is to code sentiment from a utilitarian perspective that maximizes utility")
 ```
 
-In my case, this instruction successfully changes the outcome from negative to positive by forcing the model to take a different moral perspective. (there is a small chance you get different results).
+When I ran this code, adding this instruction indeed changed the outcome from negative to positive (there is a small chance you get different results, but rest assured that the process works). By telling the model to code sentiment from a utilitarian perspective, we tell it to interpret sentiment based on the net positive outcome, regardless of the morally questionable means to this end.
+
+Of course, this is a rather silly example, and a single example like this should not be taken as proof that our instruction generalizes to other headlines. 
+It is possible that the main reason why our instruction worked for this example is that the model simply recognized the trolley problem, which is strongly related to utilitarianism.
+To validate whether a instruction is good, you need to test is for a large number of examples (which we'll do in assignment 3).
 
 ## Assignment 2
 
-We now have a classifier function where we can change the instruction.
-This is important, because without a clear instruction, measuring sentiment is pretty useless!!
-Perhaps you recall that in the first lecture we showed you multiple news headlines, and everyone had to say whether they believe the headline was positive, negative or neutral.
-Here you clearly saw that many headlines can be all of those, depending on how you define sentiment.
-For example, the headline "10 people hurt in plane crash" describes a negative event, but the journalist covers the event neutrally, and one might even argue that only 10 hurt in a plane crash is a positive miracle!
+Here is another example of a news headline with multiple interpretations of sentiment.
 
-You can use the instruction to clarify to the model how the researcher wants to measure sentiment, and how it should be measured. This instruction can be short, but for high quality data you could write a detailed codebook with definitions and examples.
+> 10 people died in train accident
 
-> **2.1**. Create an instruction 
+In the first lecture, we saw that some people would code this as **negative**, where others consider it **neutral**. 
 
-Here are some examples of how 
+* The people that coded **negative** argued that dying is clearly a negative thing, thus implicitly defining sentiment as whether the news event itself is positive or negative. Let's call this the **event-based sentiment** camp.
+* The people that coded **neutral** argued that as a news headline, it is a neutral description of the event. This implicitly defined sentiment as a subjective, emotional expression. Let's call this the **subjective sentiment** camp. 
 
-```{r}
-headline1 = "10 people hurt in a plane crash."
-headline2 = "10 people hurt in a terrible plane crash."
-headline3 = "10 people hurt in a surprisingly harmless plane crash!"
-
-
-instruction = "Your task is to code whether the news event is positive, neutral or negative, regardless of how the journalist feels about it"
-
-instruction = "Your task is to code whether a news headline expresses the subjective perspective of the journalist. You do not take into account whether the event itself is positive or negative"
-
-sentiment_classifier(headline1, instruction)
-sentiment_classifier(headline2, instruction)
-sentiment_classifier(headline3, instruction)
-
-instruction = 
-
-sentiment_classifier(headline1)
-sentiment_classifier(headline2)
-sentiment_classifier(headline3)
-
-sentiment_classifier(headline, instruction = "Your task is to code whether a news headline expresses the subjective perspective of the journalist. You do not take into account whether the event itself is positive or negative")
-```
+Both interpretations are fair. 
+As a researcher, it is your responsibility to define what you mean by sentiment in your study, and instruct the coders properly so that their coding is valid for answering your research question.
+In this assignment, we'll practice this using the following three headlines:
 
 ```{r}
-headline = "A surgeon killed one involuntary organ donor to save five people"
-
-sentiment_classifier(headline)
-
-sentiment_classifier(headline, instruction = "Code the sentiment from the perspective of a die-hard utilitarian that loves maximizing utility")
+headline1 <- "10 people hurt in a plane crash."
+headline2 <- "10 people hurt in a terrible plane crash."
+headline3 <- "10 people hurt in a surprisingly harmless plane crash!"
 ```
 
+Your goal is to create instructions to code these headlines for event-based and subjective sentiment. You can add any instruction you want (definition of sentiment, examples). The only exception is that you are not allowed to mention the specific event (10 people hurt in accident) in the instruction, because that would be cheating.
+
+> **2.1**. Create an instruction for measuring **event-based sentiment**. Use this instruction with our `sentiment_classifier` to code the three headlines. Report your code and the results. 
+
+> **2.2**. Reflect on how well your **event-based sentiment** instruction worked. Did you get the results your expected? Why do you think your instruction worked (or did not work)?  
+
+> **2.3**. Create an instruction for measuring **subjective sentiment**. Use this instruction with our `sentiment_classifier` to code the three headlines. Report your code and the results. 
+
+> **2.4**. Reflect on how well your **subjective sentiment** instruction worked. Did you get the results your expected? Why do you think your instruction worked (or did not work)?  
 
 
 
+# Coding Economic Sentiment Headlines
 
-We now have a basic sentiment classifier.
-However, we haven't really given it any good instructions.
-Currently, it just naively codes "sentiment", without us giving it any directions regarding what we mean by sentiment.
+Now that we have a gold standard and a classifier, we can test how well our classifier performs! You already saw how to do this last week. Here we show it again with a few extra tricks. Make sure to follow along with the example, because you'll be doing this yourself in Assignment 3.
 
-In the first lecture of this course, we played a little game where we read out some headlines, and you all had to 
+## Validating the sentiment classifier
 
+In the previous practical you learned how to use `purrr` to map over multiple texts and apply the sentiment classifier to each.
+Here we'll do the same.
+But since this time we're going to map over more texts, we want to make sure that if one text fails (e.g. the Gemini API throws an error), that it doesn't break the whole process. 
+Otherwise, you might have just coded 200 texts, but then if text 201 throws an error you would have to start all over again!
+
+To prevent this, we'll add a safety net around `sentiment_classifier` that tells it to return `NA` (missing value) in case of an error.
+This can easily be done with the `possibly` function from the `purrr` package.
+Here we create a new function `safe_sentiment_classifier` that works just like `sentiment_classifier` if it succeeds, but returns `NA` in case of an error.
 
 ```{r}
-sentiment_classifier("Ten people died in train crash", 
-                     instruction: "Code the sentiment of this ")
-
-
+library(purrr)
+safe_sentiment_classifier <- possibly(sentiment_classifier, otherwise = NA)
 ```
 
-
-
-
-The data for the study is [published by the author on Github](https://github.com/vanatteveldt/ecosent/tree/master).  
-
-Your first exercise is to download the data and import it into R.
-Specifically, you'll need to get the `metadata.csv`, `manual_coding.csv` and `gold.csv` files.
-
-If you open the Github link above and scroll down a bit you see the files.
-When you click on the link of a file, you see the contents, and at the top-right there is a button with a download icon for downloading the raw file.
-Once you downloaded the files, import them using `read_csv` from the tidyverse package.
+And now we can use `map_vec` again.
+To show a quick example, we'll take a random sample of 10 headlines from `gold` and code them.
 
 ```{r, eval=F}
-library(tidyverse)
+gold_sample <- sample_n(gold, 10)
 
-metadata <- read_csv("path to where you downloaded metadata.csv")
-manual_coding <- read_csv("path to where you downloaded manual_coding.csv")
-gold <- read_csv("path to where you downloaded gold.csv")
+predicted <- map_vec(gold_sample$headline, 
+                     safe_sentiment_classifier, 
+                     instruction = "Code the economic sentiment of these news headlines",
+                     .progress = TRUE)
 ```
 
-### Exercise 1
+And now we can compute the performance metrics using the `confusionMatrix` function, just like last time.
+The only thing we need to do first is convert both our `predicted` values and the gold standard values (`gold$gold`) to `factors` with the same values.
+For `predicted` we can simply use `as.factor` like last time.
+But since the `gold` data is in a numeric format (`-1, 0, 1`) we'll use the `factor` function to explicitly map these values (`levels=`) to the right labels (`labels=`).
 
-> **1** Download the `metadata.csv` and `manual_coding.csv` files and load them into R. Give the data the names `metadata` and `manual_coding`. For each file, report the number of rows, the column names, and the column types.
-> **2** Describe how the data are related. How is the `gold` data related to the `metadata`? How is the `manual_coding` data related to the `gold` data?
+```{r, eval=F}
+library(caret)
 
+predicted = as.factor(predicted)
+actual = factor(gold_sample$gold, 
+                levels = c(-1, 0, 1), 
+                labels = c('negative','neutral','positive'))
 
-```{r, echo=F}
-library(tidyverse)
-
-metadata <- read_csv("https://raw.githubusercontent.com/vanatteveldt/ecosent/refs/heads/master/data/intermediate/metadata.csv")
-manual_coding <- read_csv("https://raw.githubusercontent.com/vanatteveldt/ecosent/refs/heads/master/data/intermediate/manual_coding.csv")
-gold <- read.csv("https://raw.githubusercontent.com/vanatteveldt/ecosent/refs/heads/master/data/intermediate/gold.csv")
+confusionMatrix(predicted, actual, mode='prec_recall')
 ```
 
 
+## Assignment 3
+
+Now we have everything in place to return to our initial goal: to see how well we can approach or even exceed the performance of the best machine learning models in [Van Atteveldt et al. (2021)](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198) using zero-shot classification. 
 
 
+> **3.1**. Create the instruction that you'll use in the sentiment classifier. Include an explanation of why you think this is a good instruction. 
 
+> **3.2**. Use the classifier to code all headlines in the gold standard (so not a sample!), and calculate the performance metrics. Write a detailed report of the performance. Report the accuracy of the model, and report the precision, recall and F1 scores per sentiment category. Also look at the confusion matrix to reflect on what types of categories were most often mixed up. Overall, how well do you think your model performed? 
+
+*(Running the analysis in 3.2  can take a few minutes, so if you do not want to wait, you can already work on 3.3).*
+
+> **3.3**. Summarize the performance metrics from table 2 in Van Atteveldt et al. (2021). What **manual content analysis approach** (manual/crowd coding) had the best accuracy, and what **automatic content analysis approach** (machine learning / dictionaries) had the best accuracy? Report the precision, recall and F1 scores for these two approaches.
+
+> **3.4**. Compare these results to your own results. How well did your zero-shot classification analysis perform compared to the best automatic approach that Van Atteveldt et al. reported? How well does it perform compared to the best manual approach?

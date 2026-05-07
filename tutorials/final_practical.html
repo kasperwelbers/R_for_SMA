@@ -462,6 +462,14 @@ validating a zero-shot classifier</a>
 <ul>
 <li><a href="#creating-a-sentiment-classifier-function" id="toc-creating-a-sentiment-classifier-function">Creating a sentiment
 classifier function</a></li>
+<li><a href="#assignment-2" id="toc-assignment-2">Assignment 2</a></li>
+</ul></li>
+<li><a href="#coding-economic-sentiment-headlines" id="toc-coding-economic-sentiment-headlines">Coding Economic Sentiment
+Headlines</a>
+<ul>
+<li><a href="#validating-the-sentiment-classifier" id="toc-validating-the-sentiment-classifier">Validating the sentiment
+classifier</a></li>
+<li><a href="#assignment-3" id="toc-assignment-3">Assignment 3</a></li>
 </ul></li>
 </ul>
 </div>
@@ -522,15 +530,15 @@ professionals several years ago could only dream of.</p>
 <p>Consider the homework literature of last week, in which Atteveldt et
 al., analyzed the validity of <strong>sentiment analysis</strong>
 techniques using dictionaries and machine learning approaches.
-Dictionaries were relatively easy to use, but they performed very poorly
-in terms of validity. The best results were achieved using complex
-Supervised Machine Learning approaches that required you to first train
-(i.e. supervise) a model using a lot of examples. But this meant that
-you still needed to perform a lot of manual content analysis in order to
-train your model, and these models could only be used for the specific
-task that you trained them on. Furthermore, many of these traditional
-techniques only worked with textual data, and only for specific
-languages.</p>
+<strong>Dictionaries</strong> were relatively easy to use, but they
+performed very poorly in terms of validity. The best results were
+achieved using complex <strong>Supervised Machine Learning</strong>
+approaches that required you to first train (i.e. supervise) a model
+using a lot of examples. But this meant that you still needed to perform
+a lot of manual content analysis in order to train your model, and these
+models could only be used for the specific task that you trained them
+on. Furthermore, many of these traditional techniques only worked with
+textual data, and only for specific languages.</p>
 <p>The <strong>zero-shot</strong> classification technique provides a
 powerful alternative. You can ask any question without having to first
 train the model. In this course we only use this for analyzing textual
@@ -567,9 +575,10 @@ wasn’t a thing yet.</p>
 or even exceed the performance of the best machine learning models in
 the study using zero-shot classification. Even though the analyses in
 Van Atteveldt et al., were performed by experts with much more time on
-their hands, we have technological advancement on our side! Can you,
-having only recently learned about content analysis at all, beat the
-experts using our state-of-the-art method?</p>
+their hands, You have technological advancement on your side!
+<strong>Can you, having only recently learned about content analysis at
+all, beat the recent state-of-the-art using this new
+method?</strong></p>
 </div>
 <div id="creating-a-gold-standard" class="section level1">
 <h1>Creating a Gold Standard</h1>
@@ -639,20 +648,27 @@ columns the units).</li>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>intercoder <span class="sc">|&gt;</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">select</span>(coder_1_sentiment<span class="sc">:</span>coder_3_sentiment) <span class="sc">|&gt;</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="fu">kripp.alpha</span>(<span class="st">&#39;interval&#39;</span>)</span></code></pre></div>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="fu">kripp.alpha</span>(<span class="at">method =</span> <span class="st">&#39;interval&#39;</span>)</span></code></pre></div>
 </div>
 <div id="assignment-1" class="section level2">
 <h2>Assignment 1</h2>
 <blockquote>
 <p><strong>1.1</strong>. Perform the steps above. In your answer, show
-the code you used and the output of the kripp.alpha function.
-<strong>1.2</strong>. Interpret what the Krippendorf’s Alpha tells us
-about the relibility of this manual content analysis data
-<strong>1.3</strong>. We called the kripp.alpha function as
-<code>kripp.alpha(&#39;interval&#39;)</code>. Explain what this does, what the
-alternatives would have been. Is this the correct choice for this data?
-<strong>1.4</strong>. The <code>combined</code> data also has a single
-<code>gold</code> (gold standard) column that represents what was
+the code you used and the output of the kripp.alpha function.</p>
+</blockquote>
+<blockquote>
+<p><strong>1.2</strong>. Interpret what the Krippendorf’s Alpha tells us
+about the relibility of this manual content analysis data. Does it match
+what is reported in the article?</p>
+</blockquote>
+<blockquote>
+<p><strong>1.3</strong>. We called the kripp.alpha function with
+<code>method = &#39;interval&#39;</code>. Explain what this does and what the
+alternatives are. Is this the correct choice for this data?</p>
+</blockquote>
+<blockquote>
+<p><strong>1.4</strong>. The <code>combined</code> data also has a
+single <code>gold</code> (gold standard) column that represents what was
 decided to be the correct sentiment. How did Van Atteveldt et al.,
 decide this, and why are there missing values (NAs)?</p>
 </blockquote>
@@ -700,36 +716,234 @@ around 300 headlines you would run into the limits of your free Gemini
 API key. For this assignment, you should therefore use a paid API key.
 No worries though, because you can use ours! You can find it on Canvas
 under this week’s module.</p>
-<p>Just like in practical 5, we’ll use <code>tidyllm</code>, and we’ll
-create a func</p>
-<p>The data for the study is <a href="https://github.com/vanatteveldt/ecosent/tree/master">published by
-the author on Github</a>.</p>
-<p>Your first exercise is to download the data and import it into R.
-Specifically, you’ll need to get the <code>metadata.csv</code>,
-<code>manual_coding.csv</code> and <code>gold.csv</code> files.</p>
-<p>If you open the Github link above and scroll down a bit you see the
-files. When you click on the link of a file, you see the contents, and
-at the top-right there is a button with a download icon for downloading
-the raw file. Once you downloaded the files, import them using
-<code>read_csv</code> from the tidyverse package.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded metadata.csv&quot;</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>manual_coding <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded manual_coding.csv&quot;</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>gold <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to where you downloaded gold.csv&quot;</span>)</span></code></pre></div>
-<div id="exercise-1" class="section level3">
-<h3>Exercise 1</h3>
+<div id="setting-up-gemini-in-tidyllm" class="section level3">
+<h3>Setting up Gemini in TidyLLM</h3>
+<p>The process is identical to before. Simply set the key once, and then
+we can use <code>tidyllm</code> with gemini_chat. Make sure to use the
+<code>gemini-3.1-flash-lite-preview</code> or
+<code>gemini-2.5-flash-lite</code> model for this assignment to avoid
+running into rate limits (aka making your own life harder).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(tidyllm)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">GOOGLE_API_KEY =</span> <span class="st">&quot;[ENTER API KEY HERE]&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">llm_message</span>(<span class="st">&quot;Hi, how are you?&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span></code></pre></div>
+</div>
+<div id="creating-a-classifier-function" class="section level3">
+<h3>Creating a classifier function</h3>
+<p>Now let’s build our classifier function, similar to how we did this
+in practical 5. This time, we’ll give our model 2 parameters: the text
+to classify and the prompt for instructing the model how to code
+sentiment. Our default instruction is just a plain instruction without a
+clear definition of sentiment. By making instruction a parameter, we can
+later change the instruction to more clearly instruct the model what we
+mean by sentiment.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>sentiment_classifier <span class="ot">&lt;-</span> <span class="cf">function</span>(text, <span class="at">instruction =</span> <span class="st">&quot;Code the sentiment of this text&quot;</span>) {</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  sentiment_schema <span class="ot">=</span> <span class="fu">tidyllm_schema</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="at">sentiment =</span> <span class="fu">field_fct</span>(<span class="st">&quot;The sentiment of the text&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;positive&quot;</span>, <span class="st">&quot;neutral&quot;</span>, <span class="st">&quot;negative&quot;</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  )</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  </span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  task <span class="ot">&lt;-</span> <span class="st">&quot;You are a coder in a content analysis study. Your task is to code the sentiment of the given text, strictly based on the following instructions of the researcher.&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  </span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">llm_message</span>(task) <span class="sc">|&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the instruction:&quot;</span>, instruction)) <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the text:&quot;</span>, text)) <span class="sc">|&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="co">#gemini_chat(.model = &quot;gemini-3.1-flash-lite-preview&quot;, </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>, </span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>                <span class="at">.json_schema =</span> sentiment_schema,</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>                <span class="at">.temperature =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>    <span class="fu">get_reply_data</span>() </span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  </span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="fu">return</span>(result<span class="sc">$</span>sentiment)</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>}</span></code></pre></div>
+<p>Ok, let’s see if it works!</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a great example&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a terrible example&quot;</span>)</span></code></pre></div>
+<p>Let’s see if we can change the outcome by changing the instruction.
+Perhaps you recall that in the first lecture we showed you multiple news
+headlines, and everyone had to say whether they believe the headline was
+positive, negative or neutral. Here you clearly saw that many headlines
+allowed for different interpretations, depending on how you define
+sentiment. The lessen here was that if we do not properly define
+sentiment, different coders will have different interpretations, leading
+to low <code>intercoder reliability</code>. To make sure every coder
+interprets sentiment in roughly the same way, we provide a codebook that
+guides their interpretations. For a Large Language Model, we can
+similarly provide instructions for how to interpret sentiment.</p>
+<p>One example that we showed was a variation on the classic
+philosophical <a href="https://en.wikipedia.org/wiki/Trolley_problem">trolley
+problem</a>. Here we have another variation. Let’s see if we can change
+the interpretation of the model with a simple instruction.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>headline <span class="ot">=</span> <span class="st">&quot;A surgeon killed one involuntary organ donor to save five people&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(headline)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(headline, <span class="at">instruction =</span> <span class="st">&quot;Your task is to code sentiment from a utilitarian perspective that maximizes utility&quot;</span>)</span></code></pre></div>
+<p>When I ran this code, adding this instruction indeed changed the
+outcome from negative to positive (there is a small chance you get
+different results, but rest assured that the process works). By telling
+the model to code sentiment from a utilitarian perspective, we tell it
+to interpret sentiment based on the net positive outcome, regardless of
+the morally questionable means to this end.</p>
+<p>Of course, this is a rather silly example, and a single example like
+this should not be taken as proof that our instruction generalizes to
+other headlines. It is possible that the main reason why our instruction
+worked for this example is that the model simply recognized the trolley
+problem, which is strongly related to utilitarianism. To validate
+whether a instruction is good, you need to test is for a large number of
+examples (which we’ll do in assignment 3).</p>
+</div>
+</div>
+<div id="assignment-2" class="section level2">
+<h2>Assignment 2</h2>
+<p>Here is another example of a news headline with multiple
+interpretations of sentiment.</p>
 <blockquote>
-<p><strong>1</strong> Download the <code>metadata.csv</code> and
-<code>manual_coding.csv</code> files and load them into R. Give the data
-the names <code>metadata</code> and <code>manual_coding</code>. For each
-file, report the number of rows, the column names, and the column types.
-<strong>2</strong> Describe how the data are related. How is the
-<code>gold</code> data related to the <code>metadata</code>? How is the
-<code>manual_coding</code> data related to the <code>gold</code>
-data?</p>
+<p>10 people died in train accident</p>
+</blockquote>
+<p>In the first lecture, we saw that some people would code this as
+<strong>negative</strong>, where others consider it
+<strong>neutral</strong>.</p>
+<ul>
+<li>The people that coded <strong>negative</strong> argued that dying is
+clearly a negative thing, thus implicitly defining sentiment as whether
+the news event itself is positive or negative. Let’s call this the
+<strong>event-based sentiment</strong> camp.</li>
+<li>The people that coded <strong>neutral</strong> argued that as a news
+headline, it is a neutral description of the event. This implicitly
+defined sentiment as a subjective, emotional expression. Let’s call this
+the <strong>subjective sentiment</strong> camp.</li>
+</ul>
+<p>Both interpretations are fair. As a researcher, it is your
+responsibility to define what you mean by sentiment in your study, and
+instruct the coders properly so that their coding is valid for answering
+your research question. In this assignment, we’ll practice this using
+the following three headlines:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>headline1 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a plane crash.&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>headline2 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a terrible plane crash.&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>headline3 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a surprisingly harmless plane crash!&quot;</span></span></code></pre></div>
+<p>Your goal is to create instructions to code these headlines for
+event-based and subjective sentiment. You can add any instruction you
+want (definition of sentiment, examples). The only exception is that you
+are not allowed to mention the specific event (10 people hurt in
+accident) in the instruction, because that would be cheating.</p>
+<blockquote>
+<p><strong>2.1</strong>. Create an instruction for measuring
+<strong>event-based sentiment</strong>. Use this instruction with our
+<code>sentiment_classifier</code> to code the three headlines. Report
+your code and the results.</p>
+</blockquote>
+<blockquote>
+<p><strong>2.2</strong>. Reflect on how well your <strong>event-based
+sentiment</strong> instruction worked. Did you get the results your
+expected? Why do you think your instruction worked (or did not
+work)?</p>
+</blockquote>
+<blockquote>
+<p><strong>2.3</strong>. Create an instruction for measuring
+<strong>subjective sentiment</strong>. Use this instruction with our
+<code>sentiment_classifier</code> to code the three headlines. Report
+your code and the results.</p>
+</blockquote>
+<blockquote>
+<p><strong>2.4</strong>. Reflect on how well your <strong>subjective
+sentiment</strong> instruction worked. Did you get the results your
+expected? Why do you think your instruction worked (or did not
+work)?</p>
 </blockquote>
 </div>
+</div>
+<div id="coding-economic-sentiment-headlines" class="section level1">
+<h1>Coding Economic Sentiment Headlines</h1>
+<p>Now that we have a gold standard and a classifier, we can test how
+well our classifier performs! You already saw how to do this last week.
+Here we show it again with a few extra tricks. Make sure to follow along
+with the example, because you’ll be doing this yourself in Assignment
+3.</p>
+<div id="validating-the-sentiment-classifier" class="section level2">
+<h2>Validating the sentiment classifier</h2>
+<p>In the previous practical you learned how to use <code>purrr</code>
+to map over multiple texts and apply the sentiment classifier to each.
+Here we’ll do the same. But since this time we’re going to map over more
+texts, we want to make sure that if one text fails (e.g. the Gemini API
+throws an error), that it doesn’t break the whole process. Otherwise,
+you might have just coded 200 texts, but then if text 201 throws an
+error you would have to start all over again!</p>
+<p>To prevent this, we’ll add a safety net around
+<code>sentiment_classifier</code> that tells it to return
+<code>NA</code> (missing value) in case of an error. This can easily be
+done with the <code>possibly</code> function from the <code>purrr</code>
+package. Here we create a new function
+<code>safe_sentiment_classifier</code> that works just like
+<code>sentiment_classifier</code> if it succeeds, but returns
+<code>NA</code> in case of an error.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>safe_sentiment_classifier <span class="ot">&lt;-</span> <span class="fu">possibly</span>(sentiment_classifier, <span class="at">otherwise =</span> <span class="cn">NA</span>)</span></code></pre></div>
+<p>And now we can use <code>map_vec</code> again. To show a quick
+example, we’ll take a random sample of 10 headlines from
+<code>gold</code> and code them.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>gold_sample <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(gold, <span class="dv">10</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>predicted <span class="ot">&lt;-</span> <span class="fu">map_vec</span>(gold_sample<span class="sc">$</span>headline, </span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>                     safe_sentiment_classifier, </span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>                     <span class="at">instruction =</span> <span class="st">&quot;Code the economic sentiment of these news headlines&quot;</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>                     <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>And now we can compute the performance metrics using the
+<code>confusionMatrix</code> function, just like last time. The only
+thing we need to do first is convert both our <code>predicted</code>
+values and the gold standard values (<code>gold$gold</code>) to
+<code>factors</code> with the same values. For <code>predicted</code> we
+can simply use <code>as.factor</code> like last time. But since the
+<code>gold</code> data is in a numeric format (<code>-1, 0, 1</code>)
+we’ll use the <code>factor</code> function to explicitly map these
+values (<code>levels=</code>) to the right labels
+(<code>labels=</code>).</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>predicted <span class="ot">=</span> <span class="fu">as.factor</span>(predicted)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">factor</span>(gold_sample<span class="sc">$</span>gold, </span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>                <span class="at">levels =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), </span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>                <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;positive&#39;</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">confusionMatrix</span>(predicted, actual, <span class="at">mode=</span><span class="st">&#39;prec_recall&#39;</span>)</span></code></pre></div>
+</div>
+<div id="assignment-3" class="section level2">
+<h2>Assignment 3</h2>
+<p>Now we have everything in place to return to our initial goal: to see
+how well we can approach or even exceed the performance of the best
+machine learning models in <a href="https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198">Van
+Atteveldt et al. (2021)</a> using zero-shot classification.</p>
+<blockquote>
+<p><strong>3.1</strong>. Create the instruction that you’ll use in the
+sentiment classifier. Include an explanation of why you think this is a
+good instruction.</p>
+</blockquote>
+<blockquote>
+<p><strong>3.2</strong>. Use the classifier to code all headlines in the
+gold standard (so not a sample!), and calculate the performance metrics.
+Write a detailed report of the performance. Report the accuracy of the
+model, and report the precision, recall and F1 scores per sentiment
+category. Also look at the confusion matrix to reflect on what types of
+categories were most often mixed up. Overall, how well do you think your
+model performed?</p>
+</blockquote>
+<p><em>(Running the analysis in 3.2 can take a few minutes, so if you do
+not want to wait, you can already work on 3.3).</em></p>
+<blockquote>
+<p><strong>3.3</strong>. Summarize the performance metrics from table 2
+in Van Atteveldt et al. (2021). What <strong>manual content analysis
+approach</strong> (manual/crowd coding) had the best accuracy, and what
+<strong>automatic content analysis approach</strong> (machine learning /
+dictionaries) had the best accuracy? Report the precision, recall and F1
+scores for these two approaches.</p>
+</blockquote>
+<blockquote>
+<p><strong>3.4</strong>. Compare these results to your own results. How
+well did your zero-shot classification analysis perform compared to the
+best automatic approach that Van Atteveldt et al. reported? How well
+does it perform compared to the best manual approach?</p>
+</blockquote>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">

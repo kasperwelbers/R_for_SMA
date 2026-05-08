@@ -334,7 +334,8 @@ code span.wa { color: #8f5902; font-weight: bold; font-style: italic; }
 padding: 10px 20px;
 margin: 0 0 20px;
 font-size: 14px;
-border-left: 5px solid #eee;
+border-left: 5px solid #88E788;
+background: #88E78866;
 }
 </style>
 
@@ -554,15 +555,12 @@ even twice! In this article, they analyze the validity of sentiment
 analysis techniques, comparing manual annotation, crowd-coding,
 dictionary approaches and machine-learning approaches.</p>
 <p>They draw the following conclusions (abstract):</p>
-<blockquote>
-<p>The three main conclusions of this article are that: (1) The best
-performance is still attained with trained human or crowd coding; (2)
-None of the used dictionaries come close to acceptable levels of
-validity; and (3) machine learning, especially deep learning,
-substantially outperforms dictionary-based methods but falls short of
-human performance. From these findings, we stress the importance of
-always validating automatic text analysis methods before usage.</p>
-</blockquote>
+<pre><code>The three main conclusions of this article are that: 
+(1) The best performance is still attained with trained human or crowd coding; 
+(2) None of the used dictionaries come close to acceptable levels of validity; and 
+(3) machine learning, especially deep learning, substantially outperforms dictionary-based methods but falls short of human performance. 
+
+From these findings, we stress the importance of always validating automatic text analysis methods before usage.</code></pre>
 <p>This conclusion implies that for automatic content analysis we would
 need to use machine learning approaches, and meticulously train and
 validate them using manual content analysis.</p>
@@ -592,8 +590,7 @@ their measurement is reliable (and valid).</p>
 <strong>practical 2</strong>, you manually calculed Cohen’s Kappa
 because Krippendorf’s alpha is difficult to compute by hand. But this
 time we’re working in R, where we can use the <code>irr</code> package
-to compute Krippendorf’s alpha for us (note that you need to install
-<code>irr</code> first).</p>
+to compute Krippendorf’s alpha for us.</p>
 <div id="import-the-content-analysis-data-into-r" class="section level2">
 <h2>Import the Content Analysis data into R</h2>
 <p>We’ll first need to read the manually coded data into R. When you’ll
@@ -601,7 +598,7 @@ be doing your own manual content analysis in the project in period 6,
 we’ll recommend you to work in Google Sheets. So to practice importing
 this type of data, we prepared the manual content analysis data from the
 study in <a href="https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing">this
-google sheet</a>.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+google sheet</a>.</p>
 <p>When you open the Google Sheet link, you’ll see that every row
 represents a headline, and for every headline there are three columns
 with sentiment coding by different coders
@@ -613,7 +610,7 @@ others’ answers. The results where then put together in the
 sentiment, we can now use this data to compute the intercoder
 reliability.</p>
 <p>To import the Google Sheet data into R, we’ll first export the data
-from Google Sheets to a CSV file.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. Simply go to
+from Google Sheets to a CSV file.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. Simply go to
 <code>File -&gt; Download -&gt; Comma separated values (.csv)</code>.
 Note that you can only export the current sheet to CSV, so <strong>Make
 sure (!!)</strong> to select the <strong>combined</strong> sheet to
@@ -623,10 +620,10 @@ upload the file. You can easily do this with the upload button in the
 Files tab (bottom-right corner of RStudio).</p>
 <p>Now that you downloaded the file to your computer (probably your
 downloads/ folder) you can read it into R.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## Make sure to change the file location if it&#39;s different for you</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>intercoder <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;~/Downloads/intercoder_reliability - combined.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="do">## Make sure to change the file location if it&#39;s different for you</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>intercoder <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;~/Downloads/intercoder_reliability - combined.csv&quot;</span>)</span></code></pre></div>
 </div>
 <div id="calculate-the-krippendorfs-alpha" class="section level2">
 <h2>Calculate the Krippendorf’s Alpha</h2>
@@ -643,12 +640,12 @@ columns are units. So in order to create this data, we’ll</p>
 swaps the rows and columns (so that the rows become the coders and the
 columns the units).</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(irr)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>intercoder <span class="sc">|&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">select</span>(coder_1_sentiment<span class="sc">:</span>coder_3_sentiment) <span class="sc">|&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="fu">kripp.alpha</span>(<span class="at">method =</span> <span class="st">&#39;interval&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(irr)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>intercoder <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="fu">select</span>(coder_1_sentiment<span class="sc">:</span>coder_3_sentiment) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="fu">kripp.alpha</span>(<span class="at">method =</span> <span class="st">&#39;interval&#39;</span>)</span></code></pre></div>
 </div>
 <div id="assignment-1" class="section level2">
 <h2>Assignment 1</h2>
@@ -679,11 +676,11 @@ decide this, and why are there missing values (NAs)?</p>
 <p>Let’s first clean up the manual content analysis data so that we just
 have the headlines with the gold value. We’ll call this data
 <code>gold</code>, because it’s our gold standard moving forward.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>gold <span class="ot">&lt;-</span> intercoder <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">select</span>(id, headline, gold) <span class="sc">|&gt;</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(gold))</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>gold</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>gold <span class="ot">&lt;-</span> intercoder <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">select</span>(id, headline, gold) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(gold))</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>gold</span></code></pre></div>
 <pre><code>## # A tibble: 284 × 3
 ##           id headline                                                       gold
 ##        &lt;dbl&gt; &lt;chr&gt;                                                         &lt;dbl&gt;
@@ -722,12 +719,12 @@ under this week’s module.</p>
 we can use <code>tidyllm</code> with gemini_chat. Make sure to use the
 <code>gemini-2.5-flash-lite</code> model for this assignment to avoid
 running into rate limits (aka making your own life harder).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(tidyllm)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">GOOGLE_API_KEY =</span> <span class="st">&quot;[ENTER API KEY HERE]&quot;</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">llm_message</span>(<span class="st">&quot;Hi, how are you?&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>)<span class="sc">%&gt;%</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(tidyllm)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">GOOGLE_API_KEY =</span> <span class="st">&quot;[ENTER API KEY HERE]&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">llm_message</span>(<span class="st">&quot;Hi, how are you?&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">get_reply</span>()</span></code></pre></div>
 </div>
 <div id="creating-a-classifier-function" class="section level3">
 <h3>Creating a classifier function</h3>
@@ -738,26 +735,26 @@ sentiment. Our default instruction is just a plain instruction without a
 clear definition of sentiment. By making instruction a parameter, we can
 later change the instruction to more clearly instruct the model what we
 mean by sentiment.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>sentiment_classifier <span class="ot">&lt;-</span> <span class="cf">function</span>(text, <span class="at">instruction =</span> <span class="st">&quot;Code the sentiment of this text&quot;</span>) {</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  sentiment_schema <span class="ot">=</span> <span class="fu">tidyllm_schema</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="at">sentiment =</span> <span class="fu">field_fct</span>(<span class="st">&quot;The sentiment of the text&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;positive&quot;</span>, <span class="st">&quot;neutral&quot;</span>, <span class="st">&quot;negative&quot;</span>))</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  )</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  </span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  task <span class="ot">&lt;-</span> <span class="st">&quot;You are a coder in a content analysis study. Your task is to code the sentiment of the given text, strictly based on the following instructions of the researcher.&quot;</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  </span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">llm_message</span>(task) <span class="sc">|&gt;</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the instruction:&quot;</span>, instruction)) <span class="sc">|&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the text:&quot;</span>, text)) <span class="sc">|&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>, </span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>                <span class="at">.json_schema =</span> sentiment_schema,</span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>                <span class="at">.temperature =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    <span class="fu">get_reply_data</span>() </span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  </span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="fu">return</span>(result<span class="sc">$</span>sentiment)</span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>sentiment_classifier <span class="ot">&lt;-</span> <span class="cf">function</span>(text, <span class="at">instruction =</span> <span class="st">&quot;Code the sentiment of this text&quot;</span>) {</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  sentiment_schema <span class="ot">=</span> <span class="fu">tidyllm_schema</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="at">sentiment =</span> <span class="fu">field_fct</span>(<span class="st">&quot;The sentiment of the text&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;positive&quot;</span>, <span class="st">&quot;neutral&quot;</span>, <span class="st">&quot;negative&quot;</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  )</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  task <span class="ot">&lt;-</span> <span class="st">&quot;You are a coder in a content analysis study. Your task is to code the sentiment of the given text, strictly based on the following instructions of the researcher.&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  </span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">llm_message</span>(task) <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the instruction:&quot;</span>, instruction)) <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the text:&quot;</span>, text)) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>    <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>, </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>                <span class="at">.json_schema =</span> sentiment_schema,</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>                <span class="at">.temperature =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>    <span class="fu">get_reply_data</span>() </span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  </span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  <span class="fu">return</span>(result<span class="sc">$</span>sentiment)</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>}</span></code></pre></div>
 <p>Ok, let’s see if it works!</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a great example&quot;</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a terrible example&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a great example&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a terrible example&quot;</span>)</span></code></pre></div>
 <p>Let’s see if we can change the outcome by changing the instruction.
 Perhaps you recall that in the first lecture we showed you multiple news
 headlines, and everyone had to say whether they believe the headline was
@@ -773,11 +770,11 @@ similarly provide instructions for how to interpret sentiment.</p>
 philosophical <a href="https://en.wikipedia.org/wiki/Trolley_problem">trolley
 problem</a>. Here we have another variation. Let’s see if we can change
 the interpretation of the model with a simple instruction.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>headline <span class="ot">=</span> <span class="st">&quot;A surgeon killed one involuntary organ donor to save five people&quot;</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(headline)</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(headline, <span class="at">instruction =</span> <span class="st">&quot;Your task is to code sentiment from a utilitarian perspective that maximizes utility&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>headline <span class="ot">=</span> <span class="st">&quot;A surgeon killed one involuntary organ donor to save five people&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(headline)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(headline, <span class="at">instruction =</span> <span class="st">&quot;Your task is to code sentiment from a utilitarian perspective that maximizes utility&quot;</span>)</span></code></pre></div>
 <p>When I ran this code, adding this instruction indeed changed the
 outcome from negative to positive (there is a small chance you get
 different results, but rest assured that the process works). By telling
@@ -797,9 +794,7 @@ examples (which we’ll do in assignment 3).</p>
 <h2>Assignment 2</h2>
 <p>Here is another example of a news headline with multiple
 interpretations of sentiment.</p>
-<blockquote>
-<p>10 people died in train accident</p>
-</blockquote>
+<p><code>10 people died in train accident</code></p>
 <p>In the first lecture, we saw that some people would code this as
 <strong>negative</strong>, where others consider it
 <strong>neutral</strong>.</p>
@@ -818,9 +813,9 @@ responsibility to define what you mean by sentiment in your study, and
 instruct the coders properly so that their coding is valid for answering
 your research question. In this assignment, we’ll practice this using
 the following three headlines:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>headline1 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a plane crash.&quot;</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>headline2 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a terrible plane crash.&quot;</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>headline3 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a surprisingly harmless plane crash!&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>headline1 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a plane crash.&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>headline2 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a terrible plane crash.&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>headline3 <span class="ot">&lt;-</span> <span class="st">&quot;10 people hurt in a surprisingly harmless plane crash!&quot;</span></span></code></pre></div>
 <p>Your goal is to create instructions to code these headlines for
 event-based and subjective sentiment. You can add any instruction you
 want (definition of sentiment, examples). The only exception is that you
@@ -876,17 +871,17 @@ package. Here we create a new function
 <code>safe_sentiment_classifier</code> that works just like
 <code>sentiment_classifier</code> if it succeeds, but returns
 <code>NA</code> in case of an error.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>safe_sentiment_classifier <span class="ot">&lt;-</span> <span class="fu">possibly</span>(sentiment_classifier, <span class="at">otherwise =</span> <span class="cn">NA</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>safe_sentiment_classifier <span class="ot">&lt;-</span> <span class="fu">possibly</span>(sentiment_classifier, <span class="at">otherwise =</span> <span class="cn">NA</span>)</span></code></pre></div>
 <p>And now we can use <code>map_vec</code> again. To show a quick
 example, we’ll take a random sample of 10 headlines from
 <code>gold</code> and code them.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>gold_sample <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(gold, <span class="dv">10</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>predicted <span class="ot">&lt;-</span> <span class="fu">map_vec</span>(gold_sample<span class="sc">$</span>headline, </span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>                     safe_sentiment_classifier, </span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>                     <span class="at">instruction =</span> <span class="st">&quot;Code the economic sentiment of these news headlines&quot;</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>                     <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>gold_sample <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(gold, <span class="dv">10</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>predicted <span class="ot">&lt;-</span> <span class="fu">map_vec</span>(gold_sample<span class="sc">$</span>headline, </span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>                     safe_sentiment_classifier, </span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>                     <span class="at">instruction =</span> <span class="st">&quot;Code the economic sentiment of these news headlines&quot;</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>                     <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>And now we can compute the performance metrics using the
 <code>confusionMatrix</code> function, just like last time. The only
 thing we need to do first is convert both our <code>predicted</code>
@@ -897,14 +892,14 @@ can simply use <code>as.factor</code> like last time. But since the
 we’ll use the <code>factor</code> function to explicitly map these
 values (<code>levels=</code>) to the right labels
 (<code>labels=</code>).</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>predicted <span class="ot">=</span> <span class="fu">as.factor</span>(predicted)</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">factor</span>(gold_sample<span class="sc">$</span>gold, </span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>                <span class="at">levels =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), </span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>                <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;positive&#39;</span>))</span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">confusionMatrix</span>(predicted, actual, <span class="at">mode=</span><span class="st">&#39;prec_recall&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>predicted <span class="ot">=</span> <span class="fu">as.factor</span>(predicted)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">factor</span>(gold_sample<span class="sc">$</span>gold, </span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>                <span class="at">levels =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), </span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>                <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;positive&#39;</span>))</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="fu">confusionMatrix</span>(predicted, actual, <span class="at">mode=</span><span class="st">&#39;prec_recall&#39;</span>)</span></code></pre></div>
 </div>
 <div id="assignment-3" class="section level2">
 <h2>Assignment 3</h2>
@@ -947,12 +942,8 @@ does it perform compared to the best manual approach?</p>
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>The real data used for the intercoder reliability
-measurement in Van Atteveldt et al., (2021) was not directly available.
-So for this assignment we simulated similar data based on the gold
-standard.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>There is also an R package for directly reading data
-from Google Sheets, but doing it manually is a more useful exercise<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>There is also an R package for directly reading data
+from Google Sheets, but doing it manually is a more useful exercise<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

@@ -56,16 +56,14 @@ In this article, they analyze the validity of sentiment analysis techniques, com
 
 They draw the following conclusions (abstract):
 
-> The three main conclusions of
-this article are that: (1) The best performance is still
-attained with trained human or crowd coding; (2) None
-of the used dictionaries come close to acceptable levels
-of validity; and (3) machine learning, especially deep
-learning, substantially outperforms dictionary-based
-methods but falls short of human performance. From
-these findings, we stress the importance of always
-validating automatic text analysis methods before
-usage.
+```
+The three main conclusions of this article are that: 
+(1) The best performance is still attained with trained human or crowd coding; 
+(2) None of the used dictionaries come close to acceptable levels of validity; and 
+(3) machine learning, especially deep learning, substantially outperforms dictionary-based methods but falls short of human performance. 
+
+From these findings, we stress the importance of always validating automatic text analysis methods before usage.
+```
 
 This conclusion implies that for automatic content analysis we would need to use machine learning approaches, and meticulously train and validate them using manual content analysis. 
 
@@ -82,12 +80,12 @@ If they can reliably code the sentiment of economic headlines the same way, it w
 
 The authors used Krippendorf's alpha as the reliability metric.
 In **practical 2**, you manually calculed Cohen's Kappa because Krippendorf's alpha is difficult to compute by hand. 
-But this time we're working in R, where we can use the `irr` package to compute Krippendorf's alpha for us (note that you need to install `irr` first).
+But this time we're working in R, where we can use the `irr` package to compute Krippendorf's alpha for us.
 
 ## Import the Content Analysis data into R
 
 We'll first need to read the manually coded data into R.
-When you'll be doing your own manual content analysis in the project in period 6, we'll recommend you to work in Google Sheets. So to practice importing this type of data, we prepared the manual content analysis data from the study in [this google sheet](https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing).^[The real data used for the intercoder reliability measurement in Van Atteveldt et al., (2021) was not directly available. So for this assignment we simulated similar data based on the gold standard.] 
+When you'll be doing your own manual content analysis in the project in period 6, we'll recommend you to work in Google Sheets. So to practice importing this type of data, we prepared the manual content analysis data from the study in [this google sheet](https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing). 
 
 When you open the Google Sheet link, you'll see that every row represents a headline, and for every headline there are three columns with sentiment coding by different coders (`coder_1_sentiment`, etc).
 Notice that there are 4 sheets (the tabs at the bottom of the page).
@@ -245,7 +243,7 @@ To validate whether a instruction is good, you need to test is for a large numbe
 
 Here is another example of a news headline with multiple interpretations of sentiment.
 
-> 10 people died in train accident
+```10 people died in train accident```
 
 In the first lecture, we saw that some people would code this as **negative**, where others consider it **neutral**. 
 

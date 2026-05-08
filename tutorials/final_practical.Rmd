@@ -170,7 +170,7 @@ You can find it on Canvas under this week's module.
 
 ### Setting up Gemini in TidyLLM
 
-The process is identical to before. Simply set the key once, and then we can use `tidyllm` with gemini_chat. Make sure to use the `gemini-3.1-flash-lite-preview` or `gemini-2.5-flash-lite` model for this assignment to avoid running into rate limits (aka making your own life harder). 
+The process is identical to before. Simply set the key once, and then we can use `tidyllm` with gemini_chat. Make sure to use the `gemini-2.5-flash-lite` model for this assignment to avoid running into rate limits (aka making your own life harder). 
 
 ```{r, eval=F}
 library(tidyllm)
@@ -200,7 +200,6 @@ sentiment_classifier <- function(text, instruction = "Code the sentiment of this
   result <- llm_message(task) |>
     llm_message(paste("This is the instruction:", instruction)) |>
     llm_message(paste("This is the text:", text)) |>
-    #gemini_chat(.model = "gemini-3.1-flash-lite-preview", 
     gemini_chat(.model = "gemini-2.5-flash-lite", 
                 .json_schema = sentiment_schema,
                 .temperature = 0) |>

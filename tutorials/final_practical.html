@@ -720,7 +720,6 @@ under this week’s module.</p>
 <h3>Setting up Gemini in TidyLLM</h3>
 <p>The process is identical to before. Simply set the key once, and then
 we can use <code>tidyllm</code> with gemini_chat. Make sure to use the
-<code>gemini-3.1-flash-lite-preview</code> or
 <code>gemini-2.5-flash-lite</code> model for this assignment to avoid
 running into rate limits (aka making your own life harder).</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(tidyllm)</span>
@@ -749,14 +748,13 @@ mean by sentiment.</p>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">llm_message</span>(task) <span class="sc">|&gt;</span></span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the instruction:&quot;</span>, instruction)) <span class="sc">|&gt;</span></span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="fu">llm_message</span>(<span class="fu">paste</span>(<span class="st">&quot;This is the text:&quot;</span>, text)) <span class="sc">|&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="co">#gemini_chat(.model = &quot;gemini-3.1-flash-lite-preview&quot;, </span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>, </span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>                <span class="at">.json_schema =</span> sentiment_schema,</span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>                <span class="at">.temperature =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>    <span class="fu">get_reply_data</span>() </span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  </span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="fu">return</span>(result<span class="sc">$</span>sentiment)</span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="fu">gemini_chat</span>(<span class="at">.model =</span> <span class="st">&quot;gemini-2.5-flash-lite&quot;</span>, </span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>                <span class="at">.json_schema =</span> sentiment_schema,</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>                <span class="at">.temperature =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    <span class="fu">get_reply_data</span>() </span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  </span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="fu">return</span>(result<span class="sc">$</span>sentiment)</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>}</span></code></pre></div>
 <p>Ok, let’s see if it works!</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a great example&quot;</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">sentiment_classifier</span>(<span class="st">&quot;This is a terrible example&quot;</span>)</span></code></pre></div>

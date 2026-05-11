@@ -93,7 +93,7 @@ Each coder has independently coded the sentiment in a separate sheet, to avoid b
 The results where then put together in the **combined** sheet. 
 Because the independently coded the sentiment, we can now use this data to compute the intercoder reliability.
 
-To import the Google Sheet data into R, we'll first export the data from Google Sheets to a CSV file.^[There is also an R package for directly reading data from Google Sheets, but doing it manually is a more useful exercise]. Simply go to `File -> Download -> Comma separated values (.csv)`. Note that you can only export the current sheet to CSV, so **Make sure (!!)** to select the **combined** sheet to download the combined data.
+To import the Google Sheet data into R, we'll first export the data from Google Sheets to a CSV file. Simply go to `File -> Download -> Comma separated values (.csv)`. Note that you can only export the current sheet to CSV, so **Make sure (!!)** to select the **combined** sheet to download the combined data.
 
 **If you're working on JupyterHub**, you first need to upload the file. You can easily do this with the upload button in the Files tab (bottom-right corner of RStudio).
 
@@ -260,7 +260,7 @@ headline2 <- "10 people hurt in a terrible plane crash."
 headline3 <- "10 people hurt in a surprisingly harmless plane crash!"
 ```
 
-Your goal is to create instructions to code these headlines for event-based and subjective sentiment. You can add any instruction you want (definition of sentiment, examples). The only exception is that you are not allowed to mention the specific event (10 people hurt in accident) in the instruction, because that would be cheating.
+Your goal is to create instructions to code these headlines for event-based and subjective sentiment. You can add any instruction you want (definition of sentiment, examples). The only exception is that you are not allowed to give specific instructions for these specific headlines (e.g. "only code negative if the word terrible occurs"). This would spoil the answer, and the instructions should work for other headlines as well.  
 
 > **2.1**. Create an instruction for measuring **event-based sentiment**. Use this instruction with our `sentiment_classifier` to code the three headlines. Report your code and the results. 
 

@@ -655,8 +655,8 @@ the code you used and the output of the kripp.alpha function.</p>
 </blockquote>
 <blockquote>
 <p><strong>1.2</strong>. Interpret what the Krippendorf’s Alpha tells us
-about the relibility of this manual content analysis data. Does it match
-what is reported in the article?</p>
+about the reliability of this manual content analysis data. Does it
+match what is reported in the article?</p>
 </blockquote>
 <blockquote>
 <p><strong>1.3</strong>. We called the kripp.alpha function with
@@ -880,7 +880,7 @@ example, we’ll take a random sample of 10 headlines from
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>predicted <span class="ot">&lt;-</span> <span class="fu">map_vec</span>(gold_sample<span class="sc">$</span>headline, </span>
 <span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>                     safe_sentiment_classifier, </span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>                     <span class="at">instruction =</span> <span class="st">&quot;Code the economic sentiment of these news headlines&quot;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>                     <span class="at">instruction =</span> <span class="st">&quot;Code the sentiment of these news headlines&quot;</span>,</span>
 <span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>                     <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>And now we can compute the performance metrics using the
 <code>confusionMatrix</code> function, just like last time. The only
@@ -915,11 +915,11 @@ good instruction.</p>
 <blockquote>
 <p><strong>3.2</strong>. Use the classifier to code all headlines in the
 gold standard (so not a sample!), and calculate the performance metrics.
-Write a detailed report of the performance. Report the accuracy of the
-model, and report the precision, recall and F1 scores per sentiment
-category. Also look at the confusion matrix to reflect on what types of
-categories were most often mixed up. Overall, how well do you think your
-model performed?</p>
+Show your code. Write a detailed report of the performance. Report the
+accuracy of the model, and report the precision, recall and F1 scores
+per sentiment category. Also look at the confusion matrix to reflect on
+what types of categories were most often mixed up. Overall, how well do
+you think your model performed?</p>
 </blockquote>
 <p><em>(Running the analysis in 3.2 can take a few minutes, so if you do
 not want to wait, you can already work on 3.3).</em></p>

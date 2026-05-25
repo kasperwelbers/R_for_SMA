@@ -1,0 +1,162 @@
+---
+title: 'SMA Project - Week 2'
+subtitle: "Manual content analysis"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    css: custom.css
+    toc: true
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r opts, echo = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+VU Amsterdam
+
+# Creating a Gold Standard
+
+In week 2 of the project in P6 you will perform a manual content analysis in order to create a gold standard.
+To understand the goal, please have another look at the [Google Sheet](https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing) that we used in Practical 6, which contained the gold standard in the [Van Atteveldt et al. (2021)](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198) paper.
+
+This time, you will create this Google Sheet yourself (and we strongly recommend also using Google Sheets for this).
+Notice that there are multiple tabs in the Van Atteveldt data: **combined**, **coder_1**, **coder_2**, etc.
+Each sheet has the same texts, in the same order.
+In **coder_1-3**, each respective coder independently coded the text according to the codebook. 
+The reason for doing this in separate sheets is that they do not see the codes of the other coders, because their judgments need to be independent of each other.
+
+After everyone has coded the data, they are **combined**, so that the intercoder reliability can be computed, and the gold standard column can be created.  
+You need to describe how you determined the gold value in cases of disagreement (for an example, see Van Atteveldt et al.).
+
+
+
+## Creating your own Google Sheet
+
+For the project you will create your own Google Sheet. 
+You can use the Van Atteveldt sheet as an example.
+
+For example, here is [another Google Sheet](https://docs.google.com/spreadsheets/d/1aRToQRcCJXMTEhiReEWpS8622hedj3U5GWi6mD6gh3A/edit?usp=sharing) where we used the same format, but this time with (fake) **Tweets about MacDonalds**. For every tweet, three coders (anna, bob and charles) each coded two measures: **topic** (food taste, customer service, price) and **sentiment** (-1, 0, 1).
+
+To create your own sheet:
+
+* Make a copy of the example
+* Copy/paste the data you gathered into it. Make sure to give every text a unique ID. 
+* Create columns for your measures
+* Create different tabs for each team member
+
+
+### What if my texts are images?
+
+You are also allowed to use images as units of analysis. In this case, you should not directly copy/paste the images into Google Sheets.
+This would work for the manual content analysis, but it's hard to read, and makes things more complicated for the zero-shot analysis.
+
+Instead, you can [use this format](https://docs.google.com/spreadsheets/d/1uThubEUmFGTcVQ4dyC4JksJWt-pB2a_QKcNR4m5A6sY/edit?usp=sharing)
+
+Instead of texts, you'll put the file names in the Google Sheet.
+Then you'll also create a folder (like Google Drive) with the actual images, [like this](https://drive.google.com/drive/folders/1VbOzNI1nPlfRx7qNAxcjE2z364_q_i4D?usp=sharing)
+
+It's important that the names in this column are **identical** to the real file names, because this allows us to automate the zero-shot classifier,
+as explained in the mini tutorial (to be published soon) on how to do zero-shot classification of images.
+
+## Performing the content analysis
+
+Once everything is in place, you can perform the content analysis. 
+Every coder studies the codebook, and tries coding the texts.
+
+Do not immediately begin coding everything.
+Make sure to try some texts together to see if the codebook is clear and you generally agree.
+Ideally, also perform a pilot test, where you first code a small number of texts and then calculate intercoder reliability to see to what extent you agreed.
+If the intercoder reliability of the pilot is low, you'll first need to update the codebook.
+
+
+# Intercoder reliability
+
+Here's a small recap of intercoder reliability in R.
+We'll use the example data with multiple measures (topic and sentiment).
+If you want to follow along with the examples, make sure to download the Google Sheet **combined** tab as a CSV file first (just like in Practical 6)
+
+
+```{r}
+library(tidyverse)
+
+## Make sure to change the file location if it's different for you
+intercoder <- read_csv("~/Downloads/manual_content_analysis_example - combined.csv")
+```
+
+## Calculate the Krippendorf's Alpha
+
+### Interval variables
+In practical 6 you already saw how we can calculate Krippendorf's alpha for **interval** variables.
+
+```{r, results='hide'}
+library(irr)
+
+intercoder |>
+  select(anna_sentiment:charles_sentiment) |>
+  t() |>
+  kripp.alpha(method = 'interval')
+```
+
+### Nominal variables
+
+The **topics** in our example data are **nominal**, so there we'd use `method = 'nominal'`. 
+However, the `kripp.alpha` function prefers if values are numeric, so we first create `id` columns.
+That is, we'll say that Food Taste has ID 1, Customer service has ID 2, etc.
+We'll do this by first making the variable a `factor` with the correct `topic_levels`,
+and then making them numeric.
+It looks a bit verbose, but if you compare `anna_topic` with `anna_topic_id` I'm sure you'll get the gist of it.
+
+```{r}
+
+## Specify topic levels. The order determines the IDs (Food Taste = 1, etc.)
+topic_levels = c('Food Taste', 'Customer Service', 'Price')
+
+## Conver the topic character vector into a numeric ID vector
+intercoder <- intercoder |>
+  mutate(
+    anna_topic_id = as.numeric(factor(anna_topic, levels = topic_levels)),
+    bob_topic_id = as.numeric(factor(bob_topic, levels = topic_levels)),
+    charles_topic_id = as.numeric(factor(charles_topic, levels = topic_levels))
+  )
+
+intercoder |>
+  select(anna_topic, anna_topic_id) |>
+  head()
+```
+
+Now we can use these IDs in the `kripp.alpha` function.
+
+```{r}
+intercoder |>
+  select(anna_topic_id:charles_topic_id) |>
+  t() |>
+  kripp.alpha(method = 'nominal')
+```
+
+Since you'll be working with 4 or 5 coders, it can also be usefull to inspect alpha scores with different selections of coders. If you have a low score among all coders, it might just be one coder that is very idiosyncratic. You could then consider dropping this coder from the gold standard creation task, and transparently explaining this in the method section (because it's not ideal to drop a coder, and in a real study, it would be better to figure out why this coder was so different and try to resolve the issue.)
+
+```{r}
+
+## Anna VS Bob
+intercoder |>
+  select(anna_topic_id, bob_topic_id) |>
+  t() |>
+  kripp.alpha(method = 'nominal')
+
+## Anna VS Charles
+intercoder |>
+  select(anna_topic_id, charles_topic_id) |>
+  t() |>
+  kripp.alpha(method = 'nominal')
+
+## Bob VS Charles
+intercoder |>
+  select(bob_topic_id, charles_topic_id) |>
+  t() |>
+  kripp.alpha(method = 'nominal')
+```
+  

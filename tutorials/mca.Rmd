@@ -1,6 +1,6 @@
 ---
-title: 'SMA Project - Week 2'
-subtitle: "Manual content analysis"
+title: 'SMA Project'
+subtitle: "Additional instructions and R code"
 output:
   html_document:
     theme: united
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 
 VU Amsterdam
 
-# Creating a Gold Standard
+# Week 2 - Manual Content Analysis
 
 In week 2 of the project in P6 you will perform a manual content analysis in order to create a gold standard.
 To understand the goal, please have another look at the [Google Sheet](https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing) that we used in Practical 6, which contained the gold standard in the [Van Atteveldt et al. (2021)](https://www.tandfonline.com/doi/pdf/10.1080/19312458.2020.1869198) paper.
@@ -28,9 +28,6 @@ Notice that there are multiple tabs in the Van Atteveldt data: **combined**, **c
 Each sheet has the same texts, in the same order.
 In **coder_1-3**, each respective coder independently coded the text according to the codebook. 
 The reason for doing this in separate sheets is that they do not see the codes of the other coders, because their judgments need to be independent of each other.
-
-After everyone has coded the data, they are **combined**, so that the intercoder reliability can be computed, and the gold standard column can be created.  
-You need to describe how you determined the gold value in cases of disagreement (for an example, see Van Atteveldt et al.).
 
 
 
@@ -49,10 +46,11 @@ To create your own sheet:
 * Create different tabs for each team member
 
 
-### What if my texts are images?
+## BONUS: Analyzing images
 
-You are also allowed to use images as units of analysis. In this case, you should not directly copy/paste the images into Google Sheets.
-This would work for the manual content analysis, but it's hard to read, and makes things more complicated for the zero-shot analysis.
+You are also allowed to use images as units of analysis. 
+In this case, you should not directly copy/paste the images into Google Sheets.
+This would work for the manual content analysis, but it's hard to read, and makes things more complicated for the zero-shot analysis (as shown below).
 
 Instead, you can [use this format](https://docs.google.com/spreadsheets/d/1uThubEUmFGTcVQ4dyC4JksJWt-pB2a_QKcNR4m5A6sY/edit?usp=sharing)
 
@@ -73,7 +71,7 @@ Ideally, also perform a pilot test, where you first code a small number of texts
 If the intercoder reliability of the pilot is low, you'll first need to update the codebook.
 
 
-# Intercoder reliability
+## Intercoder reliability
 
 Here's a small recap of intercoder reliability in R.
 We'll use the example data with multiple measures (topic and sentiment).
@@ -87,12 +85,11 @@ library(tidyverse)
 intercoder <- read_csv("~/Downloads/manual_content_analysis_example - combined.csv")
 ```
 
-## Calculate the Krippendorf's Alpha
-
 ### Interval variables
+
 In practical 6 you already saw how we can calculate Krippendorf's alpha for **interval** variables.
 
-```{r, results='hide'}
+```{r}
 library(irr)
 
 intercoder |>
@@ -137,7 +134,7 @@ intercoder |>
   kripp.alpha(method = 'nominal')
 ```
 
-Since you'll be working with 4 or 5 coders, it can also be usefull to inspect alpha scores with different selections of coders. If you have a low score among all coders, it might just be one coder that is very idiosyncratic. You could then consider dropping this coder from the gold standard creation task, and transparently explaining this in the method section (because it's not ideal to drop a coder, and in a real study, it would be better to figure out why this coder was so different and try to resolve the issue.)
+Since you'll be working with 4 or 5 coders, it can also be useful to inspect alpha scores with different selections of coders. If you have a low score among all coders, it might just be one coder that is very idiosyncratic. You could then consider dropping this coder from the gold standard creation task, and transparently explaining this in the method section (because it's not ideal to drop a coder, and in a real study, it would be better to figure out why this coder was so different and try to resolve the issue.)
 
 ```{r}
 
@@ -160,3 +157,187 @@ intercoder |>
   kripp.alpha(method = 'nominal')
 ```
   
+  
+## Creating the gold standard
+
+Now for the final step, you only need to create the **gold** variable(s) in the Google Sheet. This is just like the **gold** column in [The Google Sheet from Practical 6](https://docs.google.com/spreadsheets/d/18oquhpDp3uyRzP0jcLbkBXOUKoLcCtRo8m73AodKnFM/edit?usp=sharing). Except maybe you'll have multiple gold columns if you had more measures (e.g. gold_topic, gold_sentiment).
+
+You need to describe how you determined the gold value in cases of disagreement (for an example, see how Van Atteveldt et al say they did it). You could for instance use majority vote, or discuss cases of disagreement until you reach an agreement. 
+
+# Week 3 - Automatic Content Analysis
+
+Here we recap the code from practical 6. 
+We'll also do things slightly differently, so that you can also choost to have the classifier code multiple variables at once. 
+
+## Set up TidyLLM
+
+```{r, eval=F}
+library(tidyllm)
+Sys.setenv(GOOGLE_API_KEY = "[ENTER API KEY HERE]")
+
+
+llm_message("Motivate me for working hard on my assignment. Tell me how proud you would be if I ace it.") |>
+  gemini_chat(.model = "gemini-2.5-flash-lite") |>
+  get_reply() |>
+  cat()
+```
+
+```{r, echo=F}
+## use this to make the knit work. Just make sure to remove the key afterwards
+library(tidyllm)
+Sys.setenv(GOOGLE_API_KEY = "")
+```
+
+## Creating a classifier
+
+Just like in practical 6, you'll need to create a classifier function.
+This time we'll make it a bit more flexible.
+We'll make it so that we can also change the output_schema, and so that it can code multiple variables at once by returning a tibble with a column for every variable.
+
+Another small difference is how we create the prompt. This time we use `sprintf`, which takes a string and replaces `%s` with the next arguments. Here we use it to put the instruction and text together in a format that LLMs understand well (i.e. markdown).
+
+
+```{r}
+classifier <- function(text, instruction, schema) {
+  prompt <- sprintf("## Instruction\n\n%s\n\n## Text\n\n%s", 
+                    instruction, text)
+  
+  llm_message(prompt) |>
+    gemini_chat(.model = "gemini-2.5-flash-lite", 
+                .json_schema = schema,
+                .temperature = 0) |>
+    get_reply_data() |>
+    as_tibble() |>
+    mutate(input_text = text)
+}
+```
+
+Now we can create any instruction and define any schema for what the classifier should code.
+
+```{r}
+instruction <- "You are an expert coder in a manual content analysis. The goal is to classify Tweets about MacDonalds into different consumer satisfaction topics, and code the sentiment towards this topic"
+
+schema = tidyllm_schema(
+  topic = field_fct("The consumer satisfaction topic", 
+                    c("Food Taste", "Customer Service", "Price")),
+  sentiment = field_fct("The sentiment towards the topic", 
+                    c("positive", "neutral", "negative"))
+)
+
+classifier("Dirty tables everywhere", instruction, schema)
+```
+
+## Coding multiple texts
+
+In practical 6 we showed you how to map over multiple values.
+Here we'll do the same thing, but instead of returning NA on an error, it returns a tibble. This way it works well with the new tibble output of the classifier.
+
+```{r}
+safe_classifier <- possibly(classifier, otherwise = tibble(.error=T))
+```
+
+And when mapping over values, we before used `map_vec`, because we had just one variable (i.e. one vector). This time the results are tibbles, so we need to bind them all together as rows, which we do by first using `map` and then `bind_rows` over the result.
+
+```{r, echo=F}
+set.seed(1)
+```
+
+```{r}
+## take sample of 5 tweets
+gold_sample <- sample_n(intercoder, 10)
+
+rows <- map(gold_sample$Tweet,
+    safe_classifier,
+    instruction = instruction,
+    schema = schema,
+    .progress = T)
+
+result <- bind_rows(rows)
+result
+```
+
+## Calculating precision and recall
+
+And given the results, this step is basically the same.
+The only difference is that we need to select which variable to use.
+
+```{r}
+library(caret)
+
+sentiment_levels <- c('negative','neutral','positive')
+
+predicted =  factor(result$sentiment, levels = sentiment_levels)
+actual = factor(gold_sample$gold_sentiment, 
+                levels = c(-1, 0, 1), 
+                labels = sentiment_levels)
+
+confusionMatrix(predicted, actual, mode='prec_recall')
+```
+
+
+## BONUS: Analyzing images
+
+If you decide to analyze images as units of analysis, the process is very similar. 
+The only difference is that instead of giving TidyLLM a text, we'll give it the location of an image on our computer. 
+The only thing that makes this a bit more complicated than using texts is that you need to be more comfortable with finding files on your computer.
+
+**!! IMPORTANT**: Make sure to have the latest version of `tidyllm` installed for this feature.
+
+For this example we'll use the example of [cat images](https://docs.google.com/spreadsheets/d/1uThubEUmFGTcVQ4dyC4JksJWt-pB2a_QKcNR4m5A6sY/edit?usp=sharing).
+To try it yourself, you also need to download the [folder of cat images](https://drive.google.com/drive/folders/1VbOzNI1nPlfRx7qNAxcjE2z364_q_i4D?usp=sharing)
+
+```{r}
+images <- read_csv("~/Downloads/using_images_example - combined.csv")
+images
+```
+
+```{r}
+image_classifier <- function(image_file, instruction, schema) {
+  llm_message(instruction, .media = img(image_file)) |>
+    gemini_chat(.model = "gemini-2.5-flash-lite", 
+                .json_schema = schema,
+                .temperature = 0) |>
+    get_reply_data() |>
+    as_tibble() |>
+    mutate(image_file = image_file)
+}
+```
+
+We use it in the same way. We just provide the file path instead of a text.
+
+```{r}
+instruction <- "You are an expert coder and a cat whisperer. Your job is to tell the sentiment that a cat is expressing. Code the sentiment of the cat in this image"
+
+schema = tidyllm_schema(
+  sentiment = field_fct("The sentiment of the cat", 
+                    c("positive", "neutral", "negative"))
+)
+
+image_classifier("~/Downloads/cats/angry_cat.jpeg", instruction, schema)
+```
+
+Now, the trickiest part (but not thaaat tricky). 
+We need to loop over the file names, and then get the file from the correct directory.
+In my case, I downloaded the files to the directory `~/Downloads/cats`, so I'll need to add this directory to the file names.
+
+```{r}
+full_path <- file.path("~/Downloads/cats", images$image)
+full_path
+```
+
+And then we use this in the `map` function.
+
+```{r}
+safe_image_classifier <- possibly(image_classifier, otherwise = tibble(.error=T))
+
+rows <- map(full_path,
+    safe_image_classifier,
+    instruction = instruction,
+    schema = schema,
+    .progress = T)
+
+result <- bind_rows(rows)
+result
+```
+
+And that's how easy it is to perform automatic image analysis these days :).

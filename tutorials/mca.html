@@ -729,10 +729,10 @@ because we had just one variable (i.e. one vector). This time the
 results are tibbles, so we need to bind them all together as rows, which
 we do by first using <code>map</code> and then <code>bind_rows</code>
 over the result.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="do">## take sample of 5 tweets</span></span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>gold_sample <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(intercoder, <span class="dv">10</span>)</span>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="do">## here we just copy the intercoder data to gold, to clarify its the gold standard</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>gold <span class="ot">&lt;-</span> intercoder</span>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a></span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>rows <span class="ot">&lt;-</span> <span class="fu">map</span>(gold_sample<span class="sc">$</span>Tweet,</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>rows <span class="ot">&lt;-</span> <span class="fu">map</span>(gold<span class="sc">$</span>Tweet,</span>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>    safe_classifier,</span>
 <span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>    <span class="at">instruction =</span> instruction,</span>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>    <span class="at">schema =</span> schema,</span>
@@ -740,19 +740,20 @@ over the result.</p>
 <span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a></span>
 <span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(rows)</span>
 <span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>result</span></code></pre></div>
-<pre><code>## # A tibble: 10 × 3
-##    topic            sentiment input_text                   
-##    &lt;chr&gt;            &lt;chr&gt;     &lt;chr&gt;                        
-##  1 Customer Service negative  Not enough staff.            
-##  2 Price            positive  Cheap and quick lunch.       
-##  3 Food Taste       positive  Everything was hot and fresh.
-##  4 Food Taste       positive  Big Mac is the best!         
-##  5 Customer Service negative  Order kiosks are annoying.   
-##  6 Food Taste       positive  Best breakfast around.       
-##  7 Price            positive  Prices are reasonable.       
-##  8 Customer Service positive  Great service at the window. 
-##  9 Price            positive  App deals are amazing.       
-## 10 Food Taste       positive  Love the seasonal items.</code></pre>
+<pre><code>## # A tibble: 60 × 3
+##    topic            sentiment input_text                    
+##    &lt;chr&gt;            &lt;chr&gt;     &lt;chr&gt;                         
+##  1 Food Taste       positive  Big Mac is the best!          
+##  2 Food Taste       negative  Cold fries today...           
+##  3 Customer Service negative  Why is the drive thru so slow?
+##  4 Price            positive  Cheap and quick lunch.        
+##  5 Customer Service positive  The staff was very friendly.  
+##  6 Price            negative  Too expensive for what it is. 
+##  7 Food Taste       positive  Best nuggets ever.            
+##  8 Customer Service negative  Dirty tables everywhere.      
+##  9 Price            positive  Love the $1 coffee deal.      
+## 10 Food Taste       negative  Quarter pounder was dry.      
+## # ℹ 50 more rows</code></pre>
 </div>
 <div id="calculating-precision-and-recall" class="section level2">
 <h2>Calculating precision and recall</h2>
@@ -763,7 +764,7 @@ difference is that we need to select which variable to use.</p>
 <span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>sentiment_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;negative&#39;</span>,<span class="st">&#39;neutral&#39;</span>,<span class="st">&#39;positive&#39;</span>)</span>
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a></span>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>predicted <span class="ot">=</span>  <span class="fu">factor</span>(result<span class="sc">$</span>sentiment, <span class="at">levels =</span> sentiment_levels)</span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">factor</span>(gold_sample<span class="sc">$</span>gold_sentiment, </span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>actual <span class="ot">=</span> <span class="fu">factor</span>(gold<span class="sc">$</span>gold_sentiment, </span>
 <span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>                <span class="at">levels =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), </span>
 <span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>                <span class="at">labels =</span> sentiment_levels)</span>
 <span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a></span>
@@ -772,31 +773,31 @@ difference is that we need to select which variable to use.</p>
 ## 
 ##           Reference
 ## Prediction negative neutral positive
-##   negative        2       0        0
-##   neutral         0       0        0
-##   positive        0       0        8
+##   negative       28       1        0
+##   neutral         1       1        0
+##   positive        0       1       28
 ## 
 ## Overall Statistics
-##                                      
-##                Accuracy : 1          
-##                  95% CI : (0.6915, 1)
-##     No Information Rate : 0.8        
-##     P-Value [Acc &gt; NIR] : 0.1074     
-##                                      
-##                   Kappa : 1          
-##                                      
-##  Mcnemar&#39;s Test P-Value : NA         
+##                                           
+##                Accuracy : 0.95            
+##                  95% CI : (0.8608, 0.9896)
+##     No Information Rate : 0.4833          
+##     P-Value [Acc &gt; NIR] : 4.979e-15       
+##                                           
+##                   Kappa : 0.9073          
+##                                           
+##  Mcnemar&#39;s Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: negative Class: neutral Class: positive
-## Precision                        1.0             NA             1.0
-## Recall                           1.0             NA             1.0
-## F1                               1.0             NA             1.0
-## Prevalence                       0.2              0             0.8
-## Detection Rate                   0.2              0             0.8
-## Detection Prevalence             0.2              0             0.8
-## Balanced Accuracy                1.0             NA             1.0</code></pre>
+## Precision                     0.9655        0.50000          0.9655
+## Recall                        0.9655        0.33333          1.0000
+## F1                            0.9655        0.40000          0.9825
+## Prevalence                    0.4833        0.05000          0.4667
+## Detection Rate                0.4667        0.01667          0.4667
+## Detection Prevalence          0.4833        0.03333          0.4833
+## Balanced Accuracy             0.9666        0.65789          0.9844</code></pre>
 </div>
 <div id="bonus-analyzing-images-1" class="section level2">
 <h2>BONUS: Analyzing images</h2>
@@ -862,13 +863,13 @@ file names.</p>
 <span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a></span>
 <span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(rows)</span>
 <span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a>result</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 3
-##   sentiment image_file                         .error
-##   &lt;chr&gt;     &lt;chr&gt;                              &lt;lgl&gt; 
-## 1 positive  ~/Downloads/cats/jeej_cat.jpeg     NA    
-## 2 positive  ~/Downloads/cats/obsessed_cat.jpeg NA    
-## 3 &lt;NA&gt;      &lt;NA&gt;                               TRUE  
-## 4 negative  ~/Downloads/cats/angry_cat.jpeg    NA</code></pre>
+<pre><code>## # A tibble: 4 × 2
+##   sentiment image_file                        
+##   &lt;chr&gt;     &lt;chr&gt;                             
+## 1 positive  ~/Downloads/cats/jeej_cat.jpeg    
+## 2 positive  ~/Downloads/cats/obsessed_cat.jpeg
+## 3 negative  ~/Downloads/cats/scary_cat.jpeg   
+## 4 negative  ~/Downloads/cats/angry_cat.jpeg</code></pre>
 <p>And that’s how easy it is to perform automatic image analysis these
 days :).</p>
 </div>

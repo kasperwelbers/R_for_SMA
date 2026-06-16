@@ -242,11 +242,11 @@ And when mapping over values, we before used `map_vec`, because we had just one 
 set.seed(1)
 ```
 
-```{r}
-## take sample of 5 tweets
-gold_sample <- sample_n(intercoder, 10)
+```{r, cache=TRUE}
+## here we just copy the intercoder data to gold, to clarify its the gold standard
+gold <- intercoder
 
-rows <- map(gold_sample$Tweet,
+rows <- map(gold$Tweet,
     safe_classifier,
     instruction = instruction,
     schema = schema,
@@ -267,7 +267,7 @@ library(caret)
 sentiment_levels <- c('negative','neutral','positive')
 
 predicted =  factor(result$sentiment, levels = sentiment_levels)
-actual = factor(gold_sample$gold_sentiment, 
+actual = factor(gold$gold_sentiment, 
                 levels = c(-1, 0, 1), 
                 labels = sentiment_levels)
 
